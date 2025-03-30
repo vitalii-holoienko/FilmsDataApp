@@ -44,7 +44,7 @@ fun Content() {
                     text = "New Releases",
                     color = Color.White,
                     fontSize = 20.sp,
-                    modifier = Modifier.align(Alignment.CenterStart).padding(5.dp)
+                    modifier = Modifier.align(Alignment.CenterStart).padding(5.dp, 0.dp)
                 )
                 Image(
                     painter = painterResource(id = R.drawable.triangle_go_to_icon),
@@ -53,7 +53,7 @@ fun Content() {
                         .size(25.dp)
                         .align(Alignment.CenterEnd)
                         .scale(1f)
-                        .padding(5.dp)
+                        .padding(5.dp, 0.dp)
                         .clickable {
                             //TODO
                         }
@@ -61,11 +61,47 @@ fun Content() {
             }
             Spacer(modifier = Modifier.height(10.dp))
             Box(modifier = Modifier.fillMaxWidth()
-                .height(200.dp)
+                .height(170.dp)
+                .background(color = Color(33, 33, 33)),
+                contentAlignment = Alignment.Center
+            ){
+                ImageSlider()
+            }
+
+            Spacer(modifier = Modifier.height(70.dp))
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(35.dp)
                 .background(color = Color(33, 33, 33))
             ){
-                //TODO FOREACH
+                Text(
+                    text = "Currently Trending",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    modifier = Modifier.align(Alignment.CenterStart).padding(5.dp, 0.dp)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.triangle_go_to_icon),
+                    contentDescription = "",
+                    Modifier
+                        .size(25.dp)
+                        .align(Alignment.CenterEnd)
+                        .scale(1f)
+                        .padding(5.dp, 0.dp)
+                        .clickable {
+                            //TODO
+                        }
+                )
             }
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(modifier = Modifier.fillMaxWidth()
+                .height(170.dp)
+                .background(color = Color(33, 33, 33)),
+                contentAlignment = Alignment.Center
+            ){
+                ImageSlider()
+            }
+
         }
 
     }
