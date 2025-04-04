@@ -28,7 +28,7 @@ fun ImageSlider() {
 
     val listState = rememberLazyListState()
 
-    // LazyRow с кастомной прокруткой
+
     LazyRow(
         state = listState,
         modifier = Modifier.fillMaxWidth(),

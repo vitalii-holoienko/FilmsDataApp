@@ -51,7 +51,9 @@ android {
 }
 
 dependencies {
-
+    val nav_version = "2.8.9"
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.33.2-alpha")
+    implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.activity:activity-compose:1.10.1")

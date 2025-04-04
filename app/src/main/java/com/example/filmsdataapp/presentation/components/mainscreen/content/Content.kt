@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +33,10 @@ import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
 
 @Composable
-fun Content() {
+fun Content(
+    navigateToNewReleasesPage : () -> Unit,
+    navigateToCurrentlyTrendingPage : () ->Unit,
+) {
     Spacer(modifier = Modifier.height(40.dp))
     Box(modifier = Modifier
         .fillMaxSize()
@@ -42,6 +47,9 @@ fun Content() {
                 .fillMaxWidth()
                 .height(35.dp)
                 .background(color = Color(33, 33, 33))
+                .clickable {
+                    navigateToNewReleasesPage()
+                }
             ){
                 Text(
                     text = "New Releases",
@@ -59,9 +67,7 @@ fun Content() {
                         .align(Alignment.CenterEnd)
                         .scale(1f)
                         .padding(5.dp, 0.dp)
-                        .clickable {
-                            //TODO
-                        }
+
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -79,6 +85,7 @@ fun Content() {
                 .fillMaxWidth()
                 .height(35.dp)
                 .background(color = Color(33, 33, 33))
+                .clickable { navigateToCurrentlyTrendingPage() }
             ){
                 Text(
                     text = "Currently Trending",
@@ -96,9 +103,7 @@ fun Content() {
                         .align(Alignment.CenterEnd)
                         .scale(1f)
                         .padding(5.dp, 0.dp)
-                        .clickable {
-                            //TODO
-                        }
+
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -112,7 +117,7 @@ fun Content() {
                 ImageSlider()
             }
             Spacer(modifier = Modifier.height(40.dp))
-            //TAGS
+            //MAIN TAGS
             Row(modifier = Modifier
                 .fillMaxWidth()
                 .height(35.dp)){
@@ -178,6 +183,7 @@ fun Content() {
                     }
                 }
                 Spacer(modifier = Modifier.width(10.dp))
+
                 Box(modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f)
@@ -209,8 +215,145 @@ fun Content() {
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(15.dp))
+            //SMALL TAGS
+            Column(modifier = Modifier.fillMaxWidth().wrapContentHeight()){
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(25.dp)){
 
+                    Box(modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentWidth()
+                        .background(color = Color(254,194,197)),
+                        contentAlignment = Alignment.Center,
 
+                    ){
+                            Text(
+                                text = "#Spring 2025",
+                                modifier = Modifier.padding(8.dp, 0.dp),
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                                color = Color(252,87,94)
+                            )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Box(modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentWidth()
+                        .background(color = Color(218,241,255)),
+                        contentAlignment = Alignment.Center,
+
+                        ){
+                        Text(
+                            text = "#Winter 2025",
+                            modifier = Modifier.padding(8.dp, 0.dp),
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                            color =  Color(68,187,255)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Box(modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentWidth()
+                        .background(color = Color(231,246,218)),
+                        contentAlignment = Alignment.Center,
+
+                        ){
+                        Text(
+                            text = "#2025",
+                            modifier = Modifier.padding(8.dp, 0.dp),
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                            color = Color(116,214,31)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Box(modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentWidth()
+                        .background(color = Color(254,194,197)),
+                        contentAlignment = Alignment.Center,
+
+                        ){
+                        Text(
+                            text = "#2024",
+                            modifier = Modifier.padding(8.dp, 0.dp),
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                            color = Color(252,87,94)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(25.dp)){
+
+                    Box(modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentWidth()
+                        .background(color = Color(218,241,255)),
+                        contentAlignment = Alignment.Center,
+
+                        ){
+                        Text(
+                            text = "#Upcoming",
+                            modifier = Modifier.padding(8.dp, 0.dp),
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                            color = Color(68,187,255)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Box(modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentWidth()
+                        .background(color = Color(231,246,218)),
+                        contentAlignment = Alignment.Center,
+
+                        ){
+                        Text(
+                            text = "#Most popular",
+                            modifier = Modifier.padding(8.dp, 0.dp),
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                            color = Color(116,214,31)
+                        )
+                    }
+
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+            //NEWS
+            Box(modifier = Modifier
+                .fillMaxWidth().height(35.dp)
+                .background(color = Color.White)){
+                Row(modifier = Modifier.fillMaxSize().background(color = Color(255,232,216))){
+                    Box(modifier = Modifier
+                        .fillMaxHeight()
+                        .width(8.dp)
+                        .background(color = Color(255,213,184)))
+                    Text(
+                        text = "NEWS",
+                        modifier = Modifier.align(Alignment.CenterVertically).padding(5.dp, 0.dp, 0.dp, 0.dp).weight(1f),
+                        fontSize = 18.sp,
+                        fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                        color = Color(255, 191, 95)
+                    )
+                }
+            }
         }
 
     }
