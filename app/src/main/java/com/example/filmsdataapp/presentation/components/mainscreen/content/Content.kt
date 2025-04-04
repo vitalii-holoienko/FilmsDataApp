@@ -4,8 +4,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,7 +47,9 @@ fun Content() {
                     text = "New Releases",
                     color = Color.White,
                     fontSize = 20.sp,
-                    modifier = Modifier.align(Alignment.CenterStart).padding(5.dp, 0.dp)
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(5.dp, 0.dp)
                 )
                 Image(
                     painter = painterResource(id = R.drawable.triangle_go_to_icon),
@@ -60,7 +65,8 @@ fun Content() {
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Box(modifier = Modifier.fillMaxWidth()
+            Box(modifier = Modifier
+                .fillMaxWidth()
                 .height(170.dp)
                 .background(color = Color(33, 33, 33)),
                 contentAlignment = Alignment.Center
@@ -78,7 +84,9 @@ fun Content() {
                     text = "Currently Trending",
                     color = Color.White,
                     fontSize = 20.sp,
-                    modifier = Modifier.align(Alignment.CenterStart).padding(5.dp, 0.dp)
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(5.dp, 0.dp)
                 )
                 Image(
                     painter = painterResource(id = R.drawable.triangle_go_to_icon),
@@ -94,13 +102,114 @@ fun Content() {
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Box(modifier = Modifier.fillMaxWidth()
+
+            Box(modifier = Modifier
+                .fillMaxWidth()
                 .height(170.dp)
                 .background(color = Color(33, 33, 33)),
                 contentAlignment = Alignment.Center
             ){
                 ImageSlider()
             }
+            Spacer(modifier = Modifier.height(40.dp))
+            //TAGS
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .height(35.dp)){
+                Box(modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .background(color = Color.White)){
+                    Row(modifier = Modifier.fillMaxSize().background(color = Color(254,194,197))){
+                        Box(modifier = Modifier
+                            .fillMaxHeight()
+                            .width(8.dp)
+                            .background(color = Color(255, 159, 140)))
+                        Text(
+                            text = "Movies",
+                            modifier = Modifier.align(Alignment.CenterVertically).padding(5.dp, 0.dp, 0.dp, 0.dp).weight(1f),
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                            color = Color(252,87,94)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.triangle_go_to_icon),
+                            contentDescription = "",
+                            Modifier
+                                .size(25.dp)
+                                .scale(1f).align(Alignment.CenterVertically)
+                                .padding(5.dp, 0.dp)
+                                .clickable {
+                                    //TODO
+                                }
+                        )
+
+                    }
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Box(modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .background(color = Color.White)){
+                    Row(modifier = Modifier.fillMaxSize().background(color = Color(218,241,255))){
+                        Box(modifier = Modifier
+                            .fillMaxHeight()
+                            .width(8.dp)
+                            .background(color = Color(188,230,255)))
+                        Text(
+                            text = "TV Shows",
+                            modifier = Modifier.align(Alignment.CenterVertically).padding(5.dp, 0.dp, 0.dp, 0.dp).weight(1f),
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                            color = Color(68,187,255)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.triangle_go_to_icon),
+                            contentDescription = "",
+                            Modifier
+                                .size(25.dp)
+                                .scale(1f).align(Alignment.CenterVertically)
+                                .padding(5.dp, 0.dp)
+                                .clickable {
+                                    //TODO
+                                }
+                        )
+
+                    }
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Box(modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .background(color = Color.White)){
+                    Row(modifier = Modifier.fillMaxSize().background(color = Color(231,246,218))){
+                        Box(modifier = Modifier
+                            .fillMaxHeight()
+                            .width(8.dp)
+                            .background(color = Color(215,239,195)))
+                        Text(
+                            text = "Actors",
+                            modifier = Modifier.align(Alignment.CenterVertically).padding(5.dp, 0.dp, 0.dp, 0.dp).weight(1f),
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                            color = Color(116,214,31)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.triangle_go_to_icon),
+                            contentDescription = "",
+                            Modifier
+                                .size(25.dp)
+                                .scale(1f).align(Alignment.CenterVertically)
+                                .padding(5.dp, 0.dp)
+                                .clickable {
+                                    //TODO
+                                }
+                        )
+
+                    }
+                }
+            }
+
 
         }
 
