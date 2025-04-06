@@ -125,14 +125,19 @@ fun Content(
                     .fillMaxHeight()
                     .weight(1f)
                     .background(color = Color.White)){
-                    Row(modifier = Modifier.fillMaxSize().background(color = Color(254,194,197))){
+                    Row(modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = Color(254, 194, 197))){
                         Box(modifier = Modifier
                             .fillMaxHeight()
                             .width(8.dp)
                             .background(color = Color(255, 159, 140)))
                         Text(
                             text = "Movies",
-                            modifier = Modifier.align(Alignment.CenterVertically).padding(5.dp, 0.dp, 0.dp, 0.dp).weight(1f),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(5.dp, 0.dp, 0.dp, 0.dp)
+                                .weight(1f),
                             fontSize = 16.sp,
                             fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                             color = Color(252,87,94)
@@ -142,7 +147,8 @@ fun Content(
                             contentDescription = "",
                             Modifier
                                 .size(25.dp)
-                                .scale(1f).align(Alignment.CenterVertically)
+                                .scale(1f)
+                                .align(Alignment.CenterVertically)
                                 .padding(5.dp, 0.dp)
                                 .clickable {
                                     //TODO
@@ -156,14 +162,19 @@ fun Content(
                     .fillMaxHeight()
                     .weight(1f)
                     .background(color = Color.White)){
-                    Row(modifier = Modifier.fillMaxSize().background(color = Color(218,241,255))){
+                    Row(modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = Color(218, 241, 255))){
                         Box(modifier = Modifier
                             .fillMaxHeight()
                             .width(8.dp)
-                            .background(color = Color(188,230,255)))
+                            .background(color = Color(188, 230, 255)))
                         Text(
                             text = "TV Shows",
-                            modifier = Modifier.align(Alignment.CenterVertically).padding(5.dp, 0.dp, 0.dp, 0.dp).weight(1f),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(5.dp, 0.dp, 0.dp, 0.dp)
+                                .weight(1f),
                             fontSize = 16.sp,
                             fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                             color = Color(68,187,255)
@@ -173,7 +184,8 @@ fun Content(
                             contentDescription = "",
                             Modifier
                                 .size(25.dp)
-                                .scale(1f).align(Alignment.CenterVertically)
+                                .scale(1f)
+                                .align(Alignment.CenterVertically)
                                 .padding(5.dp, 0.dp)
                                 .clickable {
                                     //TODO
@@ -188,14 +200,19 @@ fun Content(
                     .fillMaxHeight()
                     .weight(1f)
                     .background(color = Color.White)){
-                    Row(modifier = Modifier.fillMaxSize().background(color = Color(231,246,218))){
+                    Row(modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = Color(231, 246, 218))){
                         Box(modifier = Modifier
                             .fillMaxHeight()
                             .width(8.dp)
-                            .background(color = Color(215,239,195)))
+                            .background(color = Color(215, 239, 195)))
                         Text(
                             text = "Actors",
-                            modifier = Modifier.align(Alignment.CenterVertically).padding(5.dp, 0.dp, 0.dp, 0.dp).weight(1f),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(5.dp, 0.dp, 0.dp, 0.dp)
+                                .weight(1f),
                             fontSize = 16.sp,
                             fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                             color = Color(116,214,31)
@@ -205,7 +222,8 @@ fun Content(
                             contentDescription = "",
                             Modifier
                                 .size(25.dp)
-                                .scale(1f).align(Alignment.CenterVertically)
+                                .scale(1f)
+                                .align(Alignment.CenterVertically)
                                 .padding(5.dp, 0.dp)
                                 .clickable {
                                     //TODO
@@ -217,7 +235,9 @@ fun Content(
             }
             Spacer(modifier = Modifier.height(15.dp))
             //SMALL TAGS
-            Column(modifier = Modifier.fillMaxWidth().wrapContentHeight()){
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()){
                 Row(modifier = Modifier
                     .fillMaxWidth()
                     .height(25.dp)){
@@ -225,7 +245,7 @@ fun Content(
                     Box(modifier = Modifier
                         .fillMaxHeight()
                         .wrapContentWidth()
-                        .background(color = Color(254,194,197)),
+                        .background(color = Color(254, 194, 197)),
                         contentAlignment = Alignment.Center,
 
                     ){
@@ -242,7 +262,7 @@ fun Content(
                     Box(modifier = Modifier
                         .fillMaxHeight()
                         .wrapContentWidth()
-                        .background(color = Color(218,241,255)),
+                        .background(color = Color(218, 241, 255)),
                         contentAlignment = Alignment.Center,
 
                         ){
@@ -260,7 +280,7 @@ fun Content(
                     Box(modifier = Modifier
                         .fillMaxHeight()
                         .wrapContentWidth()
-                        .background(color = Color(231,246,218)),
+                        .background(color = Color(231, 246, 218)),
                         contentAlignment = Alignment.Center,
 
                         ){
@@ -278,7 +298,7 @@ fun Content(
                     Box(modifier = Modifier
                         .fillMaxHeight()
                         .wrapContentWidth()
-                        .background(color = Color(254,194,197)),
+                        .background(color = Color(254, 194, 197)),
                         contentAlignment = Alignment.Center,
 
                         ){
@@ -301,7 +321,7 @@ fun Content(
                     Box(modifier = Modifier
                         .fillMaxHeight()
                         .wrapContentWidth()
-                        .background(color = Color(218,241,255)),
+                        .background(color = Color(218, 241, 255)),
                         contentAlignment = Alignment.Center,
 
                         ){
@@ -319,7 +339,7 @@ fun Content(
                     Box(modifier = Modifier
                         .fillMaxHeight()
                         .wrapContentWidth()
-                        .background(color = Color(231,246,218)),
+                        .background(color = Color(231, 246, 218)),
                         contentAlignment = Alignment.Center,
 
                         ){
@@ -338,22 +358,31 @@ fun Content(
             Spacer(modifier = Modifier.height(20.dp))
             //NEWS
             Box(modifier = Modifier
-                .fillMaxWidth().height(35.dp)
+                .fillMaxWidth()
+                .height(35.dp)
                 .background(color = Color.White)){
-                Row(modifier = Modifier.fillMaxSize().background(color = Color(255,232,216))){
+                Row(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color(255, 232, 216))){
                     Box(modifier = Modifier
                         .fillMaxHeight()
                         .width(8.dp)
-                        .background(color = Color(255,213,184)))
+                        .background(color = Color(255, 213, 184)))
                     Text(
                         text = "NEWS",
-                        modifier = Modifier.align(Alignment.CenterVertically).padding(5.dp, 0.dp, 0.dp, 0.dp).weight(1f),
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(5.dp, 0.dp, 0.dp, 0.dp)
+                            .weight(1f),
                         fontSize = 18.sp,
                         fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                         color = Color(255, 191, 95)
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(20.dp))
+            News()
+
         }
 
     }

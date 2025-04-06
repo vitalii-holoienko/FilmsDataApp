@@ -47,10 +47,18 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable(route = "new_releases_screen") {
-                        NewReleasesScreen()
+                        NewReleasesScreen(
+                            navigateToMainScreen = {
+                                navController.navigate("main_screen")
+                            }
+                        )
                     }
                     composable(route = "currently_trending_screen") {
-                        CurrentlyTrendingScreen()
+                        CurrentlyTrendingScreen(
+                            navigateToMainScreen = {
+                                navController.navigate("main_screen")
+                            }
+                        )
                     }
                 }
 

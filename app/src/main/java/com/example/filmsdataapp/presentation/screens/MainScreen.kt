@@ -15,13 +15,13 @@ import com.example.filmsdataapp.presentation.components.mainscreen.Header
 @Composable
 fun MainScreen(
     navigateToNewReleasesPage : () -> Unit,
-    navigateToCurrentlyTrendingPage : () ->Unit
+    navigateToCurrentlyTrendingPage : () ->Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
             .background(color= Color(36,36,36)).verticalScroll(rememberScrollState())
     ){
-        Header()
+        Header({})
         Content(
             navigateToNewReleasesPage,
             navigateToCurrentlyTrendingPage

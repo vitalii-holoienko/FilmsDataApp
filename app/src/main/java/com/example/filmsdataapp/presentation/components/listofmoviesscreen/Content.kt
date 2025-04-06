@@ -1,4 +1,4 @@
-package com.example.filmsdataapp.presentation.components.newreleasesscreen
+package com.example.filmsdataapp.presentation.components.listofmoviesscreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -6,10 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,31 +16,33 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
-import java.security.AlgorithmConstraints
+
 
 @Composable
-fun Content(){
+fun Content(from : String){
+    var pageName = ""
+    var pageDescription = ""
+    if(from == "Currently Trending"){
+        pageName = "Currently Trending"
+        pageDescription = "This page displays currently popular movies,\nsorted by rating"
+    }
+    if(from == "New Releases"){
+        pageName = "New Releases"
+        pageDescription = "This page displays recently released movies,\nsorted by rating"
+    }
     val images = listOf(
         R.drawable.test_image,
         R.drawable.test_image,
@@ -103,7 +103,7 @@ fun Content(){
 
             Column(modifier = Modifier.fillMaxWidth().height(120.dp).padding(10.dp, 0.dp)){
                 Text(
-                    text = "New Releases",
+                    text = pageName,
                     color = Color.White,
                     fontSize = 27.sp,
                     modifier = Modifier
@@ -111,7 +111,7 @@ fun Content(){
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "This page displays recently released movies,\nsorted by rating",
+                    text = pageDescription,
                     color = Color.White,
                     fontSize = 13.sp,
                     modifier = Modifier

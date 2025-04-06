@@ -3,6 +3,7 @@ package com.example.filmsdataapp.presentation.components.mainscreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -28,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
 
 @Composable
-fun Header() {
+fun Header(navigateToMainScreen : () -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .background(color = Color(33, 33, 33))
@@ -49,7 +50,9 @@ fun Header() {
             Text(
                 text = "FilmsBase",
                 color = Color.White,
-                modifier = Modifier.align(Alignment.CenterVertically),
+                modifier = Modifier.align(Alignment.CenterVertically).clickable {
+                    navigateToMainScreen()
+                },
                 fontSize = 20.sp,
                 fontFamily = FontFamily(Font(R.font.boldonse_regular))
             )
