@@ -8,15 +8,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.example.filmsdataapp.presentation.components.profilescreen.Content
 import com.example.filmsdataapp.presentation.components.mainscreen.Header
-import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Content
 
 @Composable
-fun NewReleasesScreen(navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit){
+fun ProfileScreen(navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= Color(36,36,36)).verticalScroll(rememberScrollState())){
         Header(navigateToMainScreen, navigateToProfilePage)
-        Content("New Releases")
+        Content()
     }
-
 }

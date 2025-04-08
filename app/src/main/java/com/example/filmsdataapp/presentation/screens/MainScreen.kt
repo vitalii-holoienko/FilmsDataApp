@@ -16,15 +16,16 @@ import com.example.filmsdataapp.presentation.components.mainscreen.Header
 fun MainScreen(
     navigateToNewReleasesPage : () -> Unit,
     navigateToCurrentlyTrendingPage : () ->Unit,
+    navigateToProfilePage : () ->Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
             .background(color= Color(36,36,36)).verticalScroll(rememberScrollState())
     ){
-        Header({})
+        Header({}, navigateToProfilePage)
         Content(
             navigateToNewReleasesPage,
-            navigateToCurrentlyTrendingPage
+            navigateToCurrentlyTrendingPage,
         )
     }
 

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
@@ -62,7 +66,7 @@ fun Content(from : String){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(36,36,36))
+            .background(Color(36, 36, 36))
     ){
 
 
@@ -80,7 +84,8 @@ fun Content(from : String){
                 }
         ) {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .graphicsLayer {
                         rotationZ = -90f
                     },
@@ -91,9 +96,13 @@ fun Content(from : String){
                 Image(
                     painter = painterResource(id = R.drawable.filter_arrow_2_left),
                     contentDescription = null,
-                    modifier = Modifier.size(18.dp).graphicsLayer {
-                        rotationZ = -270f
-                    }.padding(0.dp,0.dp,40.dp,0.dp).wrapContentWidth(unbounded = true)
+                    modifier = Modifier
+                        .size(18.dp)
+                        .graphicsLayer {
+                            rotationZ = -270f
+                        }
+                        .padding(0.dp, 0.dp, 40.dp, 0.dp)
+                        .wrapContentWidth(unbounded = true)
                 )
             }
         }
@@ -101,7 +110,10 @@ fun Content(from : String){
         Column(){
             Spacer(modifier= Modifier.height(20.dp))
 
-            Column(modifier = Modifier.fillMaxWidth().height(120.dp).padding(10.dp, 0.dp)){
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .padding(10.dp, 0.dp)){
                 Text(
                     text = pageName,
                     color = Color.White,
@@ -132,13 +144,50 @@ fun Content(from : String){
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         rowImages.forEach { imageRes ->
-                            Image(
-                                painter = painterResource(id = imageRes),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .width(imageWidth)
-                                    .height(250.dp)
-                            )
+                            Column(){
+                                Image(
+                                    painter = painterResource(id = imageRes),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .width(imageWidth)
+                                        .height(250.dp)
+                                )
+                                Text(
+                                    text = "Lorem ipsum Lorem ipsum",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier
+                                        .width(imageWidth)
+                                        .padding(5.dp, 3.dp)
+                                )
+                                Row(modifier = Modifier.width(imageWidth)){
+                                    Text(
+                                        text = "Movie",
+                                        color = Color.White,
+                                        fontSize = 10.sp,
+                                        fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(5.dp,3.dp)
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = "2015",
+                                        color = Color.White,
+                                        fontSize = 10.sp,
+                                        fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(5.dp,3.dp)
+                                    )
+                                }
+
+
+                            }
+
 
                         }
                         if (rowImages.size == 1) {

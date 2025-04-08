@@ -12,10 +12,10 @@ import com.example.filmsdataapp.presentation.components.mainscreen.Header
 import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Content
 
 @Composable
-fun CurrentlyTrendingScreen(navigateToMainScreen : () -> Unit){
+fun CurrentlyTrendingScreen(navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit,){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= Color(36,36,36)).verticalScroll(rememberScrollState())){
-        Header(navigateToMainScreen)
+        Header(navigateToMainScreen, navigateToProfilePage)
         Content("Currently Trending")
     }
 }

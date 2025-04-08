@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.filmsdataapp.presentation.screens.CurrentlyTrendingScreen
 import com.example.filmsdataapp.presentation.screens.MainScreen
 import com.example.filmsdataapp.presentation.screens.NewReleasesScreen
+import com.example.filmsdataapp.presentation.screens.ProfileScreen
 import com.example.filmsdataapp.ui.theme.FilmsDataAppTheme
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 
@@ -43,13 +44,19 @@ class MainActivity : ComponentActivity() {
                             },
                             navigateToCurrentlyTrendingPage = {
                                 navController.navigate("currently_trending_screen")
-                            }
+                            },
+                            navigateToProfilePage = {
+                                navController.navigate("profile_screen")
+                            },
                         )
                     }
                     composable(route = "new_releases_screen") {
                         NewReleasesScreen(
                             navigateToMainScreen = {
                                 navController.navigate("main_screen")
+                            },
+                            navigateToProfilePage = {
+                                navController.navigate("profile_screen")
                             }
                         )
                     }
@@ -57,8 +64,22 @@ class MainActivity : ComponentActivity() {
                         CurrentlyTrendingScreen(
                             navigateToMainScreen = {
                                 navController.navigate("main_screen")
+                            },
+                            navigateToProfilePage = {
+                                navController.navigate("profile_screen")
                             }
                         )
+                    }
+                    composable(route = "profile_screen"){
+                        ProfileScreen(
+                            navigateToMainScreen = {
+                                navController.navigate("main_screen")
+                            },
+                            navigateToProfilePage = {
+                                navController.navigate("profile_screen")
+                            }
+                        )
+
                     }
                 }
 

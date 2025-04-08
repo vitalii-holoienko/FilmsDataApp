@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
 
 @Composable
-fun Header(navigateToMainScreen : () -> Unit) {
+fun Header(navigateToMainScreen : () -> Unit, navigateToProfileScreen : () -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .background(color = Color(33, 33, 33))
@@ -73,6 +73,7 @@ fun Header(navigateToMainScreen : () -> Unit) {
                     .size(35.dp)
                     .align(Alignment.CenterVertically)
                     .scale(1.5f)
+                    .clickable { navigateToProfileScreen() }
             )
         }
     }
