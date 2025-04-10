@@ -18,8 +18,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +43,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.ui.theme.BackGroundColor
+import com.example.filmsdataapp.ui.theme.PrimaryColor
+import com.example.filmsdataapp.ui.theme.TextColor
 
 
 @Composable
@@ -66,8 +79,9 @@ fun Content(from : String){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(36, 36, 36))
+            .background(BackGroundColor)
     ){
+
 
 
         Box(
@@ -75,7 +89,7 @@ fun Content(from : String){
             modifier = Modifier
                 .offset(x = 25.dp, y = 20.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(color = Color(33, 33, 33))
+                .background(color = PrimaryColor)
                 .width(60.dp)
                 .height(85.dp)
                 .align(Alignment.TopEnd)
@@ -107,6 +121,8 @@ fun Content(from : String){
             }
         }
 
+
+
         Column(){
             Spacer(modifier= Modifier.height(20.dp))
 
@@ -116,7 +132,7 @@ fun Content(from : String){
                 .padding(10.dp, 0.dp)){
                 Text(
                     text = pageName,
-                    color = Color.White,
+                    color = TextColor,
                     fontSize = 27.sp,
                     modifier = Modifier
                         .padding(5.dp, 0.dp)
@@ -124,12 +140,14 @@ fun Content(from : String){
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = pageDescription,
-                    color = Color.White,
+                    color = TextColor,
                     fontSize = 13.sp,
                     modifier = Modifier
                         .padding(5.dp, 0.dp)
                 )
             }
+
+
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -154,7 +172,7 @@ fun Content(from : String){
                                 )
                                 Text(
                                     text = "Lorem ipsum Lorem ipsum",
-                                    color = Color.White,
+                                    color = TextColor,
                                     fontSize = 12.sp,
                                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                                     maxLines = 1,
@@ -166,7 +184,7 @@ fun Content(from : String){
                                 Row(modifier = Modifier.width(imageWidth)){
                                     Text(
                                         text = "Movie",
-                                        color = Color.White,
+                                        color = TextColor,
                                         fontSize = 10.sp,
                                         fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                                         maxLines = 1,
@@ -176,7 +194,7 @@ fun Content(from : String){
                                     Spacer(modifier = Modifier.weight(1f))
                                     Text(
                                         text = "2015",
-                                        color = Color.White,
+                                        color = TextColor,
                                         fontSize = 10.sp,
                                         fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                                         maxLines = 1,

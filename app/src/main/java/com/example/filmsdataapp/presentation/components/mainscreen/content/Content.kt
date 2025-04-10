@@ -31,6 +31,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.ui.theme.BackGroundColor
+import com.example.filmsdataapp.ui.theme.PrimaryColor
+import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
 fun Content(
@@ -46,14 +49,14 @@ fun Content(
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .height(35.dp)
-                .background(color = Color(33, 33, 33))
+                .background(color = PrimaryColor)
                 .clickable {
                     navigateToNewReleasesPage()
                 }
             ){
                 Text(
                     text = "New Releases",
-                    color = Color.White,
+                    color = TextColor,
                     fontSize = 20.sp,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
@@ -74,7 +77,7 @@ fun Content(
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .height(170.dp)
-                .background(color = Color(33, 33, 33)),
+                .background(color = PrimaryColor),
                 contentAlignment = Alignment.Center
             ){
                 ImageSlider()
@@ -84,12 +87,12 @@ fun Content(
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .height(35.dp)
-                .background(color = Color(33, 33, 33))
+                .background(color = PrimaryColor)
                 .clickable { navigateToCurrentlyTrendingPage() }
             ){
                 Text(
                     text = "Currently Trending",
-                    color = Color.White,
+                    color = TextColor,
                     fontSize = 20.sp,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
@@ -111,7 +114,7 @@ fun Content(
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .height(170.dp)
-                .background(color = Color(33, 33, 33)),
+                .background(color = PrimaryColor),
                 contentAlignment = Alignment.Center
             ){
                 ImageSlider()

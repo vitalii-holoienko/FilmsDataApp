@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.ui.theme.LinksColor
+import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
 fun Content(){
@@ -72,7 +74,7 @@ fun Content(){
                 ){
                     Text(
                         text = "Mora64",
-                        color = Color.White,
+                        color = TextColor,
                         fontSize = 25.sp,
                         fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
                         modifier = Modifier.padding(0.dp)
@@ -80,7 +82,7 @@ fun Content(){
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
                         text = "18 y.o / using app since Nov. 2025",
-                        color = Color.White,
+                        color = TextColor,
                         fontSize = 12.sp,
                         fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
                         modifier = Modifier.padding(0.dp)
@@ -88,10 +90,12 @@ fun Content(){
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Row(modifier = Modifier.fillMaxWidth().height(50.dp)){
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)){
                 Text(
                     text = "History",
-                    color = Color(152,194,227),
+                    color = LinksColor,
                     fontSize = 15.sp,
                     fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
                     modifier = Modifier.padding(0.dp)
@@ -99,7 +103,7 @@ fun Content(){
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Settings",
-                    color = Color(152,194,227),
+                    color = LinksColor,
                     fontSize = 15.sp,
                     fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
                     modifier = Modifier.padding(0.dp)
@@ -107,17 +111,22 @@ fun Content(){
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-            Column(modifier = Modifier.fillMaxWidth().height(100.dp)){
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)){
                 Text(
                     text = "List of movies",
-                    color = Color.White,
+                    color = TextColor,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
                     fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
                     modifier = Modifier.padding(0.dp)
                 )
                 Spacer(modifier = Modifier.height(5.dp))
-                Spacer(modifier = Modifier.height(15.dp).background(Color(170,170,170)).fillMaxWidth())
+                Spacer(modifier = Modifier
+                    .height(15.dp)
+                    .background(Color(170, 170, 170))
+                    .fillMaxWidth())
 
                 Spacer(modifier = Modifier.height(5.dp))
                 ClickableTextExample()
@@ -130,7 +139,7 @@ fun Content(){
 
             Text(
                 text = "Activity",
-                color = Color.White,
+                color = TextColor,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
                 fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
@@ -139,7 +148,10 @@ fun Content(){
             Spacer(modifier = Modifier.height(15.dp))
 
             //TODO Activity graph
-            Spacer(modifier=Modifier.fillMaxWidth().height(170.dp).background(Color.Black))
+            Spacer(modifier= Modifier
+                .fillMaxWidth()
+                .height(170.dp)
+                .background(Color.Black))
 
 
 
@@ -158,13 +170,15 @@ fun TimeProgressBar(
     Column() {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
 
-            Text("Time spent watching movies", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 13.sp)
-            Text("1 month & 3 weeks", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 13.sp)
+            Text("Time spent watching movies", fontWeight = FontWeight.Bold, color = TextColor, fontSize = 13.sp)
+            Text("1 month & 3 weeks", fontWeight = FontWeight.Bold, color = TextColor, fontSize = 13.sp)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Box(modifier = Modifier.fillMaxWidth().height(16.dp)) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .height(16.dp)) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val barHeight = 6.dp.toPx()
                 val y = size.height / 2
@@ -205,7 +219,7 @@ fun ClickableTextExample() {
 
 
         pushStringAnnotation(tag = "PLANNED", annotation = "planned_clicked")
-        withStyle(style = SpanStyle(color = Color(152,194,227))) {
+        withStyle(style = SpanStyle(color = LinksColor)) {
             append("Planned (1)")
         }
         pop()
@@ -213,14 +227,14 @@ fun ClickableTextExample() {
         append(" / ")
 
         pushStringAnnotation(tag = "WATCHING", annotation = "watching_clicked")
-        withStyle(style = SpanStyle(color = Color(152,194,227))) {
+        withStyle(style = SpanStyle(color = LinksColor)) {
             append("Watching (2)")
         }
         pop()
         append(" / ")
 
         pushStringAnnotation(tag = "COMPLETED", annotation = "completed_clicked")
-        withStyle(style = SpanStyle(color = Color(152,194,227))) {
+        withStyle(style = SpanStyle(color = LinksColor)) {
             append("Completed (2)")
         }
         pop()
@@ -228,7 +242,7 @@ fun ClickableTextExample() {
         append(" / \n")
 
         pushStringAnnotation(tag = "ON_HOLD", annotation = "on_hold_clicked")
-        withStyle(style = SpanStyle(color = Color(152,194,227))) {
+        withStyle(style = SpanStyle(color = LinksColor)) {
             append("On Hold (1)")
         }
         pop()
@@ -236,7 +250,7 @@ fun ClickableTextExample() {
         append(" / ")
 
         pushStringAnnotation(tag = "DROPPED", annotation = "dropped_clicked")
-        withStyle(style = SpanStyle(color = Color(152,194,227))) {
+        withStyle(style = SpanStyle(color = LinksColor)) {
             append("Dropped (4)")
         }
     }

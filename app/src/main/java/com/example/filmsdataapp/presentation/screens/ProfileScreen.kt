@@ -9,13 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.filmsdataapp.presentation.components.profilescreen.Content
-import com.example.filmsdataapp.presentation.components.mainscreen.Header
+import com.example.filmsdataapp.presentation.components.Header
+import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun ProfileScreen(navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit){
+fun ProfileScreen(navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit, onMenuClick : () -> Unit){
     Column(modifier = Modifier.fillMaxSize()
-        .background(color= Color(36,36,36)).verticalScroll(rememberScrollState())){
-        Header(navigateToMainScreen, navigateToProfilePage)
+        .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
+        Header(navigateToMainScreen, navigateToProfilePage, onMenuClick)
         Content()
     }
 }

@@ -1,4 +1,4 @@
-package com.example.filmsdataapp.presentation.components.mainscreen
+package com.example.filmsdataapp.presentation.components
 
 
 import androidx.compose.foundation.Image
@@ -27,12 +27,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.ui.theme.BackGroundColor
+import com.example.filmsdataapp.ui.theme.PrimaryColor
+import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun Header(navigateToMainScreen : () -> Unit, navigateToProfileScreen : () -> Unit) {
+fun Header(navigateToMainScreen : () -> Unit, navigateToProfileScreen : () -> Unit, onMenuClick : () -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
-        .background(color = Color(33, 33, 33))
+        .background(color = PrimaryColor)
         .height(55.dp)
 
     ){
@@ -45,11 +48,12 @@ fun Header(navigateToMainScreen : () -> Unit, navigateToProfileScreen : () -> Un
                 Modifier
                     .size(35.dp)
                     .align(Alignment.CenterVertically)
+                    .clickable { onMenuClick() }
             )
             Spacer(modifier = Modifier.width(20.dp))
             Text(
                 text = "FilmsBase",
-                color = Color.White,
+                color = TextColor,
                 modifier = Modifier.align(Alignment.CenterVertically).clickable {
                     navigateToMainScreen()
                 },
