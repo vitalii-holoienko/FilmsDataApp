@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.TextColor
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
 fun NavigationMenuWrapper(
     drawerState: DrawerState,
     scope: CoroutineScope,
+    navController: NavController,
     content: @Composable () -> Unit
 ) {
     ModalNavigationDrawer(
@@ -44,7 +46,9 @@ fun NavigationMenuWrapper(
                         label = { Text("Main page",  color = Color.White) },
                         selected = false,
                         onClick = {
-                            scope.launch { drawerState.close() }
+                            scope.launch { navController.navigate("main_screen")
+                                drawerState.close()
+                            }
 
                         },
                         colors = NavigationDrawerItemDefaults.colors(
@@ -60,7 +64,10 @@ fun NavigationMenuWrapper(
                         label = { Text("Movies", color = TextColor)},
                         selected = false,
                         onClick = {
-                            scope.launch { drawerState.close() }
+                            scope.launch {
+                                navController.navigate("movies_screen")
+                                drawerState.close()
+                            }
                         },
                         colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = Color(0xFF333333),
@@ -71,7 +78,10 @@ fun NavigationMenuWrapper(
                         label = { Text("TV Shows", color = TextColor)},
                         selected = false,
                         onClick = {
-                            scope.launch { drawerState.close() }
+                            scope.launch {
+                                navController.navigate("tvshows_screen")
+                                drawerState.close()
+                            }
                         },
                         colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = Color(0xFF333333),
@@ -82,7 +92,10 @@ fun NavigationMenuWrapper(
                         label = { Text("Actors", color = TextColor)},
                         selected = false,
                         onClick = {
-                            scope.launch { drawerState.close() }
+                            scope.launch {
+                                navController.navigate("actors_screen")
+                                drawerState.close()
+                            }
                         },
                         colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = Color(0xFF333333),
@@ -93,29 +106,25 @@ fun NavigationMenuWrapper(
                         label = { Text("Reviews", color = TextColor)},
                         selected = false,
                         onClick = {
-                            scope.launch { drawerState.close() }
+                            scope.launch {
+                                navController.navigate("reviews_screen")
+                                drawerState.close()
+                            }
                         },
                         colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = Color(0xFF333333),
                             unselectedContainerColor = Color.Transparent,
                         )
                     )
-                    NavigationDrawerItem(
-                        label = { Text("Ratings", color = TextColor)},
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                        },
-                        colors = NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = Color(0xFF333333),
-                            unselectedContainerColor = Color.Transparent,
-                        )
-                    )
+
                     NavigationDrawerItem(
                         label = { Text("About program", color = TextColor)},
                         selected = false,
                         onClick = {
-                            scope.launch { drawerState.close() }
+                            scope.launch {
+                                navController.navigate("about_program_screen")
+                                drawerState.close()
+                            }
                         },
                         colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = Color(0xFF333333),
@@ -126,7 +135,10 @@ fun NavigationMenuWrapper(
                         label = { Text("Contacts", color = TextColor)},
                         selected = false,
                         onClick = {
-                            scope.launch { drawerState.close() }
+                            scope.launch {
+                                 navController.navigate("contacts_screen")
+                                drawerState.close()
+                            }
                         },
                         colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = Color(0xFF333333),

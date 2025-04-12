@@ -22,10 +22,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.filmsdataapp.presentation.components.NavigationMenuWrapper
+import com.example.filmsdataapp.presentation.screens.AboutProgramScreen
+import com.example.filmsdataapp.presentation.screens.ActorsScreen
+import com.example.filmsdataapp.presentation.screens.ContactsScreen
 import com.example.filmsdataapp.presentation.screens.CurrentlyTrendingScreen
 import com.example.filmsdataapp.presentation.screens.MainScreen
+import com.example.filmsdataapp.presentation.screens.MoviesScreen
 import com.example.filmsdataapp.presentation.screens.NewReleasesScreen
 import com.example.filmsdataapp.presentation.screens.ProfileScreen
+import com.example.filmsdataapp.presentation.screens.TVShowsScreen
 import com.example.filmsdataapp.ui.theme.FilmsDataAppTheme
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import kotlinx.coroutines.launch
@@ -42,7 +47,8 @@ class MainActivity : ComponentActivity() {
 
                 NavigationMenuWrapper(
                     drawerState = drawerState,
-                    scope = scope
+                    scope = scope,
+                    navController
                 ) {
                     AnimatedNavHost(navController = navController, //using AnimatedNavHost to remove fade animation
                         startDestination = "main_screen",
@@ -64,8 +70,53 @@ class MainActivity : ComponentActivity() {
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
                                 }
+
                             )
                         }
+                        composable(route = "movies_screen") {
+                            MoviesScreen(
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                }
+
+                            )
+                        }
+                        composable(route = "actors_screen") {
+                            ActorsScreen(
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                }
+
+                            )
+                        }
+
+                        composable(route = "tvshows_screen") {
+                            TVShowsScreen(
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                }
+
+                            )
+                        }
+
                         composable(route = "new_releases_screen") {
                             NewReleasesScreen(
                                 navigateToMainScreen = {
@@ -79,6 +130,46 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                        composable(route = "about_program_screen") {
+                            AboutProgramScreen(
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                }
+                            )
+                        }
+                        composable(route = "reviews_screen") {
+                            AboutProgramScreen(
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                }
+                            )
+                        }
+                        composable(route = "contacts_screen") {
+                            ContactsScreen(
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                }
+                            )
+                        }
+
                         composable(route = "currently_trending_screen") {
                             CurrentlyTrendingScreen(
                                 navigateToMainScreen = {

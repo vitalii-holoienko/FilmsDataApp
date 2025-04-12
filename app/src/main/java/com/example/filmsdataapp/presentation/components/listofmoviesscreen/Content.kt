@@ -60,6 +60,20 @@ fun Content(from : String){
         pageName = "New Releases"
         pageDescription = "This page displays recently released movies,\nsorted by rating"
     }
+    if(from == "Movies"){
+        pageName = "Movies"
+        pageDescription = "This page displays list of movies,\nsorted by rating"
+    }
+    if(from == "Actors"){
+        pageName = "Actors"
+        pageDescription = "This page displays list of actors,\nsorted in alphabetical order"
+    }
+    if(from == "TVShows"){
+        pageName = "TVShows"
+        pageDescription = "This page displays list of TV shows,\nsorted by rating"
+    }
+
+
     val images = listOf(
         R.drawable.test_image,
         R.drawable.test_image,
