@@ -1,13 +1,28 @@
+import java.io.File
+import java.io.FileInputStream
+import java.util.*
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+val prop = Properties().apply {
+    load(FileInputStream(File(rootProject.rootDir, "local.properties")))
+}
+
+val rapidApiKey = prop.getProperty("RAPID_API_KEY")
+val rapidApiHost = prop.getProperty("RAPID_API_HOST")
 
 android {
     namespace = "com.example.filmsdataapp"
     compileSdk = 35
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
+        buildConfigField("String", "RAPID_API_KEY", "\"$rapidApiKey\"")
+        buildConfigField("String", "RAPID_API_HOST", "\"$rapidApiHost\"")
         applicationId = "com.example.filmsdataapp"
         minSdk = 24
         targetSdk = 33
@@ -52,7 +67,9 @@ android {
 
 dependencies {
     val nav_version = "2.8.9"
+    val okhttp_version = "4.12.0"
     implementation("com.google.accompanist:accompanist-navigation-animation:0.33.2-alpha")
+    implementation("com.squareup.okhttp3:okhttp:$okhttp_version")
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")

@@ -15,9 +15,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -31,8 +34,10 @@ import com.example.filmsdataapp.presentation.screens.MoviesScreen
 import com.example.filmsdataapp.presentation.screens.NewReleasesScreen
 import com.example.filmsdataapp.presentation.screens.ProfileScreen
 import com.example.filmsdataapp.presentation.screens.TVShowsScreen
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.FilmsDataAppTheme
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -41,6 +46,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             FilmsDataAppTheme {
+                val viewModel : MainActivityViewModel = viewModel()
+
+                //loading initial data
+                LaunchedEffect(Unit) {
+                    viewModel.loadInitialData()
+                }
+
+
                 val navController = rememberNavController()
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
