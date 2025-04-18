@@ -1,13 +1,13 @@
 package com.example.filmsdataapp.domain.usecase
 
-
 import com.example.filmsdataapp.domain.repository.MoviesRepository
+import com.example.filmsdataapp.domain.repository.NewsRepository
 
-class GetMostPopularMoviesUseCase(
-    private val repository: MoviesRepository
+class GetNewsUseCase(
+    private val repository: NewsRepository
 ) {
     suspend operator fun invoke(): String {
-        return repository.getMostPopularMovies()
+        return repository.getNews()
     }
 }
 

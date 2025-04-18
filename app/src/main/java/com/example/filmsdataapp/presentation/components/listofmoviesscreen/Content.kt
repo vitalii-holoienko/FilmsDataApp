@@ -43,9 +43,9 @@ fun Content(from : String){
         pageName = "Currently Trending"
         pageDescription = "This page displays currently popular movies,\nsorted by rating"
     }
-    if(from == "New Releases"){
-        pageName = "New Releases"
-        pageDescription = "This page displays recently released movies,\nsorted by rating"
+    if(from == "Coming soon"){
+        pageName = "Coming soon"
+        pageDescription = "This page displays coming soon movies"
     }
     if(from == "Movies"){
         pageName = "Movies"

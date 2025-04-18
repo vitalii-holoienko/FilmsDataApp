@@ -27,11 +27,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.filmsdataapp.presentation.components.NavigationMenuWrapper
 import com.example.filmsdataapp.presentation.screens.AboutProgramScreen
 import com.example.filmsdataapp.presentation.screens.ActorsScreen
+import com.example.filmsdataapp.presentation.screens.ComingSoonScreen
 import com.example.filmsdataapp.presentation.screens.ContactsScreen
 import com.example.filmsdataapp.presentation.screens.CurrentlyTrendingScreen
 import com.example.filmsdataapp.presentation.screens.MainScreen
 import com.example.filmsdataapp.presentation.screens.MoviesScreen
-import com.example.filmsdataapp.presentation.screens.NewReleasesScreen
 import com.example.filmsdataapp.presentation.screens.ProfileScreen
 import com.example.filmsdataapp.presentation.screens.TVShowsScreen
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
@@ -131,7 +131,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(route = "new_releases_screen") {
-                            NewReleasesScreen(
+                            ComingSoonScreen(
                                 navigateToMainScreen = {
                                     navController.navigate("main_screen")
                                 },

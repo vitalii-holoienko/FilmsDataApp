@@ -10,7 +10,8 @@ val prop = Properties().apply {
 }
 
 val rapidApiKey = prop.getProperty("RAPID_API_KEY")
-val rapidApiHost = prop.getProperty("RAPID_API_HOST")
+val rapidApiHostOne = prop.getProperty("RAPID_API_HOST_ONE")
+val rapidApiHostTwo = prop.getProperty("RAPID_API_HOST_TWO")
 
 android {
     namespace = "com.example.filmsdataapp"
@@ -22,7 +23,8 @@ android {
 
     defaultConfig {
         buildConfigField("String", "RAPID_API_KEY", "\"$rapidApiKey\"")
-        buildConfigField("String", "RAPID_API_HOST", "\"$rapidApiHost\"")
+        buildConfigField("String", "RAPID_API_HOST_ONE", "\"$rapidApiHostOne\"")
+        buildConfigField("String", "RAPID_API_HOST_TWO", "\"$rapidApiHostTwo\"")
         applicationId = "com.example.filmsdataapp"
         minSdk = 24
         targetSdk = 33

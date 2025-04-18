@@ -50,12 +50,10 @@ fun Content(
                 .fillMaxWidth()
                 .height(35.dp)
                 .background(color = PrimaryColor)
-                .clickable {
-                    navigateToNewReleasesPage()
-                }
+                .clickable { navigateToCurrentlyTrendingPage() }
             ){
                 Text(
-                    text = "New Releases",
+                    text = "Currently trending",
                     color = TextColor,
                     fontSize = 20.sp,
                     modifier = Modifier
@@ -74,6 +72,7 @@ fun Content(
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
+
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .height(170.dp)
@@ -82,16 +81,17 @@ fun Content(
             ){
                 ImageSlider()
             }
-
             Spacer(modifier = Modifier.height(70.dp))
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .height(35.dp)
                 .background(color = PrimaryColor)
-                .clickable { navigateToCurrentlyTrendingPage() }
+                .clickable {
+                    navigateToNewReleasesPage()
+                }
             ){
                 Text(
-                    text = "Currently Trending",
+                    text = "Coming soon",
                     color = TextColor,
                     fontSize = 20.sp,
                     modifier = Modifier
@@ -110,7 +110,6 @@ fun Content(
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
-
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .height(170.dp)
