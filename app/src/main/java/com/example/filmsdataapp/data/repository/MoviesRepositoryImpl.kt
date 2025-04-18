@@ -5,12 +5,13 @@ import com.example.filmsdataapp.BuildConfig
 import com.example.filmsdataapp.data.network.NetworkHelper
 import com.example.filmsdataapp.data.network.NetworkHelper.makeRequest
 import com.example.filmsdataapp.domain.repository.MoviesRepository
+import com.example.filmsdataapp.domain.repository.TitleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-class MoviesRepositoryImpl() : MoviesRepository {
+class MoviesRepositoryImpl() : MoviesRepository{
     private val client = OkHttpClient()
 
     override suspend fun getMostPopularMovies(): String = withContext(Dispatchers.IO) {
@@ -28,8 +29,4 @@ class MoviesRepositoryImpl() : MoviesRepository {
     override suspend fun getMoviesWithAppliedFilter(): String {
         return ""
     }
-
-
-
-
 }

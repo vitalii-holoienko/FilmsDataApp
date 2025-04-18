@@ -10,6 +10,7 @@ object NetworkHelper {
         val host = when (hostFlag) {
             1 -> BuildConfig.RAPID_API_HOST_ONE
             2 -> BuildConfig.RAPID_API_HOST_TWO
+            3 -> BuildConfig.RAPID_API_HOST_THREE
             else -> throw IllegalArgumentException("Invalid hostFlag: $hostFlag")
         }
         return try {
