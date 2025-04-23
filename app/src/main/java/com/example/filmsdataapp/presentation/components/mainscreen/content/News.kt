@@ -20,44 +20,38 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.domain.model.News
 
 @Composable
-fun News(){
+fun News(news : List<News>){
     Column(modifier = Modifier.fillMaxSize()){
-        val news = listOf(
-            R.drawable.test_image,
-            R.drawable.test_image,
-            R.drawable.test_image,
-            R.drawable.test_image,
-            R.drawable.test_image,
-            R.drawable.test_image,
-            R.drawable.test_image,
-            R.drawable.test_image,
-            R.drawable.test_image,
-            )
-        news.forEach{
-            Image(
-                painter = painterResource(id = it),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .background(Color.Gray),
+        if(!news.isEmpty()){
+            news.forEach{
+                Image(
+                    painter = rememberAsyncImagePainter(it.image!!.url),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .background(Color.Gray),
                 contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = "Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum  Lorem ipsum Lorem i",
-                color = Color.White,
-                fontSize = 18.sp,
-                fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = it.articleTitle!!.plainText!!,
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
 
-            )
-            Spacer(modifier = Modifier.height(50.dp))
+                )
+                Spacer(modifier = Modifier.height(50.dp))
+            }
         }
+
 
     }
 }

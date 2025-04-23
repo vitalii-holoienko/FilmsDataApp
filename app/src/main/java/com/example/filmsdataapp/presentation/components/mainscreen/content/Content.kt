@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.components.mainscreen.content
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,16 +22,20 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
@@ -40,6 +45,11 @@ fun Content(
     navigateToNewReleasesPage : () -> Unit,
     navigateToCurrentlyTrendingPage : () ->Unit,
 ) {
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val comingSoonMovies = viewModel.comingSoonMovies.observeAsState(emptyList())
+    val currentlyTrendingMovies = viewModel.mostPopularMovies.observeAsState(emptyList())
+    val news = viewModel.news.observeAsState(emptyList())
+
     Spacer(modifier = Modifier.height(40.dp))
     Box(modifier = Modifier
         .fillMaxSize()
@@ -75,11 +85,11 @@ fun Content(
 
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .height(170.dp)
+                .height(220.dp)
                 .background(color = PrimaryColor),
                 contentAlignment = Alignment.Center
             ){
-                ImageSlider()
+                ImageSlider(currentlyTrendingMovies.value!!)
             }
             Spacer(modifier = Modifier.height(70.dp))
             Box(modifier = Modifier
@@ -112,11 +122,10 @@ fun Content(
             Spacer(modifier = Modifier.height(10.dp))
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .height(170.dp)
-                .background(color = PrimaryColor),
+                .height(220.dp),
                 contentAlignment = Alignment.Center
             ){
-                ImageSlider()
+                ImageSlider(comingSoonMovies.value!!)
             }
             Spacer(modifier = Modifier.height(40.dp))
             //MAIN TAGS
@@ -383,7 +392,7 @@ fun Content(
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            News()
+            News(news.value)
 
         }
 

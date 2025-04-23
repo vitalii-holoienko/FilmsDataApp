@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.components.mainscreen.content
 
+import Movie
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
@@ -22,7 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageSlider() {
+fun ImageSlider(movies : List<Movie>) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp - 20.dp
     val imageWidth = (screenWidth - (2 * 10.dp)) / 3
 
@@ -36,7 +37,11 @@ fun ImageSlider() {
         flingBehavior = rememberSnapFlingBehavior(listState)
     ) {
         items(8) { index ->
-            ImageItem(imageWidth)
+            if(!movies.isEmpty()){
+                val movie = movies[index]
+                ImageItem(imageWidth, movie)
+            }
+
         }
     }
 }

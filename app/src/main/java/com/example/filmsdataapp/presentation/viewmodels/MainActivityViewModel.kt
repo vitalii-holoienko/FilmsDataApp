@@ -1,6 +1,9 @@
 package com.example.filmsdataapp.presentation.viewmodels
 
+import Movie
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.filmsdataapp.data.repository.ActorsRepositoryImpl
@@ -8,12 +11,15 @@ import com.example.filmsdataapp.data.repository.MoviesRepositoryImpl
 import com.example.filmsdataapp.data.repository.NewsRepositoryImpl
 import com.example.filmsdataapp.data.repository.TVShowsRepositoryImpl
 import com.example.filmsdataapp.data.repository.TitleRepositoryImpl
+import com.example.filmsdataapp.domain.model.Actor
+import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.repository.ActorsRepository
 import com.example.filmsdataapp.domain.repository.MoviesRepository
 import com.example.filmsdataapp.domain.repository.NewsRepository
 import com.example.filmsdataapp.domain.repository.TVShowsRepository
 import com.example.filmsdataapp.domain.repository.TitleRepository
 import com.example.filmsdataapp.domain.usecase.GetActorsUseCase
+import com.example.filmsdataapp.domain.usecase.GetComingSoonMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetCurrentlyTrendingMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
@@ -32,18 +38,19 @@ class MainActivityViewModel : ViewModel() {
     private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
     private val titleRepository : TitleRepository = TitleRepositoryImpl()
 
-    private val _mostPopularMovies = MutableStateFlow("")
+    private var _mostPopularMovies = MutableLiveData<List<Movie>>()
+    private var _comingSoonMovies = MutableLiveData<List<Movie>>()
     private val _currentlyTrendingMovies = MutableStateFlow("")
-    private val _news = MutableStateFlow("")
+    private val _news = MutableLiveData<List<News>>()
     private val _mostPopularTVShows = MutableStateFlow("")
-    private val _actors = MutableStateFlow("")
+    private val _actors = MutableLiveData<List<Actor>>()
     private val _titleWithAppliedFitlers = MutableStateFlow("")
-
+    val mostPopularMovies: LiveData<List<Movie>> get() = _mostPopularMovies
+    val comingSoonMovies: LiveData<List<Movie>> get() = _comingSoonMovies
     val mostPopularTVShows : StateFlow<String> = _mostPopularTVShows
-    val news : StateFlow<String> = _news
-    val mostPopularMovies: StateFlow<String> = _mostPopularMovies
+    val news : LiveData<List<News>> get() = _news
     val currentlyTrendingMovies: StateFlow<String> = _currentlyTrendingMovies
-    val actors: StateFlow<String> = _actors
+    val actors: LiveData<List<Actor>> get() = _actors
     val titleWithAppliedFitlers:  StateFlow<String> = _titleWithAppliedFitlers
 
     fun loadInitialData(){
@@ -63,8 +70,18 @@ class MainActivityViewModel : ViewModel() {
 //                val result = GetNewsUseCase(newsRepository)
 //                _news.value = result.invoke()
 
-//                val result = GetMostPopularMoviesUseCase(moviesRepository)
-//                _mostPopularMovies.value = result.invoke()
+//                val result1 = GetMostPopularMoviesUseCase(moviesRepository)
+//                _mostPopularMovies.value = result1.invoke()
+//
+//                val result2 = GetComingSoonMoviesUseCase(moviesRepository)
+//                _comingSoonMovies.value = result2.invoke()
+
+//                val result1 = GetActorsUseCase(actorsRepository)
+//                _actors.value = result1.invoke()
+
+
+
+
 
 //                val result = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
 //                _currentlyTrendingMovies.value = result.invoke()
@@ -72,11 +89,13 @@ class MainActivityViewModel : ViewModel() {
 
 
             } catch (e: Exception) {
-                _mostPopularMovies.value = "Error: ${e.message}"
+                Log.d("TEKKEN", e.message.toString())
             }
         }.invokeOnCompletion {
-            Log.d("TEKKEN", _titleWithAppliedFitlers.value)
+
 
         }
     }
+
+
 }

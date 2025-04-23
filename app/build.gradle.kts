@@ -4,6 +4,7 @@ import java.util.*
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("plugin.serialization")
 }
 val prop = Properties().apply {
     load(FileInputStream(File(rootProject.rootDir, "local.properties")))
@@ -13,6 +14,7 @@ val rapidApiKey = prop.getProperty("RAPID_API_KEY")
 val rapidApiHostOne = prop.getProperty("RAPID_API_HOST_ONE")
 val rapidApiHostTwo = prop.getProperty("RAPID_API_HOST_TWO")
 val rapidApiHostThree = prop.getProperty("RAPID_API_HOST_THREE")
+val rapidApiHostFour = prop.getProperty("RAPID_API_HOST_FOUR")
 
 
 android {
@@ -28,6 +30,7 @@ android {
         buildConfigField("String", "RAPID_API_HOST_ONE", "\"$rapidApiHostOne\"")
         buildConfigField("String", "RAPID_API_HOST_TWO", "\"$rapidApiHostTwo\"")
         buildConfigField("String", "RAPID_API_HOST_THREE", "\"$rapidApiHostThree\"")
+        buildConfigField("String", "RAPID_API_HOST_FOUR", "\"$rapidApiHostFour\"")
         applicationId = "com.example.filmsdataapp"
         minSdk = 24
         targetSdk = 33
@@ -73,6 +76,9 @@ android {
 dependencies {
     val nav_version = "2.8.9"
     val okhttp_version = "4.12.0"
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
+    implementation("io.coil-kt:coil-compose:2.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.33.2-alpha")
     implementation("com.squareup.okhttp3:okhttp:$okhttp_version")
     implementation("androidx.navigation:navigation-compose:$nav_version")

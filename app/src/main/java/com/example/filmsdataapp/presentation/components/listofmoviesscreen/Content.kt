@@ -1,5 +1,8 @@
 package com.example.filmsdataapp.presentation.components.listofmoviesscreen
 
+import android.annotation.SuppressLint
+import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -15,14 +18,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -30,13 +38,21 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
+import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun Content(from : String){
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+
     var pageName = ""
     var pageDescription = ""
     if(from == "Currently Trending"){
@@ -59,32 +75,26 @@ fun Content(from : String){
         pageName = "TVShows"
         pageDescription = "This page displays list of TV shows,\nsorted by rating"
     }
+    val listOfMovies by viewModel.mostPopularMovies.observeAsState(emptyList())
+
+    val images : List<Int> = emptyList()
 
 
-    val images = listOf(
-        R.drawable.test_image,
-        R.drawable.test_image,
-        R.drawable.test_image,
-        R.drawable.test_image,
-        R.drawable.test_image,
-        R.drawable.test_image,
-        R.drawable.test_image,
-        R.drawable.test_image,
-        R.drawable.test_image,
 
-    )
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val totalHorizontalPadding = 10.dp * 3
     val imageWidth = (screenWidth - totalHorizontalPadding) / 2
-    val rows = images.chunked(2)
+    val rows = listOfMovies.chunked(2)
+    var isFilterVisible by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .wrapContentHeight()
             .background(BackGroundColor)
     ){
 
-        var isFilterVisible by remember { mutableStateOf(false) }
+
         val screenWidth = LocalConfiguration.current.screenWidthDp.dp
         val filterWidth = 300.dp
         val density = LocalDensity.current
@@ -104,59 +114,56 @@ fun Content(from : String){
 
 
 
-
-
-
-        Column(){
-            Spacer(modifier= Modifier.height(20.dp))
-
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .padding(10.dp, 0.dp)){
-                Text(
-                    text = pageName,
-                    color = TextColor,
-                    fontSize = 27.sp,
-                    modifier = Modifier
-                        .padding(5.dp, 0.dp)
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = pageDescription,
-                    color = TextColor,
-                    fontSize = 13.sp,
-                    modifier = Modifier
-                        .padding(5.dp, 0.dp)
-                )
-            }
-
-
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(30.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp)
-
             ) {
-                rows.forEach { rowImages ->
+                item {
+                    Column() {
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp)
+                        ) {
+                            Text(
+                                text = pageName,
+                                color = TextColor,
+                                fontSize = 27.sp,
+                                modifier = Modifier
+                                    .padding(5.dp, 0.dp)
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = pageDescription,
+                                color = TextColor,
+                                fontSize = 13.sp,
+                                modifier = Modifier
+                                    .padding(5.dp, 0.dp)
+                            )
+                        }
+                    }
+                }
+                items(rows) { movieRow ->
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        rowImages.forEach { imageRes ->
-                            Column(){
+                        movieRow.forEach { m ->
+                            Column {
                                 Image(
-                                    painter = painterResource(id = imageRes),
+                                    painter = rememberAsyncImagePainter(m.primaryImage),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .width(imageWidth)
                                         .height(250.dp)
                                 )
                                 Text(
-                                    text = "Lorem ipsum Lorem ipsum",
-                                    color = TextColor,
+                                    text = m.originalTitle ?: "",
+                                    color = LinksColor,
                                     fontSize = 12.sp,
                                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                                     maxLines = 1,
@@ -165,7 +172,7 @@ fun Content(from : String){
                                         .width(imageWidth)
                                         .padding(5.dp, 3.dp)
                                 )
-                                Row(modifier = Modifier.width(imageWidth)){
+                                Row(modifier = Modifier.width(imageWidth)) {
                                     Text(
                                         text = "Movie",
                                         color = TextColor,
@@ -173,7 +180,7 @@ fun Content(from : String){
                                         fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.padding(5.dp,3.dp)
+                                        modifier = Modifier.padding(5.dp, 3.dp)
                                     )
                                     Spacer(modifier = Modifier.weight(1f))
                                     Text(
@@ -183,20 +190,15 @@ fun Content(from : String){
                                         fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.padding(5.dp,3.dp)
+                                        modifier = Modifier.padding(5.dp, 3.dp)
                                     )
                                 }
-
-
                             }
-
-
                         }
-                        if (rowImages.size == 1) {
+                        if (movieRow.size == 1) {
                             Spacer(modifier = Modifier.width(imageWidth))
                         }
                     }
-                    Spacer(modifier = Modifier.height(70.dp))
                 }
             }
         }
@@ -205,9 +207,4 @@ fun Content(from : String){
             onToggle = { isFilterVisible = !isFilterVisible },
             screenHeight
         )
-        }
-
-
-
-
 }
