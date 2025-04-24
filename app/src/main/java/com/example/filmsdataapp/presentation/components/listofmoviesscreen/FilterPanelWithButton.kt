@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.components.listofmoviesscreen
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -24,6 +25,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.domain.model.FilterOption
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import kotlin.math.roundToInt
 
@@ -48,39 +53,70 @@ fun FilterPanelWithButton(
     val buttonWidth = 40.dp
     val density = LocalDensity.current
 
-    // Анимированное смещение в пикселях
     val offsetX by animateFloatAsState(
         targetValue = if (isFilterVisible) 0f else with(density) { filterWidth.toPx() },
         animationSpec = tween(durationMillis = 300),
         label = "offsetX"
     )
 
-    // Обёртка для Box, чтобы использовать align
-    Box(modifier = Modifier.fillMaxWidth().height(h)) {
-        // Панель и кнопка (выезжают вместе)
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(h)) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .offset { IntOffset(offsetX.roundToInt(), 0) }
-                .width(filterWidth + buttonWidth) // панель + место для кнопки
+                .width(filterWidth + buttonWidth)
                 .align(Alignment.TopEnd)
         ) {
-            // Панель фильтров
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(filterWidth)
                     .background(Color.White)
                     .shadow(8.dp)
-                    .align(Alignment.CenterEnd) // панель прижата к правой стороне
+                    .align(Alignment.CenterEnd)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Фильтры", style = MaterialTheme.typography.titleMedium)
+                    Text("Filters", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = true, onCheckedChange = {})
-                        Text("Комедия")
+                    Column {
+                        val options = listOf("Option 1", "Option 2", "Option 3")
+                        var selectedIndex by remember { mutableStateOf<Int?>(null) }
+
+                        Column {
+                            val options = listOf(
+                                FilterOption("Option 1") { Log.d("CHECKBOX", "Option 1 selected") },
+                                FilterOption("Option 2") { Log.d("CHECKBOX", "Option 2 selected") },
+                                FilterOption("Option 3") { Log.d("CHECKBOX", "Option 3 selected") }
+                            )
+
+                            var selectedIndex by remember { mutableStateOf<Int?>(null) }
+
+                            Column {
+                                options.forEachIndexed { index, option ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .padding(vertical = 4.dp)
+                                            .clickable {
+                                                selectedIndex = index
+                                                option.onSelected()
+                                            }
+                                    ) {
+                                        Checkbox(
+                                            checked = selectedIndex == index,
+                                            onCheckedChange = {
+                                                selectedIndex = if (it) index else null
+                                                if (it) option.onSelected()
+                                            }
+                                        )
+                                        Text(option.text)
+                                    }
+                                }
+                            }
                     }
+
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onToggle) {
                         Text("Применить")
@@ -88,13 +124,12 @@ fun FilterPanelWithButton(
                 }
             }
 
-            // Кнопка слева от панели
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopStart) // кнопка прижата к левой стороне
+                    .align(Alignment.TopStart)
                     .width(buttonWidth)
                     .height(80.dp)
-                    .offset {IntOffset(0,80) }
+                    .offset { IntOffset(0, 80) }
                     .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
                     .background(PrimaryColor)
                     .clickable { onToggle() },
@@ -102,11 +137,12 @@ fun FilterPanelWithButton(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.filter_arrow_2_left),
-                    contentDescription = "Открыть фильтр",
+                    contentDescription = "",
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
             }
         }
     }
+}
 }

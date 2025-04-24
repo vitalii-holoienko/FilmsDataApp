@@ -322,10 +322,11 @@ fun Content(from : String){
                 }
 
             }
-        }
         FilterPanelWithButton(
             isFilterVisible = isFilterVisible,
             onToggle = { isFilterVisible = !isFilterVisible },
             screenHeight
         )
+        }
+
 }

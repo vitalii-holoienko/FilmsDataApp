@@ -16,9 +16,8 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 class ActorsRepositoryImpl : ActorsRepository {
-    val result = mutableListOf<Actor>()
-    val json = Json { ignoreUnknownKeys = true }
     override suspend fun getActors(): List<Actor> = withContext(Dispatchers.IO) {
+        val json = Json { ignoreUnknownKeys = true }
         val result = mutableListOf<Actor>()
 
         coroutineScope {
@@ -31,7 +30,6 @@ class ActorsRepositoryImpl : ActorsRepository {
                     .jsonArray
                     .mapNotNull { it.jsonObject["nconst"]?.jsonPrimitive?.content }
 
-                // Асинхронные запросы get-bio
                 val deferredActors = nconstList.map { nconst ->
                     async {
                         try {
