@@ -1,7 +1,7 @@
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Movie(
+data class TVShow(
     val id : String? = null,
     val url : String? = null,
     val primaryTitle : String? = null,

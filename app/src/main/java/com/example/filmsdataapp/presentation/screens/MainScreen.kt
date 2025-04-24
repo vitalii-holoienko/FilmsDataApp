@@ -17,7 +17,10 @@ fun MainScreen(
     navigateToNewReleasesPage : () -> Unit,
     navigateToCurrentlyTrendingPage : () ->Unit,
     navigateToProfilePage : () ->Unit,
-    onMenuClick : () -> Unit
+    onMenuClick : () -> Unit,
+    navigateToTVShowsScreen : () -> Unit,
+    navigateToMoviesScreen : () -> Unit,
+    navigateToActorsScreen : () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -27,6 +30,9 @@ fun MainScreen(
         Content(
             navigateToNewReleasesPage,
             navigateToCurrentlyTrendingPage,
+            navigateToTVShowsScreen,
+            navigateToMoviesScreen,
+            navigateToActorsScreen
         )
     }
 

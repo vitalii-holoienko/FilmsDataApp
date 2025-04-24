@@ -14,7 +14,7 @@ import com.example.filmsdataapp.ui.theme.BackGroundColor
 @Composable
 fun ComingSoonScreen(navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit, onMenuClick : () -> Unit){
     Column(modifier = Modifier.fillMaxSize()
-        .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
+        .background(color= BackGroundColor)){
         Header(navigateToMainScreen, navigateToProfilePage, onMenuClick)
         Content("Coming soon")
     }

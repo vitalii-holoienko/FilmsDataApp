@@ -82,7 +82,16 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
-                                }
+                                },
+                                navigateToTVShowsScreen = {
+                                    navController.navigate("tvshows_screen")
+                                },
+                                navigateToMoviesScreen = {
+                                    navController.navigate("movies_screen")
+                                },
+                                navigateToActorsScreen = {
+                                    navController.navigate("actors_screen")
+                                },
 
                             )
                         }

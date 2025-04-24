@@ -1,6 +1,7 @@
 package com.example.filmsdataapp.presentation.viewmodels
 
 import Movie
+import TVShow
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -34,20 +35,20 @@ class MainActivityViewModel : ViewModel() {
 
     private val moviesRepository : MoviesRepository = MoviesRepositoryImpl()
     private val newsRepository : NewsRepository = NewsRepositoryImpl()
-    private val tVShowsRepository : TVShowsRepository = TVShowsRepositoryImpl()
+    private val tvShowsRepository : TVShowsRepository = TVShowsRepositoryImpl()
     private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
     private val titleRepository : TitleRepository = TitleRepositoryImpl()
 
     private var _mostPopularMovies = MutableLiveData<List<Movie>>()
     private var _comingSoonMovies = MutableLiveData<List<Movie>>()
+    private var _mostPopularTVShows = MutableLiveData<List<TVShow>>()
     private val _currentlyTrendingMovies = MutableStateFlow("")
     private val _news = MutableLiveData<List<News>>()
-    private val _mostPopularTVShows = MutableStateFlow("")
     private val _actors = MutableLiveData<List<Actor>>()
     private val _titleWithAppliedFitlers = MutableStateFlow("")
     val mostPopularMovies: LiveData<List<Movie>> get() = _mostPopularMovies
     val comingSoonMovies: LiveData<List<Movie>> get() = _comingSoonMovies
-    val mostPopularTVShows : StateFlow<String> = _mostPopularTVShows
+    val mostPopularTVShows: LiveData<List<TVShow>> get() = _mostPopularTVShows
     val news : LiveData<List<News>> get() = _news
     val currentlyTrendingMovies: StateFlow<String> = _currentlyTrendingMovies
     val actors: LiveData<List<Actor>> get() = _actors
@@ -76,10 +77,14 @@ class MainActivityViewModel : ViewModel() {
 //                val result2 = GetComingSoonMoviesUseCase(moviesRepository)
 //                _comingSoonMovies.value = result2.invoke()
 
-//                val result1 = GetActorsUseCase(actorsRepository)
-//                _actors.value = result1.invoke()
+                val result1 = GetActorsUseCase(actorsRepository)
+                _actors.value = result1.invoke()
+                Log.d("TEKKEN", _actors.value!!.size.toString())
 
-
+//                  val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
+//                  _mostPopularTVShows.value = result1.invoke()
+//
+//                Log.d("TEKKEN", mostPopularTVShows.value!!.size.toString())
 
 
 

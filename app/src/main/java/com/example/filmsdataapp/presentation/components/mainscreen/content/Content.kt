@@ -39,11 +39,16 @@ import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun Content(
     navigateToNewReleasesPage : () -> Unit,
     navigateToCurrentlyTrendingPage : () ->Unit,
+    navigateToTVShowsScreen : () -> Unit,
+    navigateToMoviesScreen : () -> Unit,
+    navigateToActorsScreen : () -> Unit,
 ) {
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val comingSoonMovies = viewModel.comingSoonMovies.observeAsState(emptyList())
@@ -142,7 +147,9 @@ fun Content(
                         Box(modifier = Modifier
                             .fillMaxHeight()
                             .width(8.dp)
-                            .background(color = Color(255, 159, 140)))
+                            .background(color = Color(255, 159, 140)).clickable {
+                                navigateToMoviesScreen()
+                            })
                         Text(
                             text = "Movies",
                             modifier = Modifier
@@ -172,7 +179,11 @@ fun Content(
                 Box(modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f)
-                    .background(color = Color.White)){
+                    .background(color = Color.White)
+                    .clickable {
+                        navigateToTVShowsScreen()
+                    }
+                ){
                     Row(modifier = Modifier
                         .fillMaxSize()
                         .background(color = Color(218, 241, 255))){
@@ -198,9 +209,7 @@ fun Content(
                                 .scale(1f)
                                 .align(Alignment.CenterVertically)
                                 .padding(5.dp, 0.dp)
-                                .clickable {
-                                    //TODO
-                                }
+
                         )
 
                     }
@@ -213,7 +222,11 @@ fun Content(
                     .background(color = Color.White)){
                     Row(modifier = Modifier
                         .fillMaxSize()
-                        .background(color = Color(231, 246, 218))){
+                        .background(color = Color(231, 246, 218))
+                        .clickable {
+                            navigateToActorsScreen()
+                        }
+                    ){
                         Box(modifier = Modifier
                             .fillMaxHeight()
                             .width(8.dp)
