@@ -1,6 +1,7 @@
 package com.example.filmsdataapp.presentation.components.listofmoviesscreen
 
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -17,7 +18,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -33,35 +36,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.FilterOption
+import com.example.filmsdataapp.domain.model.SORTED_BY
+import com.example.filmsdataapp.domain.model.Type
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import kotlin.math.roundToInt
+
+
 
 @Composable
 fun FilterPanelWithButton(
     isFilterVisible: Boolean,
     onToggle: () -> Unit,
-    h: Dp
 ) {
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val filterWidth = 300.dp
     val buttonWidth = 40.dp
     val density = LocalDensity.current
-
+    
     val offsetX by animateFloatAsState(
         targetValue = if (isFilterVisible) 0f else with(density) { filterWidth.toPx() },
         animationSpec = tween(durationMillis = 300),
         label = "offsetX"
     )
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(h)) {
+    Box(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
@@ -69,6 +77,7 @@ fun FilterPanelWithButton(
                 .width(filterWidth + buttonWidth)
                 .align(Alignment.TopEnd)
         ) {
+
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -81,33 +90,29 @@ fun FilterPanelWithButton(
                     Text("Filters", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     Column {
-                        val options = listOf("Option 1", "Option 2", "Option 3")
-                        var selectedIndex by remember { mutableStateOf<Int?>(null) }
-
                         Column {
-                            val options = listOf(
-                                FilterOption("Option 1") { Log.d("CHECKBOX", "Option 1 selected") },
-                                FilterOption("Option 2") { Log.d("CHECKBOX", "Option 2 selected") },
-                                FilterOption("Option 3") { Log.d("CHECKBOX", "Option 3 selected") }
+                            Text("Type", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+                            val options1 = listOf(
+                                FilterOption("Movie") { viewModel.filterStatus.type = Type.MOVIE },
+                                FilterOption("TV Show") { viewModel.filterStatus.type = Type.TVSHOW },
                             )
-
-                            var selectedIndex by remember { mutableStateOf<Int?>(null) }
+                            var selectedIndex1 by remember { mutableStateOf<Int?>(null) }
 
                             Column {
-                                options.forEachIndexed { index, option ->
+                                options1.forEachIndexed { index, option ->
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier
-                                            .padding(vertical = 4.dp)
+                                            .padding(vertical = 0.dp)
                                             .clickable {
-                                                selectedIndex = index
+                                                selectedIndex1 = index
                                                 option.onSelected()
                                             }
                                     ) {
                                         Checkbox(
-                                            checked = selectedIndex == index,
+                                            checked = selectedIndex1 == index,
                                             onCheckedChange = {
-                                                selectedIndex = if (it) index else null
+                                                selectedIndex1 = if (it) index else null
                                                 if (it) option.onSelected()
                                             }
                                         )
@@ -115,21 +120,126 @@ fun FilterPanelWithButton(
                                     }
                                 }
                             }
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onToggle) {
-                        Text("Применить")
+                            Text("Sorted by", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+                            val options2 = listOf(
+                                FilterOption("Rating") { viewModel.filterStatus.sortedBy = SORTED_BY.RATING },
+                                FilterOption("Popularity") { viewModel.filterStatus.sortedBy = SORTED_BY.POPULARITY },
+                                FilterOption("Release date") { viewModel.filterStatus.sortedBy = SORTED_BY.RELEASE_DATE },
+                                FilterOption("Random") { viewModel.filterStatus.sortedBy = SORTED_BY.RANDOM },
+                                FilterOption("Alphabet") { viewModel.filterStatus.sortedBy = SORTED_BY.ALPHABET },
+                            )
+                            var selectedIndex2 by remember { mutableStateOf<Int?>(null) }
+
+                            Column {
+                                options2.forEachIndexed { index, option ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .padding(vertical = 0.dp)
+                                            .clickable {
+                                                selectedIndex2 = index
+                                                option.onSelected()
+                                            }
+                                    ) {
+                                        Checkbox(
+                                            checked = selectedIndex2 == index,
+                                            onCheckedChange = {
+                                                selectedIndex2 = if (it) index else null
+                                                if (it) option.onSelected()
+                                            }
+                                        )
+                                        Text(option.text)
+                                    }
+                                }
+                            }
+
+                            Text("Release Date", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+                            val options3 = listOf(
+                                FilterOption("2025") { viewModel.filterStatus.dateOfReleaseFrom = 2025;viewModel.filterStatus.dateOfReleaseTo = 2025; },
+                                FilterOption("2024") { viewModel.filterStatus.dateOfReleaseFrom = 2024;viewModel.filterStatus.dateOfReleaseTo = 2024; },
+                                FilterOption("2022-2023") { viewModel.filterStatus.dateOfReleaseFrom = 2022;viewModel.filterStatus.dateOfReleaseTo = 2023; },
+                                FilterOption("2017-2021") { viewModel.filterStatus.dateOfReleaseFrom = 2017;viewModel.filterStatus.dateOfReleaseTo = 2021; },
+                                FilterOption("2010-2016") { viewModel.filterStatus.dateOfReleaseFrom = 2010;viewModel.filterStatus.dateOfReleaseTo = 2016; },
+                                FilterOption("2000-2010") { viewModel.filterStatus.dateOfReleaseFrom = 2000;viewModel.filterStatus.dateOfReleaseTo = 2010; },
+                                FilterOption("Older") { viewModel.filterStatus.dateOfReleaseTo = 2000; },
+                            )
+                            var selectedIndex3 by remember { mutableStateOf<Int?>(null) }
+
+                            Column {
+                                options3.forEachIndexed { index, option ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .padding(vertical = 0.dp)
+                                            .clickable {
+                                                selectedIndex3 = index
+                                                option.onSelected()
+                                            }
+                                    ) {
+                                        Checkbox(
+                                            checked = selectedIndex3 == index,
+                                            onCheckedChange = {
+                                                selectedIndex3 = if (it) index else null
+                                                if (it) option.onSelected()
+                                            }
+                                        )
+                                        Text(option.text)
+                                    }
+                                }
+                            }
+
+                            Text("Rating", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+                            val options4 = listOf(
+                                FilterOption("8+") { viewModel.filterStatus.averageRationFrom = 8 },
+                                FilterOption("7+") { viewModel.filterStatus.averageRationFrom = 7 },
+                                FilterOption("6+") { viewModel.filterStatus.averageRationFrom = 6 },
+                            )
+                            var selectedIndex4 by remember { mutableStateOf<Int?>(null) }
+
+                            Column {
+                                options4.forEachIndexed { index, option ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .padding(vertical = 0.dp)
+                                            .clickable {
+                                                selectedIndex4 = index
+                                                option.onSelected()
+                                            }
+                                    ) {
+                                        Checkbox(
+                                            checked = selectedIndex4 == index,
+                                            onCheckedChange = {
+                                                selectedIndex4 = if (it) index else null
+                                                if (it) option.onSelected()
+                                            }
+                                        )
+                                        Text(option.text)
+                                    }
+                                }
+                            }
+
+
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = onToggle) {
+                            Text("Применить")
+                        }
                     }
                 }
             }
 
+
+
+
+            // Кнопка, которая теперь в левом верхнем углу
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
+                    .align(Alignment.TopStart) // кнопка сверху слева
                     .width(buttonWidth)
                     .height(80.dp)
-                    .offset { IntOffset(0, 80) }
                     .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
                     .background(PrimaryColor)
                     .clickable { onToggle() },
@@ -137,12 +247,11 @@ fun FilterPanelWithButton(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.filter_arrow_2_left),
-                    contentDescription = "",
+                    contentDescription = "Открыть фильтр",
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
             }
         }
     }
-}
 }

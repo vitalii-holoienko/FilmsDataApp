@@ -8,6 +8,7 @@ class FilterStatus(
     var dateOfReleaseFrom:Int? = null,
     var dateOfReleaseTo:Int? = null,
     var language:Language? = null,
+    var sortedBy: SORTED_BY? = null
 
 ) {
     val genres = mapOf(
@@ -50,4 +51,8 @@ enum class Genre{
 
 enum class Language{
     ENGLISH,RUSSIAN,FRENCH,GERMANY
+}
+
+enum class SORTED_BY{
+    POPULARITY, RATING, ALPHABET, RANDOM, RELEASE_DATE,
 }

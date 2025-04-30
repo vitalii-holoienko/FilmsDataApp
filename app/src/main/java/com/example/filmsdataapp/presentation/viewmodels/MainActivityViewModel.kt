@@ -16,6 +16,7 @@ import com.example.filmsdataapp.domain.model.Actor
 import com.example.filmsdataapp.domain.model.FilterStatus
 import com.example.filmsdataapp.domain.model.Genre
 import com.example.filmsdataapp.domain.model.News
+import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.domain.repository.ActorsRepository
 import com.example.filmsdataapp.domain.repository.MoviesRepository
 import com.example.filmsdataapp.domain.repository.NewsRepository
@@ -41,17 +42,17 @@ class MainActivityViewModel : ViewModel() {
     private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
     private val titleRepository : TitleRepository = TitleRepositoryImpl()
 
-    private var _mostPopularMovies = MutableLiveData<List<Movie>>()
-    private var _comingSoonMovies = MutableLiveData<List<Movie>>()
-    private var _mostPopularTVShows = MutableLiveData<List<TVShow>>()
+    private var _mostPopularMovies = MutableLiveData<List<Title>>()
+    private var _comingSoonMovies = MutableLiveData<List<Title>>()
+    private var _mostPopularTVShows = MutableLiveData<List<Title>>()
     private val _news = MutableLiveData<List<News>>()
     private val _actors = MutableLiveData<List<Actor>>()
 
     private val _currentlyTrendingMovies = MutableStateFlow("")
     private val _titleWithAppliedFitlers = MutableStateFlow("")
-    val mostPopularMovies: LiveData<List<Movie>> get() = _mostPopularMovies
-    val comingSoonMovies: LiveData<List<Movie>> get() = _comingSoonMovies
-    val mostPopularTVShows: LiveData<List<TVShow>> get() = _mostPopularTVShows
+    val mostPopularMovies: LiveData<List<Title>> get() = _mostPopularMovies
+    val comingSoonMovies: LiveData<List<Title>> get() = _comingSoonMovies
+    val mostPopularTVShows: LiveData<List<Title>> get() = _mostPopularTVShows
     val news : LiveData<List<News>> get() = _news
     val currentlyTrendingMovies: StateFlow<String> = _currentlyTrendingMovies
     val actors: LiveData<List<Actor>> get() = _actors
@@ -67,24 +68,27 @@ class MainActivityViewModel : ViewModel() {
                 filterStatus.genre = Genre.ACTION
                 val result = GetTitleWithAppliedFiltersUseCase(titleRepository)
                 _titleWithAppliedFitlers.value = result.invoke(filterStatus)
-                Log.d("TEKKEN", titleWithAppliedFitlers.value.toString())
 
-//                val result = GetMostPopularTVShowsUseCase(TVShowsRepository)
-//                _mostPopularTVShows.value = result.invoke()
 
-//                val result = GetNewsUseCase(newsRepository)
-//                _news.value = result.invoke()
+//                val result6= GetMostPopularTVShowsUseCase(TVShowsRepository)
+//                _mostPopularTVShows.value = result6.invoke()
 
-//                val result1 = GetMostPopularMoviesUseCase(moviesRepository)
-//                _mostPopularMovies.value = result1.invoke()
+//                val result2 = GetNewsUseCase(newsRepository)
+//                _news.value = result2.invoke()
 //
-//                val result2 = GetComingSoonMoviesUseCase(moviesRepository)
-//                _comingSoonMovies.value = result2.invoke()
+//                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
+//                _mostPopularMovies.value = result3.invoke()
+//
+//                val result4 = GetComingSoonMoviesUseCase(moviesRepository)
+//                _comingSoonMovies.value = result4.invoke()
 
-//                val result1 = GetActorsUseCase(actorsRepository)
-//                _actors.value = result1.invoke()
+
+
+//
+//                val result5 = GetActorsUseCase(actorsRepository)
+//                _actors.value = result5.invoke()
 //                Log.d("TEKKEN", _actors.value!!.size.toString())
-
+//
 //                  val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
 //                  _mostPopularTVShows.value = result1.invoke()
 //

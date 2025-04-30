@@ -28,11 +28,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun ImageItem(width: Dp, movie: Movie) {
+fun ImageItem(width: Dp, movie: Title) {
     Column{
         Image(
             painter = rememberAsyncImagePainter(movie.primaryImage),

@@ -19,11 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.example.filmsdataapp.domain.model.Title
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageSlider(movies : List<Movie>) {
+fun ImageSlider(movies : List<Title>) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp - 20.dp
     val imageWidth = (screenWidth - (2 * 10.dp)) / 3
 

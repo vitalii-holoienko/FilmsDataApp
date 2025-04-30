@@ -4,11 +4,13 @@ import Movie
 import android.util.Log
 import com.example.filmsdataapp.data.network.NetworkHelper
 import com.example.filmsdataapp.data.network.NetworkHelper.makeRequest
+import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.domain.repository.MoviesRepository
 import com.example.filmsdataapp.domain.repository.TitleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -18,7 +20,7 @@ import okhttp3.Request
 class MoviesRepositoryImpl() : MoviesRepository{
     private val client = OkHttpClient()
 
-    override suspend fun getMostPopularMovies(): List<Movie> = withContext(Dispatchers.IO) {
+    override suspend fun getMostPopularMovies(): List<Title> = withContext(Dispatchers.IO) {
         val json = Json {
             ignoreUnknownKeys = true
         }
@@ -27,8 +29,8 @@ class MoviesRepositoryImpl() : MoviesRepository{
 
     }
 
-    override suspend fun getComingSoonMovies(): List<Movie> = withContext(Dispatchers.IO) {
-        val result = mutableListOf<Movie>()
+    override suspend fun getComingSoonMovies(): List<Title> = withContext(Dispatchers.IO) {
+        val result = mutableListOf<Title>()
 
         val idsJson = makeRequest(
             "https://imdb232.p.rapidapi.com/api/title/get-coming-soon?limit=20&comingSoonType=MOVIE",
@@ -43,17 +45,18 @@ class MoviesRepositoryImpl() : MoviesRepository{
         ids.forEach { id ->
             try {
                 val movieString = getMovieById(id)
-                val movie = json.decodeFromString<Movie>(movieString)
+                val movie = json.decodeFromString<Title>(movieString)
                 result.add(movie)
             } catch (e: Exception) {
                 Log.e("MOVIE_FETCH", "Error $id: ${e.message}")
             }
         }
 
+
         return@withContext result
     }
 
-    override suspend fun getCurrentlyTrendingMovies(): List<Movie> = withContext(Dispatchers.IO){
+    override suspend fun getCurrentlyTrendingMovies(): List<Title> = withContext(Dispatchers.IO){
 
         val json = Json {
             ignoreUnknownKeys = true
@@ -68,6 +71,10 @@ class MoviesRepositoryImpl() : MoviesRepository{
 
     override suspend fun getMovieById(id:String): String = withContext(Dispatchers.IO){
         return@withContext makeRequest("https://imdb236.p.rapidapi.com/imdb/${id}",1)
-
     }
+
+    override suspend fun getRatingById(id:String): String = withContext(Dispatchers.IO){
+        return@withContext makeRequest("https://imdb236.p.rapidapi.com/imdb/${id}/rating",1)
+    }
+
 }
