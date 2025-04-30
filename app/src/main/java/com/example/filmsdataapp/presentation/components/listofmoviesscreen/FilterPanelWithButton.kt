@@ -45,10 +45,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.FilterOption
+import com.example.filmsdataapp.domain.model.Genre
 import com.example.filmsdataapp.domain.model.SORTED_BY
 import com.example.filmsdataapp.domain.model.Type
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
+import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
+import com.example.filmsdataapp.ui.theme.TextColor
 import kotlin.math.roundToInt
 
 
@@ -62,20 +65,21 @@ fun FilterPanelWithButton(
     val filterWidth = 300.dp
     val buttonWidth = 40.dp
     val density = LocalDensity.current
-    
+
     val offsetX by animateFloatAsState(
         targetValue = if (isFilterVisible) 0f else with(density) { filterWidth.toPx() },
         animationSpec = tween(durationMillis = 300),
         label = "offsetX"
     )
 
-    Box(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .offset { IntOffset(offsetX.roundToInt(), 0) }
                 .width(filterWidth + buttonWidth)
                 .align(Alignment.TopEnd)
+              
         ) {
 
             Box(
@@ -85,13 +89,16 @@ fun FilterPanelWithButton(
                     .background(Color.White)
                     .shadow(8.dp)
                     .align(Alignment.CenterEnd)
+                    .background(color = PrimaryColor)
+
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Filters", style = MaterialTheme.typography.titleMedium)
+                Column(modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
+                    Text("Filters", style = MaterialTheme.typography.titleMedium, color = TextColor)
                     Spacer(modifier = Modifier.height(8.dp))
                     Column {
+
                         Column {
-                            Text("Type", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+                            Text("Type", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp), color = TextColor)
                             val options1 = listOf(
                                 FilterOption("Movie") { viewModel.filterStatus.type = Type.MOVIE },
                                 FilterOption("TV Show") { viewModel.filterStatus.type = Type.TVSHOW },
@@ -114,14 +121,15 @@ fun FilterPanelWithButton(
                                             onCheckedChange = {
                                                 selectedIndex1 = if (it) index else null
                                                 if (it) option.onSelected()
-                                            }
-                                        )
-                                        Text(option.text)
+                                            },
+
+                                            )
+                                        Text(option.text, color = TextColor)
                                     }
                                 }
                             }
-
-                            Text("Sorted by", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+                            Box(modifier = Modifier.fillMaxSize().background(color = BackGroundColor))
+                            Text("Sorted by", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp),color = TextColor)
                             val options2 = listOf(
                                 FilterOption("Rating") { viewModel.filterStatus.sortedBy = SORTED_BY.RATING },
                                 FilterOption("Popularity") { viewModel.filterStatus.sortedBy = SORTED_BY.POPULARITY },
@@ -149,12 +157,12 @@ fun FilterPanelWithButton(
                                                 if (it) option.onSelected()
                                             }
                                         )
-                                        Text(option.text)
+                                        Text(option.text, color = TextColor)
                                     }
                                 }
                             }
 
-                            Text("Release Date", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+                            Text("Release Date", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp), color = TextColor)
                             val options3 = listOf(
                                 FilterOption("2025") { viewModel.filterStatus.dateOfReleaseFrom = 2025;viewModel.filterStatus.dateOfReleaseTo = 2025; },
                                 FilterOption("2024") { viewModel.filterStatus.dateOfReleaseFrom = 2024;viewModel.filterStatus.dateOfReleaseTo = 2024; },
@@ -184,12 +192,12 @@ fun FilterPanelWithButton(
                                                 if (it) option.onSelected()
                                             }
                                         )
-                                        Text(option.text)
+                                        Text(option.text, color = TextColor)
                                     }
                                 }
                             }
 
-                            Text("Rating", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+                            Text("Rating", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp), color = TextColor)
                             val options4 = listOf(
                                 FilterOption("8+") { viewModel.filterStatus.averageRationFrom = 8 },
                                 FilterOption("7+") { viewModel.filterStatus.averageRationFrom = 7 },
@@ -215,7 +223,56 @@ fun FilterPanelWithButton(
                                                 if (it) option.onSelected()
                                             }
                                         )
-                                        Text(option.text)
+                                        Text(option.text, color = TextColor)
+                                    }
+                                }
+                            }
+
+                            Text("Genres", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp), color = TextColor)
+                            val options5 = listOf(
+                                FilterOption("Drama") { viewModel.filterStatus.genre = Genre.DRAMA},
+                                FilterOption("Comedy") { viewModel.filterStatus.genre = Genre.COMEDY },
+                                FilterOption("Documentary") { viewModel.filterStatus.genre = Genre.DOCUMENTARY},
+                                FilterOption("Action") { viewModel.filterStatus.genre = Genre.ACTION },
+                                FilterOption("Romance") { viewModel.filterStatus.genre = Genre.ROMANCE },
+                                FilterOption("Thriller") { viewModel.filterStatus.genre = Genre.THRILLER },
+                                FilterOption("Crime") { viewModel.filterStatus.genre = Genre.CRIME },
+                                FilterOption("Horror") { viewModel.filterStatus.genre = Genre.HORROR },
+                                FilterOption("Adventure") { viewModel.filterStatus.genre = Genre.ADVENTURE},
+                                FilterOption("Family") { viewModel.filterStatus.genre = Genre.FAMILY },
+                                FilterOption("Animation") { viewModel.filterStatus.genre = Genre.ANIMATION },
+                                FilterOption("Reality-TV") { viewModel.filterStatus.genre = Genre.REALITY_TV },
+                                FilterOption("Mystery") { viewModel.filterStatus.genre = Genre.MYSTERY },
+                                FilterOption("Fantasy") { viewModel.filterStatus.genre = Genre.FANTASY },
+                                FilterOption("History") { viewModel.filterStatus.genre = Genre.HISTORY },
+                                FilterOption("Biography") { viewModel.filterStatus.genre = Genre.BIOGRAPHY },
+                                FilterOption("Sci-fi") { viewModel.filterStatus.genre = Genre.SCI_FI },
+                                FilterOption("Sport") {viewModel.filterStatus.genre = Genre.SPORT },
+                                FilterOption("Adult") { viewModel.filterStatus.genre = Genre.ADULT },
+                                FilterOption("War") { viewModel.filterStatus.genre = Genre.WAR },
+                            )
+
+                            var selectedIndex5 by remember { mutableStateOf<Int?>(null) }
+
+                            Column {
+                                options5.forEachIndexed { index, option ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .padding(vertical = 0.dp)
+                                            .clickable {
+                                                selectedIndex5 = index
+                                                option.onSelected()
+                                            }
+                                    ) {
+                                        Checkbox(
+                                            checked = selectedIndex5 == index,
+                                            onCheckedChange = {
+                                                selectedIndex5 = if (it) index else null
+                                                if (it) option.onSelected()
+                                            }
+                                        )
+                                        Text(option.text, color = TextColor)
                                     }
                                 }
                             }
@@ -224,8 +281,8 @@ fun FilterPanelWithButton(
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = onToggle) {
-                            Text("Применить")
+                        Button(onClick = onToggle, modifier = Modifier.align(Alignment.CenterHorizontally).width(200.dp)) {
+                            Text("Apply")
                         }
                     }
                 }
@@ -234,10 +291,10 @@ fun FilterPanelWithButton(
 
 
 
-            // Кнопка, которая теперь в левом верхнем углу
+
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopStart) // кнопка сверху слева
+                    .align(Alignment.TopStart)
                     .width(buttonWidth)
                     .height(80.dp)
                     .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
@@ -247,7 +304,7 @@ fun FilterPanelWithButton(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.filter_arrow_2_left),
-                    contentDescription = "Открыть фильтр",
+                    contentDescription = "",
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
