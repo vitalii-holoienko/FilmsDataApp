@@ -79,9 +79,7 @@ fun FilterPanelWithButton(
                 .offset { IntOffset(offsetX.roundToInt(), 0) }
                 .width(filterWidth + buttonWidth)
                 .align(Alignment.TopEnd)
-              
         ) {
-
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -90,207 +88,137 @@ fun FilterPanelWithButton(
                     .shadow(8.dp)
                     .align(Alignment.CenterEnd)
                     .background(color = PrimaryColor)
-
             ) {
-                Column(modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
                     Text("Filters", style = MaterialTheme.typography.titleMedium, color = TextColor)
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    Column {
 
-                        Column {
-                            Text("Type", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp), color = TextColor)
-                            val options1 = listOf(
-                                FilterOption("Movie") { viewModel.filterStatus.type = Type.MOVIE },
-                                FilterOption("TV Show") { viewModel.filterStatus.type = Type.TVSHOW },
-                            )
-                            var selectedIndex1 by remember { mutableStateOf<Int?>(null) }
+                    // Тип (Movie / TV Show)
+                    FilterSection(
+                        title = "Type",
+                        options = listOf(
+                            FilterOption("Movie", { viewModel.filterStatus.type = Type.MOVIE }, { viewModel.filterStatus.type = null }),
+                            FilterOption("TV Show", { viewModel.filterStatus.type = Type.TVSHOW }, { viewModel.filterStatus.type = null }),
+                        )
+                    )
 
-                            Column {
-                                options1.forEachIndexed { index, option ->
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier
-                                            .padding(vertical = 0.dp)
-                                            .clickable {
-                                                selectedIndex1 = index
-                                                option.onSelected()
-                                            }
-                                    ) {
-                                        Checkbox(
-                                            checked = selectedIndex1 == index,
-                                            onCheckedChange = {
-                                                selectedIndex1 = if (it) index else null
-                                                if (it) option.onSelected()
-                                            },
+                    // Сортировка
+                    FilterSection(
+                        title = "Sorted by",
+                        options = listOf(
+                            FilterOption("Rating", { viewModel.filterStatus.sortedBy = SORTED_BY.RATING }, { viewModel.filterStatus.sortedBy = null }),
+                            FilterOption("Popularity", { viewModel.filterStatus.sortedBy = SORTED_BY.POPULARITY }, { viewModel.filterStatus.sortedBy = null }),
+                            FilterOption("Release date", { viewModel.filterStatus.sortedBy = SORTED_BY.RELEASE_DATE }, { viewModel.filterStatus.sortedBy = null }),
+                            FilterOption("Random", { viewModel.filterStatus.sortedBy = SORTED_BY.RANDOM }, { viewModel.filterStatus.sortedBy = null }),
+                            FilterOption("Alphabet", { viewModel.filterStatus.sortedBy = SORTED_BY.ALPHABET }, { viewModel.filterStatus.sortedBy = null }),
+                        )
+                    )
 
-                                            )
-                                        Text(option.text, color = TextColor)
-                                    }
-                                }
-                            }
-                            Box(modifier = Modifier.fillMaxSize().background(color = BackGroundColor))
-                            Text("Sorted by", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp),color = TextColor)
-                            val options2 = listOf(
-                                FilterOption("Rating") { viewModel.filterStatus.sortedBy = SORTED_BY.RATING },
-                                FilterOption("Popularity") { viewModel.filterStatus.sortedBy = SORTED_BY.POPULARITY },
-                                FilterOption("Release date") { viewModel.filterStatus.sortedBy = SORTED_BY.RELEASE_DATE },
-                                FilterOption("Random") { viewModel.filterStatus.sortedBy = SORTED_BY.RANDOM },
-                                FilterOption("Alphabet") { viewModel.filterStatus.sortedBy = SORTED_BY.ALPHABET },
-                            )
-                            var selectedIndex2 by remember { mutableStateOf<Int?>(null) }
+                    // Даты выхода
+                    FilterSection(
+                        title = "Release Date",
+                        options = listOf(
+                            FilterOption("2025", {
+                                viewModel.filterStatus.dateOfReleaseFrom = 2025
+                                viewModel.filterStatus.dateOfReleaseTo = 2025
+                            }, {
+                                viewModel.filterStatus.dateOfReleaseFrom = null
+                                viewModel.filterStatus.dateOfReleaseTo = null
+                            }),
+                            FilterOption("2024", {
+                                viewModel.filterStatus.dateOfReleaseFrom = 2024
+                                viewModel.filterStatus.dateOfReleaseTo = 2024
+                            }, {
+                                viewModel.filterStatus.dateOfReleaseFrom = null
+                                viewModel.filterStatus.dateOfReleaseTo = null
+                            }),
+                            FilterOption("2022-2023", {
+                                viewModel.filterStatus.dateOfReleaseFrom = 2022
+                                viewModel.filterStatus.dateOfReleaseTo = 2023
+                            }, {
+                                viewModel.filterStatus.dateOfReleaseFrom = null
+                                viewModel.filterStatus.dateOfReleaseTo = null
+                            }),
+                            FilterOption("2017-2021", {
+                                viewModel.filterStatus.dateOfReleaseFrom = 2017
+                                viewModel.filterStatus.dateOfReleaseTo = 2021
+                            }, {
+                                viewModel.filterStatus.dateOfReleaseFrom = null
+                                viewModel.filterStatus.dateOfReleaseTo = null
+                            }),
+                            FilterOption("2010-2016", {
+                                viewModel.filterStatus.dateOfReleaseFrom = 2010
+                                viewModel.filterStatus.dateOfReleaseTo = 2016
+                            }, {
+                                viewModel.filterStatus.dateOfReleaseFrom = null
+                                viewModel.filterStatus.dateOfReleaseTo = null
+                            }),
+                            FilterOption("2000-2010", {
+                                viewModel.filterStatus.dateOfReleaseFrom = 2000
+                                viewModel.filterStatus.dateOfReleaseTo = 2010
+                            }, {
+                                viewModel.filterStatus.dateOfReleaseFrom = null
+                                viewModel.filterStatus.dateOfReleaseTo = null
+                            }),
+                            FilterOption("Older", {
+                                viewModel.filterStatus.dateOfReleaseTo = 2000
+                            }, {
+                                viewModel.filterStatus.dateOfReleaseTo = null
+                            }),
+                        )
+                    )
 
-                            Column {
-                                options2.forEachIndexed { index, option ->
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier
-                                            .padding(vertical = 0.dp)
-                                            .clickable {
-                                                selectedIndex2 = index
-                                                option.onSelected()
-                                            }
-                                    ) {
-                                        Checkbox(
-                                            checked = selectedIndex2 == index,
-                                            onCheckedChange = {
-                                                selectedIndex2 = if (it) index else null
-                                                if (it) option.onSelected()
-                                            }
-                                        )
-                                        Text(option.text, color = TextColor)
-                                    }
-                                }
-                            }
+                    // Рейтинг
+                    FilterSection(
+                        title = "Rating",
+                        options = listOf(
+                            FilterOption("8+", { viewModel.filterStatus.averageRationFrom = 8 }, { viewModel.filterStatus.averageRationFrom = null }),
+                            FilterOption("7+", { viewModel.filterStatus.averageRationFrom = 7 }, { viewModel.filterStatus.averageRationFrom = null }),
+                            FilterOption("6+", { viewModel.filterStatus.averageRationFrom = 6 }, { viewModel.filterStatus.averageRationFrom = null }),
+                        )
+                    )
 
-                            Text("Release Date", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp), color = TextColor)
-                            val options3 = listOf(
-                                FilterOption("2025") { viewModel.filterStatus.dateOfReleaseFrom = 2025;viewModel.filterStatus.dateOfReleaseTo = 2025; },
-                                FilterOption("2024") { viewModel.filterStatus.dateOfReleaseFrom = 2024;viewModel.filterStatus.dateOfReleaseTo = 2024; },
-                                FilterOption("2022-2023") { viewModel.filterStatus.dateOfReleaseFrom = 2022;viewModel.filterStatus.dateOfReleaseTo = 2023; },
-                                FilterOption("2017-2021") { viewModel.filterStatus.dateOfReleaseFrom = 2017;viewModel.filterStatus.dateOfReleaseTo = 2021; },
-                                FilterOption("2010-2016") { viewModel.filterStatus.dateOfReleaseFrom = 2010;viewModel.filterStatus.dateOfReleaseTo = 2016; },
-                                FilterOption("2000-2010") { viewModel.filterStatus.dateOfReleaseFrom = 2000;viewModel.filterStatus.dateOfReleaseTo = 2010; },
-                                FilterOption("Older") { viewModel.filterStatus.dateOfReleaseTo = 2000; },
-                            )
-                            var selectedIndex3 by remember { mutableStateOf<Int?>(null) }
+                    // Жанры
+                    FilterSection(
+                        title = "Genres",
+                        options = listOf(
+                            FilterOption("Drama", { viewModel.filterStatus.genre = Genre.DRAMA }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Comedy", { viewModel.filterStatus.genre = Genre.COMEDY }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Documentary", { viewModel.filterStatus.genre = Genre.DOCUMENTARY }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Action", { viewModel.filterStatus.genre = Genre.ACTION }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Romance", { viewModel.filterStatus.genre = Genre.ROMANCE }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Thriller", { viewModel.filterStatus.genre = Genre.THRILLER }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Crime", { viewModel.filterStatus.genre = Genre.CRIME }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Horror", { viewModel.filterStatus.genre = Genre.HORROR }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Adventure", { viewModel.filterStatus.genre = Genre.ADVENTURE }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Family", { viewModel.filterStatus.genre = Genre.FAMILY }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Animation", { viewModel.filterStatus.genre = Genre.ANIMATION }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Reality-TV", { viewModel.filterStatus.genre = Genre.REALITY_TV }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Mystery", { viewModel.filterStatus.genre = Genre.MYSTERY }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Fantasy", { viewModel.filterStatus.genre = Genre.FANTASY }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("History", { viewModel.filterStatus.genre = Genre.HISTORY }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Biography", { viewModel.filterStatus.genre = Genre.BIOGRAPHY }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Sci-fi", { viewModel.filterStatus.genre = Genre.SCI_FI }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Sport", { viewModel.filterStatus.genre = Genre.SPORT }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("Adult", { viewModel.filterStatus.genre = Genre.ADULT }, { viewModel.filterStatus.genre = null }),
+                            FilterOption("War", { viewModel.filterStatus.genre = Genre.WAR }, { viewModel.filterStatus.genre = null }),
+                        )
+                    )
 
-                            Column {
-                                options3.forEachIndexed { index, option ->
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier
-                                            .padding(vertical = 0.dp)
-                                            .clickable {
-                                                selectedIndex3 = index
-                                                option.onSelected()
-                                            }
-                                    ) {
-                                        Checkbox(
-                                            checked = selectedIndex3 == index,
-                                            onCheckedChange = {
-                                                selectedIndex3 = if (it) index else null
-                                                if (it) option.onSelected()
-                                            }
-                                        )
-                                        Text(option.text, color = TextColor)
-                                    }
-                                }
-                            }
-
-                            Text("Rating", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp), color = TextColor)
-                            val options4 = listOf(
-                                FilterOption("8+") { viewModel.filterStatus.averageRationFrom = 8 },
-                                FilterOption("7+") { viewModel.filterStatus.averageRationFrom = 7 },
-                                FilterOption("6+") { viewModel.filterStatus.averageRationFrom = 6 },
-                            )
-                            var selectedIndex4 by remember { mutableStateOf<Int?>(null) }
-
-                            Column {
-                                options4.forEachIndexed { index, option ->
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier
-                                            .padding(vertical = 0.dp)
-                                            .clickable {
-                                                selectedIndex4 = index
-                                                option.onSelected()
-                                            }
-                                    ) {
-                                        Checkbox(
-                                            checked = selectedIndex4 == index,
-                                            onCheckedChange = {
-                                                selectedIndex4 = if (it) index else null
-                                                if (it) option.onSelected()
-                                            }
-                                        )
-                                        Text(option.text, color = TextColor)
-                                    }
-                                }
-                            }
-
-                            Text("Genres", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp), color = TextColor)
-                            val options5 = listOf(
-                                FilterOption("Drama") { viewModel.filterStatus.genre = Genre.DRAMA},
-                                FilterOption("Comedy") { viewModel.filterStatus.genre = Genre.COMEDY },
-                                FilterOption("Documentary") { viewModel.filterStatus.genre = Genre.DOCUMENTARY},
-                                FilterOption("Action") { viewModel.filterStatus.genre = Genre.ACTION },
-                                FilterOption("Romance") { viewModel.filterStatus.genre = Genre.ROMANCE },
-                                FilterOption("Thriller") { viewModel.filterStatus.genre = Genre.THRILLER },
-                                FilterOption("Crime") { viewModel.filterStatus.genre = Genre.CRIME },
-                                FilterOption("Horror") { viewModel.filterStatus.genre = Genre.HORROR },
-                                FilterOption("Adventure") { viewModel.filterStatus.genre = Genre.ADVENTURE},
-                                FilterOption("Family") { viewModel.filterStatus.genre = Genre.FAMILY },
-                                FilterOption("Animation") { viewModel.filterStatus.genre = Genre.ANIMATION },
-                                FilterOption("Reality-TV") { viewModel.filterStatus.genre = Genre.REALITY_TV },
-                                FilterOption("Mystery") { viewModel.filterStatus.genre = Genre.MYSTERY },
-                                FilterOption("Fantasy") { viewModel.filterStatus.genre = Genre.FANTASY },
-                                FilterOption("History") { viewModel.filterStatus.genre = Genre.HISTORY },
-                                FilterOption("Biography") { viewModel.filterStatus.genre = Genre.BIOGRAPHY },
-                                FilterOption("Sci-fi") { viewModel.filterStatus.genre = Genre.SCI_FI },
-                                FilterOption("Sport") {viewModel.filterStatus.genre = Genre.SPORT },
-                                FilterOption("Adult") { viewModel.filterStatus.genre = Genre.ADULT },
-                                FilterOption("War") { viewModel.filterStatus.genre = Genre.WAR },
-                            )
-
-                            var selectedIndex5 by remember { mutableStateOf<Int?>(null) }
-
-                            Column {
-                                options5.forEachIndexed { index, option ->
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier
-                                            .padding(vertical = 0.dp)
-                                            .clickable {
-                                                selectedIndex5 = index
-                                                option.onSelected()
-                                            }
-                                    ) {
-                                        Checkbox(
-                                            checked = selectedIndex5 == index,
-                                            onCheckedChange = {
-                                                selectedIndex5 = if (it) index else null
-                                                if (it) option.onSelected()
-                                            }
-                                        )
-                                        Text(option.text, color = TextColor)
-                                    }
-                                }
-                            }
-
-
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = onToggle, modifier = Modifier.align(Alignment.CenterHorizontally).width(200.dp)) {
-                            Text("Apply")
-                        }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { viewModel.applyFilter() },
+                        modifier = Modifier.align(Alignment.CenterHorizontally).width(200.dp)
+                    ) {
+                        Text("Apply")
                     }
                 }
             }
-
-
-
-
 
             Box(
                 modifier = Modifier

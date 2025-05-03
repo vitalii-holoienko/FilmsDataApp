@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -52,52 +53,74 @@ import com.example.filmsdataapp.ui.theme.TextColor
 @Composable
 fun Content(from : String){
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
-    Log.d("TEKKEN", from)
-    var pageName = ""
-    var pageDescription = ""
-    var typeContentToDisplay = ""
-    if(from == "Currently Trending"){
-        pageName = "Currently Trending"
-        pageDescription = "This page displays currently popular movies,\nsorted by rating"
-        typeContentToDisplay = "Movies"
-    }
-    if(from == "Coming soon"){
-        pageName = "Coming soon"
-        pageDescription = "This page displays coming soon movies"
-        typeContentToDisplay = "Movies"
-    }
-    if(from == "Movies"){
-        pageName = "Movies"
-        pageDescription = "This page displays list of movies,\nsorted by rating"
-        typeContentToDisplay = "Movies"
-    }
-    if(from == "Actors"){
-        pageName = "Actors"
-        pageDescription = "This page displays list of actors,\nsorted in alphabetical order"
-        typeContentToDisplay = "Actors"
-    }
-    if(from == "TVShows"){
-        pageName = "TVShows"
-        pageDescription = "This page displays list of TV shows,\nsorted by rating"
-        typeContentToDisplay = "TVShows"
-    }
-    Log.d("TEKKEN", typeContentToDisplay)
+    var pageName by remember(from) { mutableStateOf("") }
+    var pageDescription by remember(from) { mutableStateOf("") }
+    var typeContentToDisplay by remember(from) { mutableStateOf("") }
 
-    val listOfMovies by viewModel.mostPopularMovies.observeAsState(emptyList())
-    val listOfTVShows by viewModel.mostPopularTVShows.observeAsState(emptyList())
+    LaunchedEffect(key1 = from) {
+        when (from) {
+            "Currently Trending" -> {
+                pageName = "Currently Trending"
+                pageDescription = "This page displays currently popular movies,\nsorted by rating"
+                typeContentToDisplay = "Movies"
+                viewModel._inititalTitleToDisplay.value = viewModel.currentlyTrendingMovies.value
+                viewModel._titlesToDisplay.value = viewModel.currentlyTrendingMovies.value
+            }
+            "Coming soon" -> {
+                pageName = "Coming soon"
+                pageDescription = "This page displays coming soon movies"
+                typeContentToDisplay = "Movies"
+                viewModel._inititalTitleToDisplay.value = viewModel.comingSoonMovies.value
+                viewModel._titlesToDisplay.value = viewModel.comingSoonMovies.value
+            }
+            "Movies" -> {
+                pageName = "Movies"
+                pageDescription = "This page displays list of movies,\nsorted by rating"
+                typeContentToDisplay = "Movies"
+                viewModel._inititalTitleToDisplay.value = viewModel.mostPopularMovies.value
+                viewModel._titlesToDisplay.value = viewModel.mostPopularMovies.value
+            }
+            "TVShows" -> {
+                pageName = "TVShows"
+                pageDescription = "This page displays list of TV shows,\nsorted by rating"
+                typeContentToDisplay = "TVShows"
+                viewModel._inititalTitleToDisplay.value = viewModel.mostPopularTVShows.value
+                viewModel._titlesToDisplay.value = viewModel.mostPopularTVShows.value
+
+            }
+            "Actors" ->{
+                pageName = "Actors"
+                pageDescription = "This page displays list of actors,\nsorted in alphabetical order"
+                typeContentToDisplay = "Actors"
+            }
+
+
+        }
+    }
+
+
+//    if(from == "Actors"){
+//        pageName = "Actors"
+//        pageDescription = "This page displays list of actors,\nsorted in alphabetical order"
+//        typeContentToDisplay = "Actors"
+//    }
+
+//    val listOfMovies by viewModel.titlesToDisplay.observeAsState(emptyList())
+//    val listOfTVShows by viewModel.titlesToDisplay.observeAsState(emptyList())
     val listOfActors by viewModel.actors.observeAsState(emptyList())
-    val images : List<Int> = emptyList()
-
-
+    val listOfTitlesToDisplay by viewModel.titlesToDisplay.observeAsState(emptyList())
+    Log.d("TEKKEN", pageName)
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val totalHorizontalPadding = 10.dp * 3
     val imageWidth = (screenWidth - totalHorizontalPadding) / 2
 
-    val MovieRows = listOfMovies.chunked(2)
-    val TVShowsRows = listOfTVShows.chunked(2)
+//    val MovieRows = listOfMovies.chunked(2)
+//    val TVShowsRows = listOfTVShows.chunked(2)
     val ActorsRows = listOfActors.chunked(2)
+
+    val titlesRows = listOfTitlesToDisplay.chunked(2)
     var isFilterVisible by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -154,8 +177,8 @@ fun Content(from : String){
                         }
                     }
                 }
-                if(typeContentToDisplay == "Movies"){
-                    items(MovieRows) { movieRow ->
+                if(listOfTitlesToDisplay != viewModel.actors){
+                    items(titlesRows) { movieRow ->
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.fillMaxWidth()
@@ -209,7 +232,7 @@ fun Content(from : String){
                         }
                     }
                 }
-                if(typeContentToDisplay == "Actors"){
+                else{
                     items(ActorsRows) { actorsRow ->
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -264,64 +287,6 @@ fun Content(from : String){
                         }
                     }
                 }
-                if(typeContentToDisplay.equals("TVShows")){
-                    Log.d("TEKKEN", "!!!!!!")
-                    items(TVShowsRows) { movieRow ->
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            movieRow.forEach { m ->
-                                Column {
-                                    Image(
-                                        painter = rememberAsyncImagePainter(m.primaryImage),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .width(imageWidth)
-                                            .height(250.dp)
-                                    )
-                                    Text(
-                                        text = m.originalTitle ?: "",
-                                        color = LinksColor,
-                                        fontSize = 12.sp,
-                                        fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier
-                                            .width(imageWidth)
-                                            .padding(5.dp, 3.dp)
-                                    )
-                                    Row(modifier = Modifier.width(imageWidth)) {
-                                        Text(
-                                            text = "TVShow",
-                                            color = TextColor,
-                                            fontSize = 10.sp,
-                                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.padding(5.dp, 3.dp)
-                                        )
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        Text(
-                                            text = m.startYear.toString(),
-                                            color = TextColor,
-                                            fontSize = 10.sp,
-                                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.padding(5.dp, 3.dp)
-                                        )
-                                    }
-                                }
-                            }
-                            if (movieRow.size == 1) {
-                                Spacer(modifier = Modifier.width(imageWidth))
-                            }
-                        }
-                    }
-                }
-
-
             }
         FilterPanelWithButton(
             isFilterVisible = isFilterVisible,

@@ -52,7 +52,7 @@ fun Content(
 ) {
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val comingSoonMovies = viewModel.comingSoonMovies.observeAsState(emptyList())
-    val currentlyTrendingMovies = viewModel.mostPopularMovies.observeAsState(emptyList())
+    val currentlyTrendingMovies = viewModel.currentlyTrendingMovies.observeAsState(emptyList())
     val news = viewModel.news.observeAsState(emptyList())
 
     Spacer(modifier = Modifier.height(40.dp))
