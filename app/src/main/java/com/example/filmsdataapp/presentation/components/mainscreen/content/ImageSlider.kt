@@ -24,7 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageSlider(movies : List<Title>) {
+fun ImageSlider(movies : List<Title>, navigateToTitleScreen: (Title) -> Unit) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp - 20.dp
     val imageWidth = (screenWidth - (2 * 10.dp)) / 3
 
@@ -40,7 +40,7 @@ fun ImageSlider(movies : List<Title>) {
         items(8) { index ->
             if(!movies.isEmpty()){
                 val movie = movies[index]
-                ImageItem(imageWidth, movie)
+                ImageItem(imageWidth, movie, navigateToTitleScreen)
             }
 
         }

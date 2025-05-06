@@ -1,5 +1,6 @@
 package com.example.filmsdataapp
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,9 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.components.NavigationMenuWrapper
 import com.example.filmsdataapp.presentation.screens.AboutProgramScreen
 import com.example.filmsdataapp.presentation.screens.ActorsScreen
@@ -34,11 +38,14 @@ import com.example.filmsdataapp.presentation.screens.MainScreen
 import com.example.filmsdataapp.presentation.screens.MoviesScreen
 import com.example.filmsdataapp.presentation.screens.ProfileScreen
 import com.example.filmsdataapp.presentation.screens.TVShowsScreen
+import com.example.filmsdataapp.presentation.screens.TitleScreen
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.FilmsDataAppTheme
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
@@ -92,7 +99,32 @@ class MainActivity : ComponentActivity() {
                                 navigateToActorsScreen = {
                                     navController.navigate("actors_screen")
                                 },
+                                navigateToTitleScreen = { title ->
+                                    val json = Json.encodeToString(title)
+                                    val encoded = Uri.encode(json)
+                                    navController.navigate("title_screen/$encoded")
+                                }
 
+                            )
+                        }
+                        composable(
+                            route = "title_screen/{titleJson}",
+                            arguments = listOf(navArgument("titleJson") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val json = backStackEntry.arguments?.getString("titleJson")
+                            val title = json?.let { Json.decodeFromString<Title>(it) }
+
+                            TitleScreen(
+                                title = title!!,
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                }
                             )
                         }
                         composable(route = "movies_screen") {
@@ -105,6 +137,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToTitleScreen = { title ->
+                                    val json = Json.encodeToString(title)
+                                    val encoded = Uri.encode(json)
+                                    navController.navigate("title_screen/$encoded")
                                 }
 
                             )
@@ -119,6 +156,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToTitleScreen = { title ->
+                                    val json = Json.encodeToString(title)
+                                    val encoded = Uri.encode(json)
+                                    navController.navigate("title_screen/$encoded")
                                 }
 
                             )
@@ -134,6 +176,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToTitleScreen = { title ->
+                                    val json = Json.encodeToString(title)
+                                    val encoded = Uri.encode(json)
+                                    navController.navigate("title_screen/$encoded")
                                 }
 
                             )
@@ -149,6 +196,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToTitleScreen = { title ->
+                                    val json = Json.encodeToString(title)
+                                    val encoded = Uri.encode(json)
+                                    navController.navigate("title_screen/$encoded")
                                 }
                             )
                         }
@@ -202,6 +254,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToTitleScreen = { title ->
+                                    val json = Json.encodeToString(title)
+                                    val encoded = Uri.encode(json)
+                                    navController.navigate("title_screen/$encoded")
                                 }
                             )
                         }

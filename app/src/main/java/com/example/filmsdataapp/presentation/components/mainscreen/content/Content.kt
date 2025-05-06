@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
@@ -49,6 +50,7 @@ fun Content(
     navigateToTVShowsScreen : () -> Unit,
     navigateToMoviesScreen : () -> Unit,
     navigateToActorsScreen : () -> Unit,
+    navigateToTitleScreen: (Title) -> Unit
 ) {
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val comingSoonMovies = viewModel.comingSoonMovies.observeAsState(emptyList())
@@ -94,7 +96,7 @@ fun Content(
                 .background(color = PrimaryColor),
                 contentAlignment = Alignment.Center
             ){
-                ImageSlider(currentlyTrendingMovies.value!!)
+                ImageSlider(currentlyTrendingMovies.value!!, navigateToTitleScreen)
             }
             Spacer(modifier = Modifier.height(70.dp))
             Box(modifier = Modifier
@@ -130,7 +132,7 @@ fun Content(
                 .height(220.dp),
                 contentAlignment = Alignment.Center
             ){
-                ImageSlider(comingSoonMovies.value!!)
+                ImageSlider(comingSoonMovies.value!!, navigateToTitleScreen)
             }
             Spacer(modifier = Modifier.height(40.dp))
             //MAIN TAGS

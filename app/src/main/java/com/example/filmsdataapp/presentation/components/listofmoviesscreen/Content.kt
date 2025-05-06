@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.LinksColor
@@ -51,7 +53,7 @@ import com.example.filmsdataapp.ui.theme.TextColor
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun Content(from : String){
+fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     var pageName by remember(from) { mutableStateOf("") }
     var pageDescription by remember(from) { mutableStateOf("") }
@@ -191,6 +193,9 @@ fun Content(from : String){
                                         modifier = Modifier
                                             .width(imageWidth)
                                             .height(250.dp)
+                                            .clickable {
+                                                navigateToTitleScreen(m)
+                                            }
                                     )
                                     Text(
                                         text = m.originalTitle ?: "",
@@ -205,7 +210,7 @@ fun Content(from : String){
                                     )
                                     Row(modifier = Modifier.width(imageWidth)) {
                                         Text(
-                                            text = "Movie",
+                                            text = m.type!!,
                                             color = TextColor,
                                             fontSize = 10.sp,
                                             fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),

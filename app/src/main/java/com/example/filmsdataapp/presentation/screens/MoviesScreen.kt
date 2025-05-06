@@ -8,15 +8,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.components.Header
 import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Content
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun MoviesScreen(navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit, onMenuClick : () -> Unit){
+fun MoviesScreen(navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit, onMenuClick : () -> Unit, navigateToTitleScreen: (Title) -> Unit){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
         Header(navigateToMainScreen, navigateToProfilePage, onMenuClick)
-        Content("Movies")
+        Content("Movies", navigateToTitleScreen)
     }
 }

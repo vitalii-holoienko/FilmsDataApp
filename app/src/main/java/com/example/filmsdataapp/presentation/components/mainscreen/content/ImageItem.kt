@@ -3,6 +3,7 @@ package com.example.filmsdataapp.presentation.components.mainscreen.content
 import Movie
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +34,7 @@ import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun ImageItem(width: Dp, movie: Title) {
+fun ImageItem(width: Dp, movie: Title, navigateToTitleScreen: (Title) -> Unit) {
     Column{
         Image(
             painter = rememberAsyncImagePainter(movie.primaryImage),
@@ -41,7 +42,10 @@ fun ImageItem(width: Dp, movie: Title) {
             modifier = Modifier
                 .width(width)
                 .height(170.dp)
-                .background(Color.Gray),
+                .background(Color.Gray)
+                .clickable {
+                    navigateToTitleScreen(movie)
+                },
             contentScale = ContentScale.Crop
         )
         Text(
