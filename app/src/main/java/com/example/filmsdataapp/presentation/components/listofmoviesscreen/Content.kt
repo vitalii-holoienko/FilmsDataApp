@@ -111,15 +111,12 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
 //    val listOfTVShows by viewModel.titlesToDisplay.observeAsState(emptyList())
     val listOfActors by viewModel.actors.observeAsState(emptyList())
     val listOfTitlesToDisplay by viewModel.titlesToDisplay.observeAsState(emptyList())
-    Log.d("TEKKEN", pageName)
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val totalHorizontalPadding = 10.dp * 3
     val imageWidth = (screenWidth - totalHorizontalPadding) / 2
 
-//    val MovieRows = listOfMovies.chunked(2)
-//    val TVShowsRows = listOfTVShows.chunked(2)
     val ActorsRows = listOfActors.chunked(2)
 
     val titlesRows = listOfTitlesToDisplay.chunked(2)

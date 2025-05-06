@@ -2,7 +2,9 @@ package com.example.filmsdataapp.data.repository
 
 import com.example.filmsdataapp.data.network.NetworkHelper
 import com.example.filmsdataapp.domain.model.FilterStatus
+import com.example.filmsdataapp.domain.model.FullResponse
 import com.example.filmsdataapp.domain.model.Genre
+import com.example.filmsdataapp.domain.model.Review
 import com.example.filmsdataapp.domain.model.Type
 import com.example.filmsdataapp.domain.repository.MoviesRepository
 import com.example.filmsdataapp.domain.repository.NewsRepository
@@ -10,6 +12,7 @@ import com.example.filmsdataapp.domain.repository.TVShowsRepository
 import com.example.filmsdataapp.domain.repository.TitleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrl
 //enum class Genre{
 //    DRAMA,COMEDY,DOCUMENTARY,
@@ -21,8 +24,16 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 //}
 
 class TitleRepositoryImpl : TitleRepository {
-    override suspend fun getReviewsById(id: String): String = withContext(Dispatchers.IO){
-        NetworkHelper.makeRequest("https://imdb232.p.rapidapi.com/api/title/get-user-reviews?order=DESC&spoiler=EXCLUDE&tt=${id}&sortBy=HELPFULNESS_SCORE", 2)
+    override suspend fun getReviewsById(id: String): List<Review> = withContext(Dispatchers.IO){
+        val jsonStr = NetworkHelper.makeRequest(
+            "https://imdb232.p.rapidapi.com/api/title/get-user-reviews?order=DESC&spoiler=EXCLUDE&tt=${id}&sortBy=HELPFULNESS_SCORE",
+            2
+        )
+
+        val json = Json { ignoreUnknownKeys = true }
+        val parsed = json.decodeFromString<FullResponse>(jsonStr)
+
+        return@withContext parsed.data.title.reviews.edges.map { it.node.toReview() }
     }
 
     override suspend fun getTitleWithAppliedFilters(

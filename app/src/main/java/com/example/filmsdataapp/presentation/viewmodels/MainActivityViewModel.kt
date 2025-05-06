@@ -16,6 +16,7 @@ import com.example.filmsdataapp.domain.model.Actor
 import com.example.filmsdataapp.domain.model.FilterStatus
 import com.example.filmsdataapp.domain.model.Genre
 import com.example.filmsdataapp.domain.model.News
+import com.example.filmsdataapp.domain.model.Review
 import com.example.filmsdataapp.domain.model.SORTED_BY
 import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.domain.repository.ActorsRepository
@@ -29,6 +30,7 @@ import com.example.filmsdataapp.domain.usecase.GetCurrentlyTrendingMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
+import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetTitleWithAppliedFiltersUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,10 +54,12 @@ class MainActivityViewModel : ViewModel() {
     private val _currentlyTrendingMovies = MutableLiveData<List<Title>>()
     private val _titleWithAppliedFitlers = MutableStateFlow("")
     var _inititalTitleToDisplay = MutableLiveData<List<Title>>()
-    val _titlesToDisplay = MutableLiveData<List<Title>>()
 
+    val _titlesToDisplay = MutableLiveData<List<Title>>()
+    val _reviewsToDisplay = MutableLiveData<List<Review>>()
     val initialTitlesToDisplay: LiveData<List<Title>> get() = _inititalTitleToDisplay
     val titlesToDisplay: LiveData<List<Title>> get() = _titlesToDisplay
+    val reviewsToDisplay: LiveData<List<Review>> get() = _reviewsToDisplay
     val mostPopularMovies: LiveData<List<Title>> get() = _mostPopularMovies
     val comingSoonMovies: LiveData<List<Title>> get() = _comingSoonMovies
     val mostPopularTVShows: LiveData<List<Title>> get() = _mostPopularTVShows
@@ -96,9 +100,14 @@ class MainActivityViewModel : ViewModel() {
 //
                   val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
                   _mostPopularTVShows.value = result1.invoke()
-//
-//                Log.d("TEKKEN", mostPopularTVShows.value!!.size.toString())
+//                    val id = mostPopularTVShows.value!!.get(0).id
 
+//                val list =  result2.invoke(id!!)
+//                list.forEach {
+//                    Log.d("TEKKEN", it.summary!!)
+//                }
+//
+//
 
 
                 val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
@@ -115,11 +124,21 @@ class MainActivityViewModel : ViewModel() {
 
         }
     }
+
+
+    fun getTitleReviews(id:String){
+        viewModelScope.launch {
+            val result = GetReviewsByIdUseCase(titleRepository)
+            val list = result.invoke(id)
+            _reviewsToDisplay.value = list
+        }
+    }
+
     fun applyFilter(){
         _titlesToDisplay.value = applyFiltersLogic(_inititalTitleToDisplay.value!!, filterStatus)
     }
 
-    fun applyFiltersLogic(movies: List<Title>, filter: FilterStatus): List<Title> {
+    private fun applyFiltersLogic(movies: List<Title>, filter: FilterStatus): List<Title> {
         return movies
             .asSequence()
             .filter { movie ->

@@ -2,8 +2,10 @@ package com.example.filmsdataapp.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -18,6 +20,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -44,17 +47,9 @@ fun NavigationMenuWrapper(
         gesturesEnabled = true,
         drawerContent = {
             ModalDrawerSheet(modifier = Modifier.width(330.dp), drawerContainerColor = BackGroundColor) {
-                Column(modifier = Modifier.padding(0.dp)) {
-                    Text("Menu", color = TextColor, modifier = Modifier.padding(15.dp, 20.dp, 15.dp), fontSize = 20.sp)
+                Column(modifier = Modifier.padding(15.dp, 0.dp)) {
+                    Text("Menu", color = TextColor, modifier = Modifier.padding(0.dp, 20.dp), fontSize = 20.sp)
                     Divider(modifier = Modifier.padding(15.dp, 10.dp, 15.dp, 5.dp))
-                    Row(){
-                        Image(
-                            painter = painterResource(id = R.drawable.home),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .width(50.dp)
-                                .height(20.dp)
-                        )
                         NavigationDrawerItem(
                             label = { Text("Main page",  color = Color.White) },
                             selected = false,
@@ -73,7 +68,7 @@ fun NavigationMenuWrapper(
 
 
                         )
-                    }
+
 
                     NavigationDrawerItem(
                         label = { Text("Movies", color = TextColor)},
@@ -117,20 +112,7 @@ fun NavigationMenuWrapper(
                             unselectedContainerColor = Color.Transparent,
                         )
                     )
-                    NavigationDrawerItem(
-                        label = { Text("Reviews", color = TextColor)},
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                navController.navigate("reviews_screen")
-                                drawerState.close()
-                            }
-                        },
-                        colors = NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = Color(0xFF333333),
-                            unselectedContainerColor = Color.Transparent,
-                        )
-                    )
+
 
                     NavigationDrawerItem(
                         label = { Text("About program", color = TextColor)},
