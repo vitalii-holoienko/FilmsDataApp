@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -90,7 +91,7 @@ fun Content(title : Title) {
             Spacer(modifier = Modifier.height(30.dp))
 
             Box(modifier = Modifier
-                .height(35.dp)
+                .height(32.dp)
                 .fillMaxWidth()
                 .background(color = Color.White)
             ){
@@ -101,6 +102,16 @@ fun Content(title : Title) {
                         .fillMaxHeight()
                         .width(8.dp)
                         .background(color = Color(188, 230, 255)))
+                    Image(
+                        painter = painterResource(id = R.drawable.add_to_the_list_icon),
+                        contentDescription = "",
+                        Modifier
+                            .size(22.dp)
+                            .scale(1f)
+                            .align(Alignment.CenterVertically)
+                            .padding(5.dp, 0.dp)
+
+                    )
                     Text(
                         text = "Add to the list",
                         modifier = Modifier
@@ -115,11 +126,11 @@ fun Content(title : Title) {
                         painter = painterResource(id = R.drawable.triangle_go_to_icon),
                         contentDescription = "",
                         Modifier
-                            .size(25.dp)
+                            .size(40.dp)
                             .scale(1f)
                             .align(Alignment.CenterVertically)
-                            .padding(5.dp, 0.dp)
-
+                            .padding(5.dp, 0.dp),
+                        colorFilter = ColorFilter.tint(Color(157,162,168))
                     )
 
                 }
@@ -220,36 +231,41 @@ fun Content(title : Title) {
                 )
             }
         }
-
-        val stars = title.averageRating!! / 2
+        val rating = title.averageRating
+        val stars = rating!! / 2
         val fullStars = stars.toInt()
-        val hasHalfStar = (stars - fullStars) >= 0.25
-        Spacer(modifier= Modifier.height(10.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+        val hasHalfStar = (stars - fullStars) >= 0.25 && (stars - fullStars) < 0.75
+        val emptyStars = 5 - fullStars - if (hasHalfStar) 1 else 0
+
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier=Modifier.fillMaxWidth().padding(0.dp, 20.dp)) {
             repeat(fullStars) {
                 Image(
                     painter = painterResource(id = R.drawable.star_icon),
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(35.dp)
-                        .padding(3.dp)
+                    modifier = Modifier.size(30.dp)
                 )
-
             }
-            repeat(5 - fullStars) {
+
+            if (hasHalfStar) {
                 Image(
-                    painter = painterResource(id = R.drawable.grey_star_icon),
+                    painter = painterResource(id = R.drawable.half_star_icon),
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(36.dp)
-                        .padding(3.dp)
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+
+            repeat(emptyStars) {
+                Image(
+                    painter = painterResource(id = R.drawable.empty_star_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp)
                 )
             }
             Text(
-                text = title.averageRating.toString(),
+                text = "${title.averageRating}",
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(5.dp, 0.dp, 0.dp, 0.dp),
+                    .padding(5.dp, 2.dp, 0.dp, 0.dp),
                 fontSize = 30.sp,
                 fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                 color = TextColor

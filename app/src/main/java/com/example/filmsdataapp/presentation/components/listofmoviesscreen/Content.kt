@@ -207,7 +207,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
                                     )
                                     Row(modifier = Modifier.width(imageWidth)) {
                                         Text(
-                                            text = m.type!!,
+                                            text = m.type!!.replaceFirstChar { it.uppercase() },
                                             color = TextColor,
                                             fontSize = 10.sp,
                                             fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),

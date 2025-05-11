@@ -129,6 +129,7 @@ fun Content(
             Spacer(modifier = Modifier.height(10.dp))
             Box(modifier = Modifier
                 .fillMaxWidth()
+                .background(PrimaryColor)
                 .height(220.dp),
                 contentAlignment = Alignment.Center
             ){

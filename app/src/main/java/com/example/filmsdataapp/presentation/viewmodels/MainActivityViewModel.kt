@@ -82,8 +82,8 @@ class MainActivityViewModel : ViewModel() {
 //                val result6= GetMostPopularTVShowsUseCase(tvShowsRepository)
 //                _mostPopularTVShows.value = result6.invoke()
 //
-//                val result2 = GetNewsUseCase(newsRepository)
-//                _news.value = result2.invoke()
+                val result2 = GetNewsUseCase(newsRepository)
+                _news.value = result2.invoke()
 //
 //                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
 //                _mostPopularMovies.value = result3.invoke()
@@ -98,8 +98,8 @@ class MainActivityViewModel : ViewModel() {
 //                _actors.value = result5.invoke()
 //                Log.d("TEKKEN", _actors.value!!.size.toString())
 //
-                  val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
-                  _mostPopularTVShows.value = result1.invoke()
+//                  val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
+//                  _mostPopularTVShows.value = result1.invoke()
 //                    val id = mostPopularTVShows.value!!.get(0).id
 
 //                val list =  result2.invoke(id!!)
@@ -110,8 +110,8 @@ class MainActivityViewModel : ViewModel() {
 //
 
 
-                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
-                _currentlyTrendingMovies.value = result0.invoke()
+//                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
+//                _currentlyTrendingMovies.value = result0.invoke()
 
 
 
