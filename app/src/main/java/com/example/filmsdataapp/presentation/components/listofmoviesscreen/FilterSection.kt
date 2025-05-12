@@ -19,30 +19,73 @@ import com.example.filmsdataapp.domain.model.FilterOption
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun FilterSection(title: String, options: List<FilterOption>) {
+fun FilterSection(
+    title: String,
+    options: List<FilterOption>,
+    singleSelection: Boolean
+) {
+    // Для singleSelection храним один индекс, иначе — множество выбранных индексов
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
+    var selectedIndices by remember { mutableStateOf(setOf<Int>()) }
 
-    Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp), color = TextColor)
+    Text(
+        title,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(12.dp),
+        color = TextColor
+    )
 
     Column {
         options.forEachIndexed { index, option ->
+            val isChecked = if (singleSelection) {
+                selectedIndex == index
+            } else {
+                selectedIndices.contains(index)
+            }
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clickable {
-                        selectedIndex = index
-                        option.onSelected()
-                    }
-            ) {
-                Checkbox(
-                    checked = selectedIndex == index,
-                    onCheckedChange = {
-                        if (it) {
+                        if (singleSelection) {
                             selectedIndex = index
                             option.onSelected()
                         } else {
-                            selectedIndex = null
-                            option.onUnSelected()
+                            val newSet = if (selectedIndices.contains(index)) {
+                                selectedIndices - index
+                            } else {
+                                selectedIndices + index
+                            }
+                            selectedIndices = newSet
+
+                            if (index in selectedIndices) {
+                                option.onSelected()
+                            } else {
+                                option.onUnSelected()
+                            }
+                        }
+                    }
+            ) {
+                Checkbox(
+                    checked = isChecked,
+                    onCheckedChange = { checked ->
+                        if (singleSelection) {
+                            selectedIndex = if (checked) {
+                                option.onSelected()
+                                index
+                            } else {
+                                option.onUnSelected()
+                                null
+                            }
+                        } else {
+                            val newSet = if (checked) {
+                                option.onSelected()
+                                selectedIndices + index
+                            } else {
+                                option.onUnSelected()
+                                selectedIndices - index
+                            }
+                            selectedIndices = newSet
                         }
                     }
                 )

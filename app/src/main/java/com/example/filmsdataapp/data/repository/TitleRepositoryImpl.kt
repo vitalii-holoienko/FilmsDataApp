@@ -48,7 +48,21 @@ class TitleRepositoryImpl : TitleRepository {
         }
 
         if(filterStatus.genre!=null){
-                url = url.toHttpUrl().newBuilder().addQueryParameter("genre", filterStatus.genres.get(filterStatus.genre)).toString()
+            val selectedGenres = filterStatus.genre?.map { index -> filterStatus.genres[index] } ?: emptyList()
+
+            if (selectedGenres.isNotEmpty()) {
+                val genresJsonArray = selectedGenres.joinToString(
+                    separator = ",",
+                    prefix = "[\"",
+                    postfix = "\"]"
+                ) { it!! }
+
+                url = url.toHttpUrl().newBuilder()
+                    .addQueryParameter("genres", genresJsonArray)
+                    .toString()
+            }
+
+
         }
 
         if(filterStatus.averageRationFrom!=null){

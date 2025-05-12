@@ -82,14 +82,14 @@ class MainActivityViewModel : ViewModel() {
 //                val result6= GetMostPopularTVShowsUseCase(tvShowsRepository)
 //                _mostPopularTVShows.value = result6.invoke()
 //
-                val result2 = GetNewsUseCase(newsRepository)
-                _news.value = result2.invoke()
+//                val result2 = GetNewsUseCase(newsRepository)
+//                _news.value = result2.invoke()
 //
-//                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
-//                _mostPopularMovies.value = result3.invoke()
-//
-//                val result4 = GetComingSoonMoviesUseCase(moviesRepository)
-//                _comingSoonMovies.value = result4.invoke()
+                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
+                _mostPopularMovies.value = result3.invoke()
+
+                val result4 = GetComingSoonMoviesUseCase(moviesRepository)
+                _comingSoonMovies.value = result4.invoke()
 //
 //
 //
@@ -148,7 +148,7 @@ class MainActivityViewModel : ViewModel() {
             }
             .filter { movie ->
                 filter.genre?.let { genre ->
-                    movie.genres?.any { it.equals(filter.genres[genre], ignoreCase = true) } ?: false
+                    movie.genres?.any { it.equals(filter.genres[genre.get(0)], ignoreCase = true) } ?: false
                 } ?: true
             }
             .filter { movie ->

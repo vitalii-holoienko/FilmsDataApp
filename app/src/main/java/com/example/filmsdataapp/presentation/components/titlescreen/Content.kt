@@ -185,14 +185,14 @@ fun Content(title : Title) {
                 modifier = Modifier.padding(0.dp,4.dp)
             )
             Text(
-                text = "Genres: ${title.genres}",
+                text = "Genres: ${title.genres.toString().replace("[", "").replace("]", "")}",
                 color = Color(rgb(232,235,239)),
                 fontSize = 12.sp,
                 fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
                 modifier = Modifier.padding(0.dp,4.dp)
             )
             Text(
-                text = "Content rating: ${title.contentRating}",
+                text = "Content rating: ${title.contentRating ?: "-"}",
                 color = Color(rgb(232,235,239)),
                 fontSize = 12.sp,
                 fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
@@ -208,71 +208,77 @@ fun Content(title : Title) {
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(35.dp)
-            .background(color = Color.White)){
-            Row(modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color(rgb(49, 50, 50)))){
-                Box(modifier = Modifier
-                    .fillMaxHeight()
-                    .width(8.dp)
-                    .background(color = Color(rgb(42, 44, 43))))
+
+
+        val rating = title.averageRating
+        if(rating != null){
+
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(35.dp)
+                .background(color = Color.White)){
+                Row(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color(rgb(49, 50, 50)))){
+                    Box(modifier = Modifier
+                        .fillMaxHeight()
+                        .width(8.dp)
+                        .background(color = Color(rgb(42, 44, 43))))
+                    Text(
+                        text = "Rating",
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(5.dp, 0.dp, 0.dp, 0.dp)
+                            .weight(1f),
+                        fontSize = 18.sp,
+                        fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                        color = TextColor
+                    )
+                }
+            }
+            val stars = rating / 2
+            val fullStars = stars.toInt()
+            val hasHalfStar = (stars - fullStars) >= 0.25 && (stars - fullStars) < 0.75
+            val emptyStars = 5 - fullStars - if (hasHalfStar) 1 else 0
+
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier=Modifier.fillMaxWidth().padding(0.dp, 20.dp)) {
+                repeat(fullStars) {
+                    Image(
+                        painter = painterResource(id = R.drawable.star_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+
+                if (hasHalfStar) {
+                    Image(
+                        painter = painterResource(id = R.drawable.half_star_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+
+                repeat(emptyStars) {
+                    Image(
+                        painter = painterResource(id = R.drawable.empty_star_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
                 Text(
-                    text = "Rating",
+                    text = "${title.averageRating}",
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .padding(5.dp, 0.dp, 0.dp, 0.dp)
-                        .weight(1f),
-                    fontSize = 18.sp,
+                        .padding(5.dp, 2.dp, 0.dp, 0.dp),
+                    fontSize = 30.sp,
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                     color = TextColor
                 )
+
             }
+            Spacer(modifier= Modifier.height(20.dp))
         }
-        val rating = title.averageRating
-        val stars = rating!! / 2
-        val fullStars = stars.toInt()
-        val hasHalfStar = (stars - fullStars) >= 0.25 && (stars - fullStars) < 0.75
-        val emptyStars = 5 - fullStars - if (hasHalfStar) 1 else 0
 
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier=Modifier.fillMaxWidth().padding(0.dp, 20.dp)) {
-            repeat(fullStars) {
-                Image(
-                    painter = painterResource(id = R.drawable.star_icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
-                )
-            }
-
-            if (hasHalfStar) {
-                Image(
-                    painter = painterResource(id = R.drawable.half_star_icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
-                )
-            }
-
-            repeat(emptyStars) {
-                Image(
-                    painter = painterResource(id = R.drawable.empty_star_icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
-                )
-            }
-            Text(
-                text = "${title.averageRating}",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(5.dp, 2.dp, 0.dp, 0.dp),
-                fontSize = 30.sp,
-                fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                color = TextColor
-            )
-
-        }
-        Spacer(modifier= Modifier.height(20.dp))
 
         Box(modifier = Modifier
             .fillMaxWidth()

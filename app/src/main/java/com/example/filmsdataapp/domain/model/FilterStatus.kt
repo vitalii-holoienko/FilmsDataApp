@@ -3,7 +3,7 @@ package com.example.filmsdataapp.domain.model
 //                                       dateOfReleaseTo: Int, language:String):String
 class FilterStatus(
     var type : Type? = null,
-    var genre : Genre? = null,
+    var genre : MutableList<Genre> = mutableListOf(),
     var averageRationFrom:Int? = null,
     var dateOfReleaseFrom:Int? = null,
     var dateOfReleaseTo:Int? = null,
