@@ -47,7 +47,6 @@ import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.FilterOption
 import com.example.filmsdataapp.domain.model.Genre
 import com.example.filmsdataapp.domain.model.SORTED_BY
-import com.example.filmsdataapp.domain.model.Type
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
@@ -98,17 +97,6 @@ fun FilterPanelWithButton(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-
-                    FilterSection(
-                        title = "Type",
-                        options = listOf(
-                            FilterOption("Movie", { viewModel.filterStatus.type = Type.MOVIE }, { viewModel.filterStatus.type = null }),
-                            FilterOption("TV Show", { viewModel.filterStatus.type = Type.TVSHOW }, { viewModel.filterStatus.type = null }),
-                        ),
-                        true
-                    )
-
-                    // Сортировка
                     FilterSection(
                         title = "Sorted by",
                         options = listOf(
@@ -121,7 +109,6 @@ fun FilterPanelWithButton(
                         true
                     )
 
-                    // Даты выхода
                     FilterSection(
                         title = "Release Date",
                         options = listOf(
@@ -176,7 +163,6 @@ fun FilterPanelWithButton(
                         true
                     )
 
-                    // Рейтинг
                     FilterSection(
                         title = "Rating",
                         options = listOf(
@@ -187,30 +173,29 @@ fun FilterPanelWithButton(
                         true
                     )
 
-                    // Жанры
                     FilterSection(
                         title = "Genres",
                         options = listOf(
-                            FilterOption("Drama", { viewModel.filterStatus.genre.add(Genre.DRAMA) }, { viewModel.filterStatus.genre.remove(Genre.DRAMA) }),
-                            FilterOption("Comedy", { viewModel.filterStatus.genre.add(Genre.COMEDY) }, { viewModel.filterStatus.genre.remove(Genre.COMEDY) }),
-                            FilterOption("Documentary", { viewModel.filterStatus.genre.add(Genre.DOCUMENTARY) }, { viewModel.filterStatus.genre.remove(Genre.DOCUMENTARY) }),
-                            FilterOption("Action", { viewModel.filterStatus.genre.add(Genre.ACTION) }, { viewModel.filterStatus.genre.remove(Genre.ACTION) }),
-                            FilterOption("Romance", { viewModel.filterStatus.genre.add(Genre.ROMANCE) }, { viewModel.filterStatus.genre.remove(Genre.ROMANCE) }),
-                            FilterOption("Thriller", { viewModel.filterStatus.genre.add(Genre.THRILLER) }, { viewModel.filterStatus.genre.remove(Genre.THRILLER) }),
-                            FilterOption("Crime", { viewModel.filterStatus.genre.add(Genre.CRIME) }, { viewModel.filterStatus.genre.remove(Genre.CRIME) }),
-                            FilterOption("Horror", { viewModel.filterStatus.genre.add(Genre.HORROR) }, { viewModel.filterStatus.genre.remove(Genre.HORROR) }),
-                            FilterOption("Adventure", { viewModel.filterStatus.genre.add(Genre.ADVENTURE) }, { viewModel.filterStatus.genre.remove(Genre.ADVENTURE) }),
-                            FilterOption("Family", { viewModel.filterStatus.genre.add(Genre.FAMILY) }, { viewModel.filterStatus.genre.remove(Genre.FAMILY) }),
-                            FilterOption("Animation", { viewModel.filterStatus.genre.add(Genre.ANIMATION) }, { viewModel.filterStatus.genre.remove(Genre.ADVENTURE) }),
-                            FilterOption("Reality-TV", { viewModel.filterStatus.genre.add(Genre.REALITY_TV) }, { viewModel.filterStatus.genre.remove(Genre.REALITY_TV) }),
-                            FilterOption("Mystery", { viewModel.filterStatus.genre.add(Genre.MYSTERY) }, { viewModel.filterStatus.genre.remove(Genre.MYSTERY) }),
-                            FilterOption("Fantasy", { viewModel.filterStatus.genre.add(Genre.FANTASY) }, { viewModel.filterStatus.genre.remove(Genre.FANTASY) }),
-                            FilterOption("History", { viewModel.filterStatus.genre.add(Genre.HISTORY) }, { viewModel.filterStatus.genre.remove(Genre.HISTORY) }),
-                            FilterOption("Biography", { viewModel.filterStatus.genre.add(Genre.BIOGRAPHY) }, { viewModel.filterStatus.genre.remove(Genre.BIOGRAPHY) }),
-                            FilterOption("Sci-fi", { viewModel.filterStatus.genre.add(Genre.SCI_FI) }, { viewModel.filterStatus.genre.remove(Genre.SCI_FI) }),
-                            FilterOption("Sport", { viewModel.filterStatus.genre.add(Genre.SPORT) }, { viewModel.filterStatus.genre.remove(Genre.SPORT) }),
-                            FilterOption("Adult", { viewModel.filterStatus.genre.add(Genre.ADULT) }, { viewModel.filterStatus.genre.remove(Genre.ADULT) }),
-                            FilterOption("War", { viewModel.filterStatus.genre.add(Genre.WAR) }, { viewModel.filterStatus.genre.remove(Genre.WAR) }),
+                            FilterOption("Drama", { viewModel.filterStatus.genre?.add(Genre.DRAMA) }, { viewModel.filterStatus.genre?.remove(Genre.DRAMA) }),
+                            FilterOption("Comedy", { viewModel.filterStatus.genre?.add(Genre.COMEDY) }, { viewModel.filterStatus.genre?.remove(Genre.COMEDY) }),
+                            FilterOption("Documentary", { viewModel.filterStatus.genre?.add(Genre.DOCUMENTARY) }, { viewModel.filterStatus.genre?.remove(Genre.DOCUMENTARY) }),
+                            FilterOption("Action", { viewModel.filterStatus.genre?.add(Genre.ACTION) }, { viewModel.filterStatus.genre?.remove(Genre.ACTION) }),
+                            FilterOption("Romance", { viewModel.filterStatus.genre?.add(Genre.ROMANCE) }, { viewModel.filterStatus.genre?.remove(Genre.ROMANCE) }),
+                            FilterOption("Thriller", { viewModel.filterStatus.genre?.add(Genre.THRILLER) }, { viewModel.filterStatus.genre?.remove(Genre.THRILLER) }),
+                            FilterOption("Crime", { viewModel.filterStatus.genre?.add(Genre.CRIME) }, { viewModel.filterStatus.genre?.remove(Genre.CRIME) }),
+                            FilterOption("Horror", { viewModel.filterStatus.genre?.add(Genre.HORROR) }, { viewModel.filterStatus.genre?.remove(Genre.HORROR) }),
+                            FilterOption("Adventure", { viewModel.filterStatus.genre?.add(Genre.ADVENTURE) }, { viewModel.filterStatus.genre?.remove(Genre.ADVENTURE) }),
+                            FilterOption("Family", { viewModel.filterStatus.genre?.add(Genre.FAMILY) }, { viewModel.filterStatus.genre?.remove(Genre.FAMILY) }),
+                            FilterOption("Animation", { viewModel.filterStatus.genre?.add(Genre.ANIMATION) }, { viewModel.filterStatus.genre?.remove(Genre.ADVENTURE) }),
+                            FilterOption("Reality-TV", { viewModel.filterStatus.genre?.add(Genre.REALITY_TV) }, { viewModel.filterStatus.genre?.remove(Genre.REALITY_TV) }),
+                            FilterOption("Mystery", { viewModel.filterStatus.genre?.add(Genre.MYSTERY) }, { viewModel.filterStatus.genre?.remove(Genre.MYSTERY) }),
+                            FilterOption("Fantasy", { viewModel.filterStatus.genre?.add(Genre.FANTASY) }, { viewModel.filterStatus.genre?.remove(Genre.FANTASY) }),
+                            FilterOption("History", { viewModel.filterStatus.genre?.add(Genre.HISTORY) }, { viewModel.filterStatus.genre?.remove(Genre.HISTORY) }),
+                            FilterOption("Biography", { viewModel.filterStatus.genre?.add(Genre.BIOGRAPHY) }, { viewModel.filterStatus.genre?.remove(Genre.BIOGRAPHY) }),
+                            FilterOption("Sci-fi", { viewModel.filterStatus.genre?.add(Genre.SCI_FI) }, { viewModel.filterStatus.genre?.remove(Genre.SCI_FI) }),
+                            FilterOption("Sport", { viewModel.filterStatus.genre?.add(Genre.SPORT) }, { viewModel.filterStatus.genre?.remove(Genre.SPORT) }),
+                            FilterOption("Adult", { viewModel.filterStatus.genre?.add(Genre.ADULT) }, { viewModel.filterStatus.genre?.remove(Genre.ADULT) }),
+                            FilterOption("War", { viewModel.filterStatus.genre?.add(Genre.WAR) }, { viewModel.filterStatus.genre?.remove(Genre.WAR) }),
                         ),
                         false
                     )

@@ -59,6 +59,10 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
     var pageDescription by remember(from) { mutableStateOf("") }
     var typeContentToDisplay by remember(from) { mutableStateOf("") }
 
+    var searchedQuery = viewModel.searchedQuery.observeAsState("")
+    var showActors by remember {
+        mutableStateOf(false)
+    }
     LaunchedEffect(key1 = from) {
         when (from) {
             "Currently Trending" -> {
@@ -94,21 +98,22 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
                 pageName = "Actors"
                 pageDescription = "This page displays list of actors,\nsorted in alphabetical order"
                 typeContentToDisplay = "Actors"
+                showActors = true
             }
-
-
+            "Searched" ->{
+                pageName = "Titles Search"
+                pageDescription = "Titles found for the query \"${searchedQuery.value}\""
+                typeContentToDisplay = "-"
+                viewModel._inititalTitleToDisplay.value = viewModel.searchedTitles.value
+                viewModel._titlesToDisplay.value = viewModel.searchedTitles.value
+            }
         }
     }
 
 
-//    if(from == "Actors"){
-//        pageName = "Actors"
-//        pageDescription = "This page displays list of actors,\nsorted in alphabetical order"
-//        typeContentToDisplay = "Actors"
-//    }
-
 //    val listOfMovies by viewModel.titlesToDisplay.observeAsState(emptyList())
 //    val listOfTVShows by viewModel.titlesToDisplay.observeAsState(emptyList())
+
     val listOfActors by viewModel.actors.observeAsState(emptyList())
     val listOfTitlesToDisplay by viewModel.titlesToDisplay.observeAsState(emptyList())
 
@@ -116,10 +121,9 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val totalHorizontalPadding = 10.dp * 3
     val imageWidth = (screenWidth - totalHorizontalPadding) / 2
-
     val ActorsRows = listOfActors.chunked(2)
-
-    val titlesRows = listOfTitlesToDisplay.chunked(2)
+    var titlesRows = emptyList<List<Title>>()
+    if(listOfTitlesToDisplay!=null) titlesRows = listOfTitlesToDisplay.chunked(2)
     var isFilterVisible by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -127,22 +131,6 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
             .wrapContentHeight()
             .background(BackGroundColor)
     ){
-
-
-        val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-        val filterWidth = 300.dp
-        val density = LocalDensity.current
-        val offsetX by animateFloatAsState(
-            targetValue = if (isFilterVisible) 0f else with(density) { filterWidth.toPx() },
-            animationSpec = tween(durationMillis = 300),
-            label = "offsetX"
-        )
-        val filterWidthPx = with(density) { filterWidth.toPx() }
-        val buttonOffsetX by animateFloatAsState(
-            targetValue = if (isFilterVisible) 0f else filterWidthPx,
-            animationSpec = tween(300),
-            label = "buttonOffset"
-        )
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(30.dp),
                 modifier = Modifier
@@ -176,7 +164,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
                         }
                     }
                 }
-                if(listOfTitlesToDisplay != viewModel.actors){
+                if(!showActors){
                     items(titlesRows) { movieRow ->
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),

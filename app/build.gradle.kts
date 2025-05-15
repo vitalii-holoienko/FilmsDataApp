@@ -76,6 +76,7 @@ android {
 dependencies {
     val nav_version = "2.8.9"
     val okhttp_version = "4.12.0"
+    implementation("com.google.accompanist:accompanist-placeholder-material:0.34.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
     implementation("io.coil-kt:coil-compose:2.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")

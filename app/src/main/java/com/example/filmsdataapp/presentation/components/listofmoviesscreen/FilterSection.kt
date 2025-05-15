@@ -24,7 +24,6 @@ fun FilterSection(
     options: List<FilterOption>,
     singleSelection: Boolean
 ) {
-    // Для singleSelection храним один индекс, иначе — множество выбранных индексов
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
     var selectedIndices by remember { mutableStateOf(setOf<Int>()) }
 

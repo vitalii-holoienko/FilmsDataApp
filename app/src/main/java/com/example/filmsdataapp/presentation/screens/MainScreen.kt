@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.components.mainscreen.content.Content
 import com.example.filmsdataapp.presentation.components.Header
@@ -22,20 +23,23 @@ fun MainScreen(
     navigateToTVShowsScreen : () -> Unit,
     navigateToMoviesScreen : () -> Unit,
     navigateToActorsScreen : () -> Unit,
-    navigateToTitleScreen: (Title) -> Unit
+    navigateToTitleScreen: (Title) -> Unit,
+    navigateToSearchedTitleScreen : () -> Unit,
+    navigateToNewsScreen : (News) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
             .background(color= BackGroundColor).verticalScroll(rememberScrollState())
     ){
-        Header({}, navigateToProfilePage, onMenuClick)
+        Header({}, navigateToProfilePage,navigateToSearchedTitleScreen, onMenuClick,  )
         Content(
             navigateToNewReleasesPage,
             navigateToCurrentlyTrendingPage,
             navigateToTVShowsScreen,
             navigateToMoviesScreen,
             navigateToActorsScreen,
-            navigateToTitleScreen
+            navigateToTitleScreen,
+            navigateToNewsScreen
         )
     }
 

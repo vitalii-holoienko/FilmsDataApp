@@ -5,17 +5,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.components.Header
-import com.example.filmsdataapp.presentation.components.titlescreen.Content
+import com.example.filmsdataapp.presentation.components.newsscreen.Content
+import com.example.filmsdataapp.presentation.components.profilescreen.Content
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun TitleScreen(title: Title, navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit, onMenuClick : () -> Unit, navigateToSearchedTitleScreen : () -> Unit){
+fun NewsScreen(news: News, navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit, onMenuClick : () -> Unit, navigateToSearchedTitleScreen : () -> Unit){
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = BackGroundColor)){
         Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen , onMenuClick)
-        Content(title)
+        Content(news)
     }
 }

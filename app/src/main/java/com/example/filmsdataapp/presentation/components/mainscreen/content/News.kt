@@ -2,6 +2,7 @@ package com.example.filmsdataapp.presentation.components.mainscreen.content
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,7 +29,7 @@ import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 
 @Composable
-fun News(news : List<News>){
+fun News(news : List<News>, navigateToNewsScreen : (News) -> Unit){
     Column(modifier = Modifier.fillMaxSize()){
         if(!news.isEmpty()){
             news.forEach{
@@ -39,7 +40,7 @@ fun News(news : List<News>){
                     contentAlignment = Alignment.Center
                     )
                 {
-                    Column(modifier = Modifier.padding(7.dp)) {
+                    Column(modifier = Modifier.padding(7.dp).clickable { navigateToNewsScreen(it) }) {
                         Image(
                             painter = rememberAsyncImagePainter(it.image!!.url),
                             contentDescription = null,

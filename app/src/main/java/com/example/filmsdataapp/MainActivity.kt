@@ -27,6 +27,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.components.NavigationMenuWrapper
 import com.example.filmsdataapp.presentation.screens.AboutProgramScreen
@@ -36,7 +37,9 @@ import com.example.filmsdataapp.presentation.screens.ContactsScreen
 import com.example.filmsdataapp.presentation.screens.CurrentlyTrendingScreen
 import com.example.filmsdataapp.presentation.screens.MainScreen
 import com.example.filmsdataapp.presentation.screens.MoviesScreen
+import com.example.filmsdataapp.presentation.screens.NewsScreen
 import com.example.filmsdataapp.presentation.screens.ProfileScreen
+import com.example.filmsdataapp.presentation.screens.SearchedTitlesScreen
 import com.example.filmsdataapp.presentation.screens.TVShowsScreen
 import com.example.filmsdataapp.presentation.screens.TitleScreen
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
@@ -103,10 +106,21 @@ class MainActivity : ComponentActivity() {
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
-                                }
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
+                                },
+                                navigateToNewsScreen = { news ->
+                                    val json = Json.encodeToString(news)
+                                    val encoded = Uri.encode(json)
+                                    navController.navigate("news_screen/$encoded")
+                                },
+
 
                             )
                         }
+
+
                         composable(
                             route = "title_screen/{titleJson}",
                             arguments = listOf(navArgument("titleJson") { type = NavType.StringType })
@@ -124,9 +138,38 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
                             )
                         }
+
+                        composable(
+                            route = "news_screen/{newsJson}",
+                            arguments = listOf(navArgument("newsJson") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val json = backStackEntry.arguments?.getString("newsJson")
+                            val news = json?.let { Json.decodeFromString<News>(it) }
+
+                             NewsScreen(
+                                news = news!!,
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
+                                }
+                            )
+                        }
+
+
                         composable(route = "movies_screen") {
                             MoviesScreen(
                                 navigateToMainScreen = {
@@ -142,6 +185,9 @@ class MainActivity : ComponentActivity() {
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
 
                             )
@@ -161,6 +207,9 @@ class MainActivity : ComponentActivity() {
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
 
                             )
@@ -181,6 +230,9 @@ class MainActivity : ComponentActivity() {
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
 
                             )
@@ -201,6 +253,9 @@ class MainActivity : ComponentActivity() {
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
                             )
                         }
@@ -214,6 +269,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
                             )
                         }
@@ -227,6 +285,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
                             )
                         }
@@ -240,6 +301,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
                             )
                         }
@@ -259,6 +323,31 @@ class MainActivity : ComponentActivity() {
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
+                                }
+                            )
+                        }
+
+                        composable(route = "searched_titles_screen") {
+                            SearchedTitlesScreen(
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                },
+                                navigateToTitleScreen = { title ->
+                                    val json = Json.encodeToString(title)
+                                    val encoded = Uri.encode(json)
+                                    navController.navigate("title_screen/$encoded")
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
                             )
                         }
@@ -272,6 +361,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onMenuClick = {
                                     scope.launch { drawerState.open() }
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
                                 }
                             )
 

@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.data.repository.ActorsRepositoryImpl
 import com.example.filmsdataapp.data.repository.MoviesRepositoryImpl
 import com.example.filmsdataapp.data.repository.NewsRepositoryImpl
@@ -32,6 +33,7 @@ import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetTitleWithAppliedFiltersUseCase
+import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -44,12 +46,14 @@ class MainActivityViewModel : ViewModel() {
     private val tvShowsRepository : TVShowsRepository = TVShowsRepositoryImpl()
     private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
     private val titleRepository : TitleRepository = TitleRepositoryImpl()
-
+    var searchEnded = MutableLiveData<Boolean>()
     private var _mostPopularMovies = MutableLiveData<List<Title>>()
     private var _comingSoonMovies = MutableLiveData<List<Title>>()
     private var _mostPopularTVShows = MutableLiveData<List<Title>>()
+    private val _searchedTitles = MutableLiveData<List<Title>>()
     private val _news = MutableLiveData<List<News>>()
     private val _actors = MutableLiveData<List<Actor>>()
+    var searchedQuery = MutableLiveData<String>()
 
     private val _currentlyTrendingMovies = MutableLiveData<List<Title>>()
     private val _titleWithAppliedFitlers = MutableStateFlow("")
@@ -59,10 +63,13 @@ class MainActivityViewModel : ViewModel() {
     val _reviewsToDisplay = MutableLiveData<List<Review>>()
     val initialTitlesToDisplay: LiveData<List<Title>> get() = _inititalTitleToDisplay
     val titlesToDisplay: LiveData<List<Title>> get() = _titlesToDisplay
+    val searchedTitles: LiveData<List<Title>> get() = _searchedTitles
     val reviewsToDisplay: LiveData<List<Review>> get() = _reviewsToDisplay
     val mostPopularMovies: LiveData<List<Title>> get() = _mostPopularMovies
     val comingSoonMovies: LiveData<List<Title>> get() = _comingSoonMovies
     val mostPopularTVShows: LiveData<List<Title>> get() = _mostPopularTVShows
+
+
     val news : LiveData<List<News>> get() = _news
     val currentlyTrendingMovies: LiveData<List<Title>> get() = _currentlyTrendingMovies
     val actors: LiveData<List<Actor>> get() = _actors
@@ -74,44 +81,39 @@ class MainActivityViewModel : ViewModel() {
     private fun loadMovies() {
         viewModelScope.launch {
             try {
-//                filterStatus.genre = Genre.ACTION
-//                val result = GetTitleWithAppliedFiltersUseCase(titleRepository)
-//                _titleWithAppliedFitlers.value = result.invoke(filterStatus)
-//
-//
-//                val result6= GetMostPopularTVShowsUseCase(tvShowsRepository)
-//                _mostPopularTVShows.value = result6.invoke()
-//
-//                val result2 = GetNewsUseCase(newsRepository)
-//                _news.value = result2.invoke()
-//
+                val result = GetTitleWithAppliedFiltersUseCase(titleRepository)
+                _titleWithAppliedFitlers.value = result.invoke(filterStatus)
+
+
+                val result6= GetMostPopularTVShowsUseCase(tvShowsRepository)
+                _mostPopularTVShows.value = result6.invoke()
+
+                val result2 = GetNewsUseCase(newsRepository)
+                _news.value = result2.invoke()
+
                 val result3 = GetMostPopularMoviesUseCase(moviesRepository)
                 _mostPopularMovies.value = result3.invoke()
 
                 val result4 = GetComingSoonMoviesUseCase(moviesRepository)
                 _comingSoonMovies.value = result4.invoke()
-//
-//
-//
-//
-//                val result5 = GetActorsUseCase(actorsRepository)
-//                _actors.value = result5.invoke()
-//                Log.d("TEKKEN", _actors.value!!.size.toString())
-//
-//                  val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
-//                  _mostPopularTVShows.value = result1.invoke()
-//                    val id = mostPopularTVShows.value!!.get(0).id
-
-//                val list =  result2.invoke(id!!)
-//                list.forEach {
-//                    Log.d("TEKKEN", it.summary!!)
-//                }
-//
-//
 
 
-//                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
-//                _currentlyTrendingMovies.value = result0.invoke()
+
+
+                val result5 = GetActorsUseCase(actorsRepository)
+                _actors.value = result5.invoke()
+                Log.d("TEKKEN", _actors.value!!.size.toString())
+
+                  val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
+                  _mostPopularTVShows.value = result1.invoke()
+
+
+
+
+
+
+                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
+                _currentlyTrendingMovies.value = result0.invoke()
 
 
 
@@ -125,7 +127,20 @@ class MainActivityViewModel : ViewModel() {
         }
     }
 
+    fun searchTitle(query:String){
+        viewModelScope.launch {
+            val result = SearchTitleUseCase(titleRepository)
+            _searchedTitles.value = result.invoke(query)
+        }.invokeOnCompletion {
+            searchEnded.value = true
+            Log.d("TEKKEN", "SEARCHED TITLES " + searchedTitles.value!!.size.toString())
+        }
 
+    }
+
+    fun stopSearching(){
+        searchEnded.value = false
+    }
     fun getTitleReviews(id:String){
         viewModelScope.launch {
             val result = GetReviewsByIdUseCase(titleRepository)
@@ -134,18 +149,16 @@ class MainActivityViewModel : ViewModel() {
         }
     }
 
+
+
     fun applyFilter(){
+        Log.d("TEKKEN", "INITIAL " + _inititalTitleToDisplay.value!!.size.toString())
         _titlesToDisplay.value = applyFiltersLogic(_inititalTitleToDisplay.value!!, filterStatus)
     }
 
     private fun applyFiltersLogic(movies: List<Title>, filter: FilterStatus): List<Title> {
         return movies
             .asSequence()
-            .filter { movie ->
-                filter.type?.let { type ->
-                    movie.type?.equals(type.name, ignoreCase = true)
-                } ?: true
-            }
             .filter { movie ->
                 filter.genre?.let { genre ->
                     movie.genres?.any { it.equals(filter.genres[genre.get(0)], ignoreCase = true) } ?: false

@@ -12,9 +12,13 @@ import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Conte
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun ContactsScreen(navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit, onMenuClick : () -> Unit){
+fun ContactsScreen(navigateToMainScreen : () -> Unit,
+                   navigateToProfilePage : () ->Unit,
+                   onMenuClick : () -> Unit,
+                   navigateToSearchedTitleScreen : () -> Unit
+){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
-        Header(navigateToMainScreen, navigateToProfilePage, onMenuClick)
+        Header(navigateToMainScreen, navigateToProfilePage,  navigateToSearchedTitleScreen,onMenuClick)
     }
 }

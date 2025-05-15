@@ -2,8 +2,7 @@ package com.example.filmsdataapp.domain.model
 //suspend fun getTitleWithAppliedFilters(type:String, genre:String, averageRatingFrom:Int, dateOfReleaseFrom:Int,
 //                                       dateOfReleaseTo: Int, language:String):String
 class FilterStatus(
-    var type : Type? = null,
-    var genre : MutableList<Genre> = mutableListOf(),
+    var genre : MutableList<Genre>? = null,
     var averageRationFrom:Int? = null,
     var dateOfReleaseFrom:Int? = null,
     var dateOfReleaseTo:Int? = null,
@@ -35,11 +34,6 @@ class FilterStatus(
     )
 
 }
-
-enum class Type{
-    MOVIE, TVSHOW
-}
-
 enum class Genre{
     DRAMA,COMEDY,DOCUMENTARY,
     ACTION,ROMANCE,THRILLER,

@@ -41,6 +41,8 @@ fun ImageSlider(movies : List<Title>, navigateToTitleScreen: (Title) -> Unit) {
             if(!movies.isEmpty()){
                 val movie = movies[index]
                 ImageItem(imageWidth, movie, navigateToTitleScreen)
+            }else{
+                ImageItem(imageWidth, null, navigateToTitleScreen)
             }
 
         }

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
@@ -50,14 +51,15 @@ fun Content(
     navigateToTVShowsScreen : () -> Unit,
     navigateToMoviesScreen : () -> Unit,
     navigateToActorsScreen : () -> Unit,
-    navigateToTitleScreen: (Title) -> Unit
+    navigateToTitleScreen: (Title) -> Unit,
+    navigateToNewsScreen : (News) -> Unit
 ) {
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val comingSoonMovies = viewModel.comingSoonMovies.observeAsState(emptyList())
     val currentlyTrendingMovies = viewModel.currentlyTrendingMovies.observeAsState(emptyList())
     val news = viewModel.news.observeAsState(emptyList())
 
-    Spacer(modifier = Modifier.height(40.dp))
+
     Box(modifier = Modifier
         .fillMaxSize()
         .padding(10.dp)
@@ -408,7 +410,7 @@ fun Content(
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            News(news.value)
+            News(news.value, navigateToNewsScreen)
 
         }
 

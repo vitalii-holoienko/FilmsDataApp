@@ -27,58 +27,143 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.ui.theme.LinksColor
+import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.placeholder
+import com.google.accompanist.placeholder.shimmer
 
 @Composable
-fun ImageItem(width: Dp, movie: Title, navigateToTitleScreen: (Title) -> Unit) {
-    Column{
-        Image(
-            painter = rememberAsyncImagePainter(movie.primaryImage),
-            contentDescription = null,
-            modifier = Modifier
-                .width(width)
-                .height(170.dp)
-                .background(Color.Gray)
-                .clickable {
-                    navigateToTitleScreen(movie)
-                },
-            contentScale = ContentScale.Crop
-        )
-        Text(
-            text = movie.originalTitle ?: "",
-            color = LinksColor,
-            fontSize = 12.sp,
-            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .width(width)
-                .padding(0.dp, 5.dp, 0.dp, 0.dp)
-        )
-        Row(modifier = Modifier.width(width)) {
+fun ImageItem(width: Dp, movie: Title?, navigateToTitleScreen: (Title) -> Unit) {
+    if(movie != null){
+        val painter = rememberAsyncImagePainter(movie.primaryImage)
+        val imageState = painter.state
+
+        Column {
+            Box(
+                modifier = Modifier
+                    .width(width)
+                    .height(170.dp)
+                    .clickable(enabled = movie.primaryImage != null) {
+                        navigateToTitleScreen(movie)
+                    }
+            ) {
+                if (movie.primaryImage != null) {
+                    Image(
+                        painter = painter,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .matchParentSize()
+                            .placeholder(
+                                visible = imageState is AsyncImagePainter.State.Loading,
+                                highlight = PlaceholderHighlight.shimmer(highlightColor = Color.White),
+                                color = Color.LightGray
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .placeholder(
+                                visible = true,
+                                highlight = PlaceholderHighlight.shimmer(highlightColor = Color.White),
+                                color = Color.LightGray
+                            )
+                    )
+                }
+            }
+
             Text(
-                text = movie.type!!.replaceFirstChar { it.uppercase() },
-                color = TextColor,
-                fontSize = 10.sp,
+                text = movie.originalTitle ?: "",
+                color = LinksColor,
+                fontSize = 12.sp,
                 fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(0.dp, 3.dp)
+                modifier = Modifier
+                    .width(width)
+                    .padding(top = 5.dp)
             )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = if (movie.startYear!! < 2025) "2025" else movie.startYear.toString(),
-                color = TextColor,
-                fontSize = 10.sp,
-                fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(5.dp, 3.dp)
+
+            Row(modifier = Modifier.width(width)) {
+                Text(
+                    text = movie.type?.replaceFirstChar { it.uppercase() } ?: "",
+                    color = TextColor,
+                    fontSize = 10.sp,
+                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 3.dp)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = if ((movie.startYear ?: 2025) < 2025) "2025" else movie.startYear.toString(),
+                    color = TextColor,
+                    fontSize = 10.sp,
+                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(start = 5.dp, top = 3.dp)
+                )
+            }
+        }
+    }else{
+        Column {
+            Box(
+                modifier = Modifier
+                    .width(width)
+                    .height(170.dp)
+                    .placeholder(
+                        visible = true,
+                        color = PrimaryColor,
+                        highlight = PlaceholderHighlight.shimmer(highlightColor = Color.Gray)
+                    )
             )
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            Box(
+                modifier = Modifier
+                    .width(width)
+                    .height(16.dp)
+                    .placeholder(
+                        visible = true,
+                        color = PrimaryColor,
+                        highlight = PlaceholderHighlight.shimmer(highlightColor = Color.Gray)
+                    )
+            )
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            Row(modifier = Modifier.width(width)) {
+                Box(
+                    modifier = Modifier
+                        .width(width * 0.4f)
+                        .height(12.dp)
+                        .placeholder(
+                            visible = true,
+                            color = PrimaryColor,
+                            highlight = PlaceholderHighlight.shimmer(highlightColor = Color.Gray)
+                        )
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Box(
+                    modifier = Modifier
+                        .width(width * 0.2f)
+                        .height(12.dp)
+                        .placeholder(
+                            visible = true,
+                            color = PrimaryColor,
+                            highlight = PlaceholderHighlight.shimmer(highlightColor = Color.Gray)
+                        )
+                )
+            }
         }
     }
 

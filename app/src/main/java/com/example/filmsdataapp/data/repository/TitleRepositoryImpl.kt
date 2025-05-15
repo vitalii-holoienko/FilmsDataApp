@@ -1,17 +1,21 @@
 package com.example.filmsdataapp.data.repository
 
+import android.util.Log
 import com.example.filmsdataapp.data.network.NetworkHelper
 import com.example.filmsdataapp.domain.model.FilterStatus
 import com.example.filmsdataapp.domain.model.FullResponse
 import com.example.filmsdataapp.domain.model.Genre
 import com.example.filmsdataapp.domain.model.Review
-import com.example.filmsdataapp.domain.model.Type
+import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.domain.repository.MoviesRepository
 import com.example.filmsdataapp.domain.repository.NewsRepository
 import com.example.filmsdataapp.domain.repository.TVShowsRepository
 import com.example.filmsdataapp.domain.repository.TitleRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrl
 //enum class Genre{
@@ -41,12 +45,6 @@ class TitleRepositoryImpl : TitleRepository {
     ): String = withContext(Dispatchers.IO){
         var url = "https://imdb236.p.rapidapi.com/imdb/search?rows=100&sortField=id"
 
-        when(filterStatus.type){
-            Type.MOVIE -> url = url.toHttpUrl().newBuilder().addQueryParameter("type", "movie").toString()
-            Type.TVSHOW -> url = url.toHttpUrl().newBuilder().addQueryParameter("type", "tvSeries").toString()
-            else -> {}
-        }
-
         if(filterStatus.genre!=null){
             val selectedGenres = filterStatus.genre?.map { index -> filterStatus.genres[index] } ?: emptyList()
 
@@ -61,8 +59,6 @@ class TitleRepositoryImpl : TitleRepository {
                     .addQueryParameter("genres", genresJsonArray)
                     .toString()
             }
-
-
         }
 
         if(filterStatus.averageRationFrom!=null){
@@ -76,6 +72,25 @@ class TitleRepositoryImpl : TitleRepository {
             url = url.toHttpUrl().newBuilder().addQueryParameter("startYearTo", filterStatus.dateOfReleaseTo.toString()).toString()
         }
         NetworkHelper.makeRequest(url,1)
+    }
+
+    override suspend fun searchTitle(query: String): List<Title> = withContext(Dispatchers.IO) {
+        val json = Json {
+            ignoreUnknownKeys = true
+        }
+        var jsonString = ""
+
+            jsonString =
+                NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/imdb/autocomplete?query=${query}", 1)
+
+        if (jsonString.isBlank()) {
+            return@withContext emptyList()
+        }
+
+
+
+        json.decodeFromString(jsonString)
+
     }
 
 
