@@ -33,6 +33,7 @@ import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetTitleWithAppliedFiltersUseCase
+import com.example.filmsdataapp.domain.usecase.GetTitlesReleasedInCertainYear
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,6 +54,8 @@ class MainActivityViewModel : ViewModel() {
     private val _searchedTitles = MutableLiveData<List<Title>>()
     private val _news = MutableLiveData<List<News>>()
     private val _actors = MutableLiveData<List<Actor>>()
+    private var _titlesReleasedIn2025 = MutableLiveData<List<Title>>()
+    private var _titlesReleasedIn2024= MutableLiveData<List<Title>>()
     var searchedQuery = MutableLiveData<String>()
 
     private val _currentlyTrendingMovies = MutableLiveData<List<Title>>()
@@ -63,6 +66,8 @@ class MainActivityViewModel : ViewModel() {
     val _reviewsToDisplay = MutableLiveData<List<Review>>()
     val initialTitlesToDisplay: LiveData<List<Title>> get() = _inititalTitleToDisplay
     val titlesToDisplay: LiveData<List<Title>> get() = _titlesToDisplay
+    val titlesReleasedIn2025: LiveData<List<Title>> get() = _titlesReleasedIn2025
+    val titlesReleasedIn2024: LiveData<List<Title>> get() = _titlesReleasedIn2024
     val searchedTitles: LiveData<List<Title>> get() = _searchedTitles
     val reviewsToDisplay: LiveData<List<Review>> get() = _reviewsToDisplay
     val mostPopularMovies: LiveData<List<Title>> get() = _mostPopularMovies
@@ -81,46 +86,62 @@ class MainActivityViewModel : ViewModel() {
     private fun loadMovies() {
         viewModelScope.launch {
             try {
-                val result = GetTitleWithAppliedFiltersUseCase(titleRepository)
-                _titleWithAppliedFitlers.value = result.invoke(filterStatus)
-
-
-                val result6= GetMostPopularTVShowsUseCase(tvShowsRepository)
-                _mostPopularTVShows.value = result6.invoke()
-
                 val result2 = GetNewsUseCase(newsRepository)
                 _news.value = result2.invoke()
-
-                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
-                _mostPopularMovies.value = result3.invoke()
-
-                val result4 = GetComingSoonMoviesUseCase(moviesRepository)
-                _comingSoonMovies.value = result4.invoke()
-
-
-
-
-                val result5 = GetActorsUseCase(actorsRepository)
-                _actors.value = result5.invoke()
-                Log.d("TEKKEN", _actors.value!!.size.toString())
-
-                  val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
-                  _mostPopularTVShows.value = result1.invoke()
-
-
-
-
-
-
-                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
-                _currentlyTrendingMovies.value = result0.invoke()
-
-
-
-
             } catch (e: Exception) {
                 Log.d("TEKKEN", e.message.toString())
             }
+
+            try {
+                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
+                _mostPopularMovies.value = result3.invoke()
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
+            try {
+                val result4 = GetComingSoonMoviesUseCase(moviesRepository)
+                _comingSoonMovies.value = result4.invoke()
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
+            try {
+                val result5 = GetActorsUseCase(actorsRepository)
+                _actors.value = result5.invoke()
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
+            try {
+                val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
+                _mostPopularTVShows.value = result1.invoke()
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
+            try {
+                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
+                _currentlyTrendingMovies.value = result0.invoke()
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
+            try {
+                val result10 = GetTitlesReleasedInCertainYear(titleRepository)
+                _titlesReleasedIn2025.value = result10.invoke(2025)
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
+            try {
+                val result11 = GetTitlesReleasedInCertainYear(titleRepository)
+                _titlesReleasedIn2025.value = result11.invoke(2024)
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
+
+            try {
+                val result12 = GetNewsUseCase(newsRepository)
+                _news.value = result12.invoke()
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
+
         }.invokeOnCompletion {
 
 
@@ -152,7 +173,6 @@ class MainActivityViewModel : ViewModel() {
 
 
     fun applyFilter(){
-        Log.d("TEKKEN", "INITIAL " + _inititalTitleToDisplay.value!!.size.toString())
         _titlesToDisplay.value = applyFiltersLogic(_inititalTitleToDisplay.value!!, filterStatus)
     }
 

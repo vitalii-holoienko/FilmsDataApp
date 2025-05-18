@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.components.mainscreen.content
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,47 +28,90 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.ui.theme.PrimaryColor
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.placeholder
+import com.google.accompanist.placeholder.shimmer
 
 @Composable
-fun News(news : List<News>, navigateToNewsScreen : (News) -> Unit){
+fun News(news : List<News>?, navigateToNewsScreen : (News) -> Unit){
     Column(modifier = Modifier.fillMaxSize()){
-        if(!news.isEmpty()){
-            news.forEach{
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(270.dp)
-                    .background(PrimaryColor),
-                    contentAlignment = Alignment.Center
+        if(news != null){
+            if(!news.isEmpty()){
+                news.forEach{
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(270.dp)
+                        .background(PrimaryColor),
+                        contentAlignment = Alignment.Center
                     )
-                {
-                    Column(modifier = Modifier.padding(7.dp).clickable { navigateToNewsScreen(it) }) {
-                        Image(
-                            painter = rememberAsyncImagePainter(it.image!!.url),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                                .background(Color.Gray),
-                            contentScale = ContentScale.Crop
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = it.articleTitle!!.plainText!!,
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
+                    {
+                        Column(modifier = Modifier.padding(7.dp).clickable { navigateToNewsScreen(it) }) {
+                            Image(
+                                painter = rememberAsyncImagePainter(it.image!!.url),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp)
+                                    .background(Color.Gray),
+                                contentScale = ContentScale.Crop
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = it.articleTitle!!.plainText!!,
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
 
-                        )
+                            )
+                        }
+
                     }
 
+                    Spacer(modifier = Modifier.height(50.dp))
                 }
+            }else{
+                repeat(3){
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(270.dp)
+                        .background(PrimaryColor),
+                        contentAlignment = Alignment.Center
+                    )
+                    {
+                        Column(modifier = Modifier.padding(7.dp)) {
+                            Box(modifier = Modifier.fillMaxWidth().height(200.dp)){
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .placeholder(
+                                            visible = true,
+                                            highlight = PlaceholderHighlight.shimmer(highlightColor = Color.Gray),
+                                            color = PrimaryColor
+                                        )
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(12.dp)
+                                    .placeholder(
+                                        visible = true,
+                                        color = PrimaryColor,
+                                        highlight = PlaceholderHighlight.shimmer(highlightColor = Color.Gray)
+                                    )
+                            )
+                        }
 
-                Spacer(modifier = Modifier.height(50.dp))
+                    }
+
+                    Spacer(modifier = Modifier.height(50.dp))
+                }
             }
+        }else{
+            Log.d("TEKKEN", "NULL")
         }
-
-
     }
 }

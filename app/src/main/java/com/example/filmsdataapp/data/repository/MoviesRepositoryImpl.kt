@@ -24,12 +24,13 @@ class MoviesRepositoryImpl() : MoviesRepository{
         val json = Json {
             ignoreUnknownKeys = true
         }
-        val jsonString = makeRequest("https://imdb236.p.rapidapi.com/imdb/most-popular-movies", 1)
+        val jsonString = makeRequest("https://imdb236.p.rapidapi.com/api/imdb/most-popular-movies", 1)
         json.decodeFromString(jsonString)
 
     }
 
     override suspend fun getComingSoonMovies(): List<Title> = withContext(Dispatchers.IO) {
+        Log.d("TEKKEN", "START")
         val result = mutableListOf<Title>()
 
         val idsJson = makeRequest(
@@ -41,10 +42,10 @@ class MoviesRepositoryImpl() : MoviesRepository{
             .jsonObject["edges"]!!
             .jsonArray.mapNotNull { it.jsonObject["node"]?.jsonObject?.get("id")?.jsonPrimitive?.content }
         val json = Json { ignoreUnknownKeys = true }
-
         ids.forEach { id ->
             try {
                 val movieString = getMovieById(id)
+
                 val movie = json.decodeFromString<Title>(movieString)
                 result.add(movie)
             } catch (e: Exception) {
@@ -61,7 +62,7 @@ class MoviesRepositoryImpl() : MoviesRepository{
         val json = Json {
             ignoreUnknownKeys = true
         }
-        val jsonString = makeRequest("https://imdb236.p.rapidapi.com/imdb/most-popular-movies", 1)
+        val jsonString = makeRequest("https://imdb236.p.rapidapi.com/api/imdb/most-popular-movies", 1)
         json.decodeFromString(jsonString)
     }
 
@@ -70,11 +71,11 @@ class MoviesRepositoryImpl() : MoviesRepository{
     }
 
     override suspend fun getMovieById(id:String): String = withContext(Dispatchers.IO){
-        return@withContext makeRequest("https://imdb236.p.rapidapi.com/imdb/${id}",1)
+        return@withContext makeRequest("https://imdb236.p.rapidapi.com/api/imdb/${id}",1)
     }
 
     override suspend fun getRatingById(id:String): String = withContext(Dispatchers.IO){
-        return@withContext makeRequest("https://imdb236.p.rapidapi.com/imdb/${id}/rating",1)
+        return@withContext makeRequest("https://imdb236.p.rapidapi.com/api/imdb/${id}/rating",1)
     }
 
 }

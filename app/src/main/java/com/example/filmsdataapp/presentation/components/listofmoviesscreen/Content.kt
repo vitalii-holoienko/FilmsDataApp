@@ -30,7 +30,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.filmsdataapp.R
@@ -49,6 +52,9 @@ import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.placeholder
+import com.google.accompanist.placeholder.shimmer
 
 
 @SuppressLint("SuspiciousIndentation")
@@ -117,6 +123,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
     val listOfActors by viewModel.actors.observeAsState(emptyList())
     val listOfTitlesToDisplay by viewModel.titlesToDisplay.observeAsState(emptyList())
 
+
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val totalHorizontalPadding = 10.dp * 3
@@ -124,6 +131,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
     val ActorsRows = listOfActors.chunked(2)
     var titlesRows = emptyList<List<Title>>()
     if(listOfTitlesToDisplay!=null) titlesRows = listOfTitlesToDisplay.chunked(2)
+
     var isFilterVisible by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -131,6 +139,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
             .wrapContentHeight()
             .background(BackGroundColor)
     ){
+        if(listOfTitlesToDisplay!=null) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(30.dp),
                 modifier = Modifier
@@ -164,7 +173,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
                         }
                     }
                 }
-                if(!showActors){
+                if (!showActors) {
                     items(titlesRows) { movieRow ->
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -221,8 +230,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
                             }
                         }
                     }
-                }
-                else{
+                } else {
                     items(ActorsRows) { actorsRow ->
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -248,27 +256,6 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
                                             .width(imageWidth)
                                             .padding(5.dp, 3.dp)
                                     )
-//                                    Row(modifier = Modifier.width(imageWidth)) {
-//                                        Text(
-//                                            text = "Actor",
-//                                            color = TextColor,
-//                                            fontSize = 10.sp,
-//                                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-//                                            maxLines = 1,
-//                                            overflow = TextOverflow.Ellipsis,
-//                                            modifier = Modifier.padding(5.dp, 3.dp)
-//                                        )
-//                                        Spacer(modifier = Modifier.weight(1f))
-//                                        Text(
-//                                            text = m.,
-//                                            color = TextColor,
-//                                            fontSize = 10.sp,
-//                                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-//                                            maxLines = 1,
-//                                            overflow = TextOverflow.Ellipsis,
-//                                            modifier = Modifier.padding(5.dp, 3.dp)
-//                                        )
-//                                    }
                                 }
                             }
                             if (actorsRow.size == 1) {
@@ -278,6 +265,15 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
                     }
                 }
             }
+        }else{
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                Text(
+                    text = "Empty List :(",
+                    color = TextColor,
+                    fontSize = 26.sp,
+                )
+            }
+        }
         FilterPanelWithButton(
             isFilterVisible = isFilterVisible,
             onToggle = { isFilterVisible = !isFilterVisible },

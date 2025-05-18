@@ -2,6 +2,7 @@ package com.example.filmsdataapp.data.repository
 
 import android.util.Log
 import com.example.filmsdataapp.data.network.NetworkHelper
+import com.example.filmsdataapp.domain.model.ApiResponse
 import com.example.filmsdataapp.domain.model.FilterStatus
 import com.example.filmsdataapp.domain.model.FullResponse
 import com.example.filmsdataapp.domain.model.Genre
@@ -17,6 +18,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import okhttp3.HttpUrl.Companion.toHttpUrl
 //enum class Genre{
 //    DRAMA,COMEDY,DOCUMENTARY,
@@ -43,7 +46,7 @@ class TitleRepositoryImpl : TitleRepository {
     override suspend fun getTitleWithAppliedFilters(
         filterStatus: FilterStatus
     ): String = withContext(Dispatchers.IO){
-        var url = "https://imdb236.p.rapidapi.com/imdb/search?rows=100&sortField=id"
+        var url = "https://imdb236.p.rapidapi.com/api//imdb/search?rows=100&sortField=id"
 
         if(filterStatus.genre!=null){
             val selectedGenres = filterStatus.genre?.map { index -> filterStatus.genres[index] } ?: emptyList()
@@ -74,6 +77,42 @@ class TitleRepositoryImpl : TitleRepository {
         NetworkHelper.makeRequest(url,1)
     }
 
+    override suspend fun getTitlesReleasedInCertainYear(year: Int): List<Title> = withContext(Dispatchers.IO) {
+        val json = Json {
+            ignoreUnknownKeys = true
+        }
+
+        val jsonString = NetworkHelper.makeRequest(
+            "https://imdb236.p.rapidapi.com/api/imdb/search?rows=100&startYearFrom=$year&sortOrder=ASC&sortField=id", 1
+        )
+
+        if (jsonString.isBlank()) return@withContext emptyList()
+
+        val response = json.decodeFromString<ApiResponse>(jsonString)
+        return@withContext response.results
+    }
+
+//    override suspend fun getTitlesReleasedInCertainYear(year: Int): List<Title> = withContext(Dispatchers.IO){
+////        val json = Json {
+////            ignoreUnknownKeys = true
+////        }
+////        var jsonString = ""
+////
+////        jsonString =
+////            NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/api/imdb/search?rows=25&startYearFrom=${2025}&sortOrder=ASC&sortField=id", 1)
+////
+////        if (jsonString.isBlank()) return@withContext emptyList()
+////
+////        val root = json.parseToJsonElement(jsonString).jsonObject
+////
+////        val resultsArray = root["results"]?.jsonArray ?: return@withContext emptyList()
+////
+////        return@withContext resultsArray.map { it.jsonObject }
+//
+//
+//    }
+
+
     override suspend fun searchTitle(query: String): List<Title> = withContext(Dispatchers.IO) {
         val json = Json {
             ignoreUnknownKeys = true
@@ -81,7 +120,7 @@ class TitleRepositoryImpl : TitleRepository {
         var jsonString = ""
 
             jsonString =
-                NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/imdb/autocomplete?query=${query}", 1)
+                NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/api/imdb/autocomplete?query=${query}", 1)
 
         if (jsonString.isBlank()) {
             return@withContext emptyList()

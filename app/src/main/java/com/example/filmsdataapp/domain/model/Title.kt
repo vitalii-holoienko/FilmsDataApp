@@ -3,6 +3,13 @@ package com.example.filmsdataapp.domain.model
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class ApiResponse(
+    val rows: Int,
+    val numFound: Int,
+    val results: List<Title>
+)
+
+@Serializable
 data class Title(
     val id : String? = null,
     val url : String? = null,

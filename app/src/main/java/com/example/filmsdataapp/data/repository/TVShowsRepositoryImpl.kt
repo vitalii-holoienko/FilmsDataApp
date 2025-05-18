@@ -15,7 +15,7 @@ class TVShowsRepositoryImpl : TVShowsRepository{
             ignoreUnknownKeys = true
         }
         val jsonString =
-            NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/imdb/top250-tv", 1)
+            NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/api/imdb/top250-tv", 1)
         json.decodeFromString(jsonString)
 
     }

@@ -38,7 +38,7 @@ fun ImageSlider(movies : List<Title>, navigateToTitleScreen: (Title) -> Unit) {
         flingBehavior = rememberSnapFlingBehavior(listState)
     ) {
         items(8) { index ->
-            if(!movies.isEmpty()){
+            if(movies.isNotEmpty()){
                 val movie = movies[index]
                 ImageItem(imageWidth, movie, navigateToTitleScreen)
             }else{

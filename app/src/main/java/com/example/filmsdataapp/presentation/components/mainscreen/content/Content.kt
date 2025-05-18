@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.components.mainscreen.content
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -145,7 +146,10 @@ fun Content(
                 Box(modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f)
-                    .background(color = Color.White)){
+                    .background(color = Color.White).clickable {
+                        navigateToMoviesScreen()
+                    }
+                ){
                     Row(modifier = Modifier
                         .fillMaxSize()
                         .background(color = Color(254, 194, 197))){
@@ -173,9 +177,7 @@ fun Content(
                                 .scale(1f)
                                 .align(Alignment.CenterVertically)
                                 .padding(5.dp, 0.dp)
-                                .clickable {
-                                    //TODO
-                                }
+
                         )
 
                     }
