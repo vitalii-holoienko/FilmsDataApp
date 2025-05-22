@@ -24,6 +24,7 @@ import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.components.NavigationMenuWrapper
 import com.example.filmsdataapp.presentation.screens.AboutProgramScreen
+import com.example.filmsdataapp.presentation.screens.ActorInfoScreen
 import com.example.filmsdataapp.presentation.screens.ActorsScreen
 import com.example.filmsdataapp.presentation.screens.ComingSoonScreen
 import com.example.filmsdataapp.presentation.screens.CurrentlyTrendingScreen
@@ -199,6 +200,24 @@ class MainActivity : ComponentActivity() {
 
                             )
                         }
+
+                        composable(route = "actor_info_screen") {
+                            ActorInfoScreen(
+                                navigateToMainScreen = {
+                                    navController.navigate("main_screen")
+                                },
+                                navigateToProfilePage = {
+                                    navController.navigate("profile_screen")
+                                },
+                                onMenuClick = {
+                                    scope.launch { drawerState.open() }
+                                },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
+                                }
+
+                            )
+                        }
                         composable(route = "actors_screen") {
                             ActorsScreen(
                                 navigateToMainScreen = {
@@ -217,6 +236,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToActorInfoScreen = {
+                                    navController.navigate("actor_info_screen")
                                 }
 
                             )
@@ -282,22 +304,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        composable(route = "reviews_screen") {
-                            AboutProgramScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                }
-                            )
-                        }
+
 
                         composable(route = "currently_trending_screen") {
                             CurrentlyTrendingScreen(

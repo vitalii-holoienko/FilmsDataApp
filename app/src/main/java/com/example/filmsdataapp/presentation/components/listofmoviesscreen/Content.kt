@@ -64,13 +64,14 @@ import com.google.accompanist.placeholder.shimmer
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
+fun Content(from : String, navigateToTitleScreen: (Title) -> Unit, navigateToActorInfoScreen : () -> Unit = {}){
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     var pageName by remember(from) { mutableStateOf("") }
     var pageDescription by remember(from) { mutableStateOf("") }
     var typeContentToDisplay by remember(from) { mutableStateOf("") }
 
     var searchedQuery = viewModel.searchedQuery.observeAsState("")
+    var recievedActorInfo = viewModel.recievedActorInfo.observeAsState(false)
     var showActors by remember {
         mutableStateOf(false)
     }
@@ -121,6 +122,12 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
         }
     }
 
+    LaunchedEffect(recievedActorInfo.value) {
+        if (recievedActorInfo.value!!) {
+            navigateToActorInfoScreen()
+            viewModel.recievedActorInfo.value = false
+        }
+    }
 
 //    val listOfMovies by viewModel.titlesToDisplay.observeAsState(emptyList())
 //    val listOfTVShows by viewModel.titlesToDisplay.observeAsState(emptyList())
@@ -242,7 +249,11 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             actorsRow.forEach { m ->
-                                Column {
+                                Column(modifier = Modifier.clickable {
+                                    viewModel.getActorInfo(m.id)
+
+
+                                }) {
                                     Image(
                                         painter = rememberAsyncImagePainter(m.primaryImage!!.url),
                                         contentDescription = null,

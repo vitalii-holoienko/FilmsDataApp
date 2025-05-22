@@ -15,6 +15,7 @@ import com.example.filmsdataapp.data.repository.NewsRepositoryImpl
 import com.example.filmsdataapp.data.repository.TVShowsRepositoryImpl
 import com.example.filmsdataapp.data.repository.TitleRepositoryImpl
 import com.example.filmsdataapp.domain.model.Actor
+import com.example.filmsdataapp.domain.model.ActorInfo
 import com.example.filmsdataapp.domain.model.FilterStatus
 import com.example.filmsdataapp.domain.model.Genre
 import com.example.filmsdataapp.domain.model.News
@@ -26,6 +27,7 @@ import com.example.filmsdataapp.domain.repository.MoviesRepository
 import com.example.filmsdataapp.domain.repository.NewsRepository
 import com.example.filmsdataapp.domain.repository.TVShowsRepository
 import com.example.filmsdataapp.domain.repository.TitleRepository
+import com.example.filmsdataapp.domain.usecase.GetActorInfoByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetActorsUseCase
 import com.example.filmsdataapp.domain.usecase.GetComingSoonMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetCurrentlyTrendingMoviesUseCase
@@ -53,6 +55,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
     private val titleRepository : TitleRepository = TitleRepositoryImpl()
     var searchEnded = MutableLiveData<Boolean>()
+    var recievedActorInfo = MutableLiveData<Boolean>(false)
     private var _mostPopularMovies = MutableLiveData<List<Title>>()
     private var _comingSoonMovies = MutableLiveData<List<Title>>()
     private var _mostPopularTVShows = MutableLiveData<List<Title>>()
@@ -63,6 +66,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     private var _titlesReleasedIn2024= MutableLiveData<List<Title>>()
     var searchedQuery = MutableLiveData<String>()
 
+    var displayedActorInfo = MutableLiveData<ActorInfo>(null)
     private val _currentlyTrendingMovies = MutableLiveData<List<Title>>()
     private val _titleWithAppliedFitlers = MutableStateFlow("")
     var _inititalTitleToDisplay = MutableLiveData<List<Title>>()
@@ -120,6 +124,9 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             } catch (e: Exception) {
                 Log.d("TEKKEN", e.message.toString())
             }
+
+
+
 //            try {
 //                val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
 //                _mostPopularTVShows.value = result1.invoke()
@@ -172,7 +179,22 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         }
     }
 
+    fun getActorInfo(id:String){
+        try{
+            viewModelScope.launch {
+                val r = GetActorInfoByIdUseCase(actorsRepository)
+                displayedActorInfo.value = r.invoke(id)
+            }.invokeOnCompletion {
+                recievedActorInfo.value = true
+            }
+        }catch (e : Exception){
 
+        }
+
+
+
+
+    }
 
     fun applyFilter(){
         _titlesToDisplay.value = applyFiltersLogic(_inititalTitleToDisplay.value!!, filterStatus)

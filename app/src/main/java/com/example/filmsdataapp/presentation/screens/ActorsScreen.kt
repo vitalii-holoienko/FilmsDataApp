@@ -18,10 +18,12 @@ fun ActorsScreen(navigateToMainScreen : () -> Unit,
                  navigateToProfilePage : () ->Unit,
                  onMenuClick : () -> Unit,
                  navigateToTitleScreen: (Title) -> Unit,
-                 navigateToSearchedTitleScreen : () -> Unit){
+                 navigateToSearchedTitleScreen : () -> Unit,
+                 navigateToActorInfoScreen : () -> Unit,
+                 ){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
         Header(navigateToMainScreen, navigateToProfilePage,navigateToSearchedTitleScreen, onMenuClick)
-        Content("Actors", navigateToTitleScreen)
+        Content("Actors", navigateToTitleScreen, navigateToActorInfoScreen)
     }
 }
