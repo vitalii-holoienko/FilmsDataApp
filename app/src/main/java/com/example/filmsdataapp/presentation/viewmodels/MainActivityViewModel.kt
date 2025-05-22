@@ -101,12 +101,12 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                 Log.d("TEKKEN", e.message.toString())
             }
 
-//            try {
-//                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
-//                _mostPopularMovies.value = result3.invoke()
-//            } catch (e: Exception) {
-//                Log.d("TEKKEN", e.message.toString())
-//            }
+            try {
+                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
+                _mostPopularMovies.value = result3.invoke()
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
             try {
                 val result4 = GetComingSoonMoviesUseCase(moviesRepository)
                 _comingSoonMovies.value = result4.invoke()
@@ -116,6 +116,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             try {
                 val result5 = GetActorsUseCase(actorsRepository)
                 _actors.value = result5.invoke()
+                Log.d("TEKKEN", _actors.value!!.size.toString() + "ACTORS")
             } catch (e: Exception) {
                 Log.d("TEKKEN", e.message.toString())
             }
@@ -125,12 +126,12 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 //            } catch (e: Exception) {
 //                Log.d("TEKKEN", e.message.toString())
 //            }
-//            try {
-//                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
-//                _currentlyTrendingMovies.value = result0.invoke()
-//            } catch (e: Exception) {
-//                Log.d("TEKKEN", e.message.toString())
-//            }
+            try {
+                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
+                _currentlyTrendingMovies.value = result0.invoke()
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
 //            try {
 //                val result10 = GetTitlesReleasedInCertainYear(titleRepository)
 //                _titlesReleasedIn2025.value = result10.invoke(2025)

@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.components
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,11 +24,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.TextColor
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +45,7 @@ fun NavigationMenuWrapper(
     navController: NavController,
     content: @Composable () -> Unit
 ) {
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     ModalNavigationDrawer(
         modifier = Modifier.background(color = BackGroundColor),
         drawerState = drawerState,
@@ -106,6 +111,7 @@ fun NavigationMenuWrapper(
                                 navController.navigate("actors_screen")
                                 drawerState.close()
                             }
+
                         },
                         colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = Color(0xFF333333),

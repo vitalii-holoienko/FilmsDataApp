@@ -92,7 +92,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit){
             }
             "Movies" -> {
                 pageName = "Movies"
-                pageDescription = "This page displays list of movies,\nsorted by rating"
+                pageDescription = "This page displays list of top 250 movies,\naccording to IMDB "
                 typeContentToDisplay = "Movies"
                 viewModel._inititalTitleToDisplay.value = viewModel.mostPopularMovies.value
                 viewModel._titlesToDisplay.value = viewModel.mostPopularMovies.value

@@ -6,7 +6,7 @@ class GetActorBioByIdUseCase(
     private val repository: ActorsRepository
 ) {
     suspend operator fun invoke(id:String): String {
-        return repository.getActorBioById(id)
+        return repository.getActorOverviewById(id)
     }
 }
 

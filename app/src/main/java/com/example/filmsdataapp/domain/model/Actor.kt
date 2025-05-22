@@ -2,46 +2,56 @@ package com.example.filmsdataapp.domain.model
 
 import kotlinx.serialization.Serializable
 
+
 @Serializable
-data class ActorResponse(
-    val data: ActorData? = null,
-    val status: Boolean? = null,
-    val message: String? = null
+data class ActorsResponse(
+    val data: Data
 )
 
 @Serializable
-data class ActorData(
-    val name: Actor? = null
+data class Data(
+    val topMeterNames: TopMeterNames
+)
+
+@Serializable
+data class TopMeterNames(
+    val edges: List<ActorEdge>
+)
+
+@Serializable
+data class ActorEdge(
+    val node: Actor
 )
 
 @Serializable
 data class Actor(
-    val id: String? = null,
-    val nameText: NameText? = null,
-    val primaryImage: ActorImage? = null,
-    val bio: Bio? = null
+    val id: String,
+    val nameText: NameText,
+    val primaryImage: PrimaryImage? = null,
+    val meterRanking: MeterRanking
 )
 
 @Serializable
 data class NameText(
-    val text: String? = null
+    val text: String
 )
 
 @Serializable
-data class ActorImage(
-    val id: String? = null,
-    val url: String? = null,
-    val height: Int? = null,
-    val width: Int? = null
+data class PrimaryImage(
+    val id: String,
+    val url: String,
+    val height: Int,
+    val width: Int
 )
 
 @Serializable
-data class Bio(
-    val id: String? = null,
-    val text: BioText? = null
+data class MeterRanking(
+    val currentRank: Int,
+    val rankChange: RankChange
 )
 
 @Serializable
-data class BioText(
-    val plainText: String? = null
+data class RankChange(
+    val changeDirection: String,
+    val difference: Int
 )

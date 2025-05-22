@@ -9,6 +9,7 @@ import com.example.filmsdataapp.domain.repository.MoviesRepository
 import com.example.filmsdataapp.domain.repository.TitleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
@@ -24,17 +25,17 @@ class MoviesRepositoryImpl() : MoviesRepository{
         val json = Json {
             ignoreUnknownKeys = true
         }
-        val jsonString = makeRequest("https://imdb236.p.rapidapi.com/api/imdb/most-popular-movies", 1)
+        val jsonString = makeRequest("https://imdb236.p.rapidapi.com/api/imdb/top250-movies", 1)
         json.decodeFromString(jsonString)
 
     }
 
     override suspend fun getComingSoonMovies(): List<Title> = withContext(Dispatchers.IO) {
-        Log.d("TEKKEN", "START")
+
         val result = mutableListOf<Title>()
 
         val idsJson = makeRequest(
-            "https://imdb232.p.rapidapi.com/api/title/get-coming-soon?limit=20&comingSoonType=MOVIE",
+            "https://imdb232.p.rapidapi.com/api/title/get-coming-soon?limit=100&comingSoonType=MOVIE",
             2
         )
         val ids = Json.parseToJsonElement(idsJson).jsonObject["data"]!!
@@ -57,6 +58,8 @@ class MoviesRepositoryImpl() : MoviesRepository{
         return@withContext result
     }
 
+
+
     override suspend fun getCurrentlyTrendingMovies(): List<Title> = withContext(Dispatchers.IO){
 
         val json = Json {
@@ -76,6 +79,14 @@ class MoviesRepositoryImpl() : MoviesRepository{
 
     override suspend fun getRatingById(id:String): String = withContext(Dispatchers.IO){
         return@withContext makeRequest("https://imdb236.p.rapidapi.com/api/imdb/${id}/rating",1)
+    }
+
+    override suspend fun getTop250Movies(): List<Title> = withContext(Dispatchers.IO) {
+        val json = Json {
+            ignoreUnknownKeys = true
+        }
+        val jsonString = makeRequest("https://imdb236.p.rapidapi.com/api/imdb/top250-movies", 1)
+        json.decodeFromString(jsonString)
     }
 
 }

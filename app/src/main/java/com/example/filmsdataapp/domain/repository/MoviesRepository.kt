@@ -11,4 +11,6 @@ interface MoviesRepository {
     suspend fun getMovieById(id:String) : String
     suspend fun getRatingById(id:String) : String
 
+    suspend fun getTop250Movies() : List<Title>
+
 }

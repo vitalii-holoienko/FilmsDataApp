@@ -91,7 +91,7 @@ class TitleRepositoryImpl : TitleRepository {
         val response = json.decodeFromString<ApiResponse>(jsonString)
         return@withContext response.results
     }
-    
+
 
     override suspend fun searchTitle(query: String): List<Title> = withContext(Dispatchers.IO) {
         val json = Json {
