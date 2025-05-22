@@ -91,27 +91,7 @@ class TitleRepositoryImpl : TitleRepository {
         val response = json.decodeFromString<ApiResponse>(jsonString)
         return@withContext response.results
     }
-
-//    override suspend fun getTitlesReleasedInCertainYear(year: Int): List<Title> = withContext(Dispatchers.IO){
-////        val json = Json {
-////            ignoreUnknownKeys = true
-////        }
-////        var jsonString = ""
-////
-////        jsonString =
-////            NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/api/imdb/search?rows=25&startYearFrom=${2025}&sortOrder=ASC&sortField=id", 1)
-////
-////        if (jsonString.isBlank()) return@withContext emptyList()
-////
-////        val root = json.parseToJsonElement(jsonString).jsonObject
-////
-////        val resultsArray = root["results"]?.jsonArray ?: return@withContext emptyList()
-////
-////        return@withContext resultsArray.map { it.jsonObject }
-//
-//
-//    }
-
+    
 
     override suspend fun searchTitle(query: String): List<Title> = withContext(Dispatchers.IO) {
         val json = Json {

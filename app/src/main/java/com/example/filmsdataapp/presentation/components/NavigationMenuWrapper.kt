@@ -128,20 +128,6 @@ fun NavigationMenuWrapper(
                             unselectedContainerColor = Color.Transparent,
                         )
                     )
-                    NavigationDrawerItem(
-                        label = { Text("Contacts", color = TextColor)},
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                 navController.navigate("contacts_screen")
-                                drawerState.close()
-                            }
-                        },
-                        colors = NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = Color(0xFF333333),
-                            unselectedContainerColor = Color.Transparent,
-                        )
-                    )
                 }
             }
         }

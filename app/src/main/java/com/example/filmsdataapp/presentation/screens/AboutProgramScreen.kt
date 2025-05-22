@@ -1,5 +1,5 @@
 package com.example.filmsdataapp.presentation.screens
-
+import com.example.filmsdataapp.presentation.components.aboutprogramscreen.Content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -20,6 +20,6 @@ fun AboutProgramScreen(navigateToMainScreen : () -> Unit,
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
         Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen,onMenuClick)
-
+        Content()
     }
 }

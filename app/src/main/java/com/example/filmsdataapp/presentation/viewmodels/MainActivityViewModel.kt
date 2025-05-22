@@ -2,6 +2,7 @@ package com.example.filmsdataapp.presentation.viewmodels
 
 import Movie
 import TVShow
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -35,12 +36,16 @@ import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetTitleWithAppliedFiltersUseCase
 import com.example.filmsdataapp.domain.usecase.GetTitlesReleasedInCertainYear
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
+import com.example.filmsdataapp.presentation.utils.NetworkMonitor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class MainActivityViewModel : ViewModel() {
+class MainActivityViewModel(private val context: Context) : ViewModel() {
     val filterStatus : FilterStatus = FilterStatus()
+
+    private var networkMonitor = NetworkMonitor(context)
+    val isConnected: StateFlow<Boolean> = networkMonitor.networkStatus
 
     private val moviesRepository : MoviesRepository = MoviesRepositoryImpl()
     private val newsRepository : NewsRepository = NewsRepositoryImpl()
@@ -79,10 +84,14 @@ class MainActivityViewModel : ViewModel() {
     val currentlyTrendingMovies: LiveData<List<Title>> get() = _currentlyTrendingMovies
     val actors: LiveData<List<Actor>> get() = _actors
 
+
     fun loadInitialData(){
         loadMovies()
     }
 
+    fun startInternetObserve(){
+        networkMonitor = NetworkMonitor(context)
+    }
     private fun loadMovies() {
         viewModelScope.launch {
             try {
@@ -92,12 +101,12 @@ class MainActivityViewModel : ViewModel() {
                 Log.d("TEKKEN", e.message.toString())
             }
 
-            try {
-                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
-                _mostPopularMovies.value = result3.invoke()
-            } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
-            }
+//            try {
+//                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
+//                _mostPopularMovies.value = result3.invoke()
+//            } catch (e: Exception) {
+//                Log.d("TEKKEN", e.message.toString())
+//            }
             try {
                 val result4 = GetComingSoonMoviesUseCase(moviesRepository)
                 _comingSoonMovies.value = result4.invoke()
@@ -110,38 +119,30 @@ class MainActivityViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.d("TEKKEN", e.message.toString())
             }
-            try {
-                val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
-                _mostPopularTVShows.value = result1.invoke()
-            } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
-            }
-            try {
-                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
-                _currentlyTrendingMovies.value = result0.invoke()
-            } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
-            }
-            try {
-                val result10 = GetTitlesReleasedInCertainYear(titleRepository)
-                _titlesReleasedIn2025.value = result10.invoke(2025)
-            } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
-            }
-            try {
-                val result11 = GetTitlesReleasedInCertainYear(titleRepository)
-                _titlesReleasedIn2025.value = result11.invoke(2024)
-            } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
-            }
-
-            try {
-                val result12 = GetNewsUseCase(newsRepository)
-                _news.value = result12.invoke()
-            } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
-            }
-
+//            try {
+//                val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
+//                _mostPopularTVShows.value = result1.invoke()
+//            } catch (e: Exception) {
+//                Log.d("TEKKEN", e.message.toString())
+//            }
+//            try {
+//                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
+//                _currentlyTrendingMovies.value = result0.invoke()
+//            } catch (e: Exception) {
+//                Log.d("TEKKEN", e.message.toString())
+//            }
+//            try {
+//                val result10 = GetTitlesReleasedInCertainYear(titleRepository)
+//                _titlesReleasedIn2025.value = result10.invoke(2025)
+//            } catch (e: Exception) {
+//                Log.d("TEKKEN", e.message.toString())
+//            }
+//            try {
+//                val result11 = GetTitlesReleasedInCertainYear(titleRepository)
+//                _titlesReleasedIn2025.value = result11.invoke(2024)
+//            } catch (e: Exception) {
+//                Log.d("TEKKEN", e.message.toString())
+//            }
         }.invokeOnCompletion {
 
 

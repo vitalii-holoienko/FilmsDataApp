@@ -17,6 +17,7 @@ data class Title(
     val originalTitle : String? = null,
     val type : String? = null,
     val description : String? = null,
+    val trailer : String? = null,
     val primaryImage : String? = null,
     val contentRating : String? = null,
     val startYear : Int? = null,
