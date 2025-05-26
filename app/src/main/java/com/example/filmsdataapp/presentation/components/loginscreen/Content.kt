@@ -1,8 +1,10 @@
 package com.example.filmsdataapp.presentation.components.loginscreen
 
+import android.content.Context
+import android.credentials.CredentialManager
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -39,12 +41,35 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.filmsdataapp.BuildConfig
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import android.os.Bundle
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.Credential
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.lifecycle.lifecycleScope
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.FirebaseApp
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : () -> Unit){
@@ -56,7 +81,14 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
+
+
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+    var userSuccessfullySignedInUsingGoogle = viewModel.userSuccessfullySignedInUsingGoogle.observeAsState(false)
+
+    if(userSuccessfullySignedInUsingGoogle.value){
+        navigateToMainScreen()
+    }
 
     val focusRequester = remember { FocusRequester() }
     Spacer(modifier = Modifier.height(50.dp))
@@ -65,7 +97,7 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .align(Alignment.Start)){
             Text(
-                text = "Join",
+                text = "Log in",
                 color = TextColor,
                 fontSize = 25.sp,
                 fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
@@ -73,20 +105,41 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
             )
         }
 
-        Box(modifier = Modifier
+        Column(modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .fillMaxWidth()
             .height(170.dp)
-            .background(color = PrimaryColor))
+            .background(color = PrimaryColor)
+        ){
+            Button(
+                onClick = {
+                    viewModel.showSignInUsingGoogleOption.value = true
+                },
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.fillMaxWidth()
+
+            ){
+                Text(
+                    text = "Google",
+                    modifier = Modifier.padding(8.dp, 0.dp),
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                    color = TextColor
+                )
+            }
+        }
+
+
         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)){
             BasicTextField(
                 value = loginText,
-                onValueChange = { loginText = it;  },
+                onValueChange = { loginText = it; showWarning = false },
                 cursorBrush = SolidColor(TextColor),
                 modifier = Modifier
 
                     .background(PrimaryColor, shape = RoundedCornerShape(8.dp))
-                    .focusRequester(focusRequester).onFocusChanged { showWarning = false }
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { showWarning = false }
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 textStyle = TextStyle(
@@ -118,11 +171,12 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)){
             BasicTextField(
                 value = passwordText,
-                onValueChange = { passwordText = it; showWarning = true;},
+                onValueChange = { passwordText = it; showWarning = false;},
                 cursorBrush = SolidColor(TextColor),
                 modifier = Modifier
                     .background(PrimaryColor, shape = RoundedCornerShape(8.dp))
-                    .focusRequester(focusRequester).onFocusChanged { showWarning = false; }
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { showWarning = false; }
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 textStyle = TextStyle(
@@ -149,7 +203,9 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
             )
         }
         if(showWarning){
-            Box(modifier = Modifier.align(Alignment.Start).padding(horizontal = 16.dp, vertical = 0.dp)){
+            Box(modifier = Modifier
+                .align(Alignment.Start)
+                .padding(horizontal = 16.dp, vertical = 0.dp)){
                 Text(
                     text = "Something went wrong",
                     color = Color(android.graphics.Color.rgb(249, 55, 57)),
@@ -169,11 +225,16 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
                     auth.signInWithEmailAndPassword(loginText, passwordText)
                         .addOnCompleteListener() { task ->
                             if (task.isSuccessful) {
+                                Log.d("TEKKEN", "SUCCESS")
                                 viewModel.user = auth.currentUser
                                 viewModel.userNotSingedIn.value = false
                                 navigateToMainScreen()
 
                             } else {
+
+                                Log.d("TEKKEN", "signInWithEmail:failure", task.exception)
+
+
                                 showWarning = true;
                             }
                         }
@@ -210,4 +271,5 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
         }
 
     }
+
 }

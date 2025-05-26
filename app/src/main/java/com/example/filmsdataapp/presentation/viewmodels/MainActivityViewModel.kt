@@ -1,6 +1,7 @@
 package com.example.filmsdataapp.presentation.viewmodels
 
 import android.content.Context
+import androidx.credentials.CredentialManager
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -34,6 +35,7 @@ import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -44,6 +46,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     private var networkMonitor = NetworkMonitor(context)
     val isConnected: StateFlow<Boolean> = networkMonitor.networkStatus
 
+
+    var credentialManager : CredentialManager? = null
     lateinit var firebaseAuth : FirebaseAuth
     var user : FirebaseUser? = null
     private val moviesRepository : MoviesRepository = MoviesRepositoryImpl()
@@ -55,6 +59,11 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     var userNotSingedIn = MutableLiveData<Boolean>()
 
     var showWarningInAuthenticationScreen = MutableLiveData<Boolean>()
+
+    var showSignInUsingGoogleOption = MutableLiveData<Boolean>()
+
+    var userSuccessfullySignedInUsingGoogle =  MutableLiveData<Boolean>()
+
     var warningInAuthenticationScreen = MutableLiveData<String>()
 
     var recievedActorInfo = MutableLiveData<Boolean>(false)
@@ -104,6 +113,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         userNotSingedIn.value = currentUser == null
 
     }
+
 
     fun inputWasSuccessfullyValidated(email : String, password: String) : Pair<Boolean, String?>{
         val pair = validateUserAuthenticationInput(email, password)

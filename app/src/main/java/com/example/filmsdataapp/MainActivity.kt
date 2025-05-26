@@ -1,6 +1,7 @@
 package com.example.filmsdataapp
 
 import android.content.Context
+import android.credentials.GetCredentialException
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -15,9 +16,15 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.credentials.Credential
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -44,16 +51,19 @@ import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModelFactory
 import com.example.filmsdataapp.ui.theme.FilmsDataAppTheme
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
     private lateinit var viewModel: MainActivityViewModel
 
     override fun onStart() {
@@ -65,15 +75,60 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        var credentialManager : CredentialManager? = CredentialManager.create(baseContext)
+
 
         viewModel = ViewModelProvider(this, MainActivityViewModelFactory(this)).get(MainActivityViewModel::class.java)
         viewModel.firebaseAuth = Firebase.auth
+        viewModel.credentialManager = credentialManager
+
+
         setContent {
             FilmsDataAppTheme {
                 //loading initial data
                 LaunchedEffect(Unit) {
                     viewModel.startInternetObserve()
                 }
+
+                var showSignInUsingGoogleOption = viewModel.showSignInUsingGoogleOption.observeAsState(false)
+                    Log.d("TEKKEN", "+1")
+                    if(showSignInUsingGoogleOption.value!!){
+                        Log.d("TEKKEN", "+2")
+                        val googleIdOption = GetGoogleIdOption.Builder()
+
+                            .setServerClientId(BuildConfig.WEB_APP_CLIENT_ID)
+
+                            .setFilterByAuthorizedAccounts(false)
+                            .build()
+
+                        val request = GetCredentialRequest.Builder()
+                            .addCredentialOption(googleIdOption)
+                            .build()
+
+                        Log.d("TEKKEN", "+3")
+                        lifecycleScope.launch {
+                            try {
+                                // Launch Credential Manager UI
+                                val result = credentialManager!!.getCredential(
+                                    context = baseContext,
+                                    request = request
+                                )
+
+                                Log.d("TEKKEN", "+4")
+
+                                // Extract credential from the result returned by Credential Manager
+                                handleSignIn(result.credential)
+                            } catch (e: GetCredentialException) {
+                                Log.e("TEKKEN", "Couldn't retrieve user's credentials: ${e.localizedMessage}")
+                            }
+                        }
+                        viewModel.showSignInUsingGoogleOption.value = false
+
+
+                    }
+
+
+
 
                 val isConnected by viewModel.isConnected.collectAsState()
 
@@ -82,11 +137,6 @@ class MainActivity : ComponentActivity() {
                         viewModel.loadInitialData()
                     }
                 }
-
-
-
-
-
 
                 val navController = rememberNavController()
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -449,6 +499,39 @@ class MainActivity : ComponentActivity() {
 
             }
         }
+    }
+
+    private fun handleSignIn(credential: Credential) {
+        // Check if credential is of type Google ID
+        if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+            Log.d("TEKKEN", "+5")
+            // Create Google ID Token
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+
+            // Sign in to Firebase with using the token
+            Log.d("TEKKEN", "+6")
+            firebaseAuthWithGoogle(googleIdTokenCredential.idToken)
+        } else {
+            Log.w("TEKKEN", "Credential is not of type Google ID!")
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        Log.d("TEKKEN", "+7")
+        viewModel.firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Log.d("TEKKEN", "+8")
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d("TEKKEN", "signInWithCredential:success")
+                    viewModel.userNotSingedIn.value = false
+                    viewModel.userSuccessfullySignedInUsingGoogle.value = true
+                } else {
+                    // If sign in fails, display a message to the user
+                    Log.w("TEKKEN", "signInWithCredential:failure", task.exception)
+                }
+            }
     }
 }
 

@@ -10,12 +10,13 @@ plugins {
 val prop = Properties().apply {
     load(FileInputStream(File(rootProject.rootDir, "local.properties")))
 }
-
+val webAppClientId = prop.getProperty("WEB_APP_CLIENT_ID")
 val rapidApiKey = prop.getProperty("RAPID_API_KEY")
 val rapidApiHostOne = prop.getProperty("RAPID_API_HOST_ONE")
 val rapidApiHostTwo = prop.getProperty("RAPID_API_HOST_TWO")
 val rapidApiHostThree = prop.getProperty("RAPID_API_HOST_THREE")
 val rapidApiHostFour = prop.getProperty("RAPID_API_HOST_FOUR")
+
 
 
 android {
@@ -27,13 +28,14 @@ android {
     }
 
     defaultConfig {
+        buildConfigField("String", "WEB_APP_CLIENT_ID", "\"$webAppClientId\"")
         buildConfigField("String", "RAPID_API_KEY", "\"$rapidApiKey\"")
         buildConfigField("String", "RAPID_API_HOST_ONE", "\"$rapidApiHostOne\"")
         buildConfigField("String", "RAPID_API_HOST_TWO", "\"$rapidApiHostTwo\"")
         buildConfigField("String", "RAPID_API_HOST_THREE", "\"$rapidApiHostThree\"")
         buildConfigField("String", "RAPID_API_HOST_FOUR", "\"$rapidApiHostFour\"")
         applicationId = "com.example.filmsdataapp"
-        minSdk = 24
+        minSdk = 34
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -54,11 +56,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -74,9 +76,20 @@ android {
     buildToolsVersion = "34.0.0"
 }
 
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
 dependencies {
     val nav_version = "2.8.9"
     val okhttp_version = "4.12.0"
+    // Also add the dependencies for the Credential Manager libraries and specify their versions
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
     implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-auth")
