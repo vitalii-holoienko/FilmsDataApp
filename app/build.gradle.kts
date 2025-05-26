@@ -4,6 +4,7 @@ import java.util.*
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
     kotlin("plugin.serialization")
 }
 val prop = Properties().apply {
@@ -76,6 +77,9 @@ android {
 dependencies {
     val nav_version = "2.8.9"
     val okhttp_version = "4.12.0"
+    implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-auth")
     implementation("com.google.accompanist:accompanist-placeholder-material:0.34.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
     implementation("io.coil-kt:coil-compose:2.1.0")

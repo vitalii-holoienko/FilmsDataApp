@@ -16,10 +16,11 @@ import com.example.filmsdataapp.ui.theme.BackGroundColor
 fun AboutProgramScreen(navigateToMainScreen : () -> Unit,
                        navigateToProfilePage : () ->Unit,
                        onMenuClick : () -> Unit,
-                       navigateToSearchedTitleScreen : () -> Unit){
+                       navigateToSearchedTitleScreen : () -> Unit,
+                       navigateToAuthenticationScreen : () -> Unit,){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
-        Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen,onMenuClick)
+        Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen,onMenuClick, navigateToAuthenticationScreen)
         Content()
     }
 }

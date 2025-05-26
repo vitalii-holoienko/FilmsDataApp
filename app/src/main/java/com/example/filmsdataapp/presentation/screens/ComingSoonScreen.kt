@@ -17,10 +17,11 @@ fun ComingSoonScreen(navigateToMainScreen : () -> Unit,
                      navigateToProfilePage : () ->Unit,
                      onMenuClick : () -> Unit,
                      navigateToTitleScreen: (Title) -> Unit,
-                     navigateToSearchedTitleScreen : () -> Unit){
+                     navigateToSearchedTitleScreen : () -> Unit,
+                     navigateToAuthenticationScreen : () -> Unit){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
-        Header(navigateToMainScreen, navigateToProfilePage,navigateToSearchedTitleScreen, onMenuClick)
+        Header(navigateToMainScreen, navigateToProfilePage,navigateToSearchedTitleScreen, onMenuClick, navigateToAuthenticationScreen)
         Content("Coming soon", navigateToTitleScreen)
     }
 

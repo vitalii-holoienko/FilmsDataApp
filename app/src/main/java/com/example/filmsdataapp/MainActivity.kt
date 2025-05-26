@@ -1,7 +1,9 @@
 package com.example.filmsdataapp
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.EnterTransition
@@ -15,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -26,8 +29,10 @@ import com.example.filmsdataapp.presentation.components.NavigationMenuWrapper
 import com.example.filmsdataapp.presentation.screens.AboutProgramScreen
 import com.example.filmsdataapp.presentation.screens.ActorInfoScreen
 import com.example.filmsdataapp.presentation.screens.ActorsScreen
+import com.example.filmsdataapp.presentation.screens.AuthenticationScreen
 import com.example.filmsdataapp.presentation.screens.ComingSoonScreen
 import com.example.filmsdataapp.presentation.screens.CurrentlyTrendingScreen
+import com.example.filmsdataapp.presentation.screens.LogInScreen
 import com.example.filmsdataapp.presentation.screens.MainScreen
 import com.example.filmsdataapp.presentation.screens.MoviesScreen
 import com.example.filmsdataapp.presentation.screens.NewsScreen
@@ -39,21 +44,32 @@ import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModelFactory
 import com.example.filmsdataapp.ui.theme.FilmsDataAppTheme
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
+    private lateinit var auth: FirebaseAuth
+    private lateinit var viewModel: MainActivityViewModel
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.checkIfUserIsSignedIn()
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProvider(this, MainActivityViewModelFactory(this)).get(MainActivityViewModel::class.java)
+        viewModel.firebaseAuth = Firebase.auth
         setContent {
             FilmsDataAppTheme {
-                val context = LocalContext.current
-                val viewModel: MainActivityViewModel = viewModel(
-                    factory = MainActivityViewModelFactory(context)
-                )
-
                 //loading initial data
                 LaunchedEffect(Unit) {
                     viewModel.startInternetObserve()
@@ -123,10 +139,38 @@ class MainActivity : ComponentActivity() {
                                     val encoded = Uri.encode(json)
                                     navController.navigate("news_screen/$encoded")
                                 },
-
-
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
+                                }
                             )
                         }
+                        composable(route = "authentication_screen") {
+                            AuthenticationScreen(
+                                navigateToMainScreen = { navController.navigate("main_screen")},
+                                navigateToProfilePage = { navController.navigate("profile_screen")},
+                                onMenuClick = { scope.launch { drawerState.open() } },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen= {navController.navigate("authentication_screen")},
+                                navigateToLogInScreen= {navController.navigate("log_in_screen")},
+                            )
+
+                        }
+
+                        composable(route = "log_in_screen") {
+                            LogInScreen(
+                                navigateToMainScreen = { navController.navigate("main_screen")},
+                                navigateToProfilePage = { navController.navigate("profile_screen")},
+                                onMenuClick = { scope.launch { drawerState.open() } },
+                                navigateToSearchedTitleScreen = {
+                                    navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen= {navController.navigate("authentication_screen")})
+
+                        }
+
+
 
 
                         composable(
@@ -149,6 +193,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
                             )
                         }
@@ -173,7 +220,10 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
-                                }
+                                },
+                                 navigateToAuthenticationScreen = {
+                                     navController.navigate("authentication_screen")
+                                 }
                             )
                         }
 
@@ -196,6 +246,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
 
                             )
@@ -214,6 +267,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
 
                             )
@@ -239,6 +295,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToActorInfoScreen = {
                                     navController.navigate("actor_info_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
 
                             )
@@ -262,6 +321,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
 
                             )
@@ -285,6 +347,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
                             )
                         }
@@ -301,6 +366,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
                             )
                         }
@@ -324,6 +392,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
                             )
                         }
@@ -346,6 +417,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
                             )
                         }
@@ -362,6 +436,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
+                                },
+                                navigateToAuthenticationScreen = {
+                                    navController.navigate("authentication_screen")
                                 }
                             )
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "923888608556",
+    "project_id": "mediabase-1d43e",
+    "storage_bucket": "mediabase-1d43e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:923888608556:android:9a86bf6f32ef707ddcb889",
+        "android_client_info": {
+          "package_name": "com.example.filmsdataapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAWODPI7YphfYpvly5Jm0KSErwzyulgEs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,14 +1,11 @@
 package com.example.filmsdataapp.presentation.viewmodels
 
-import Movie
-import TVShow
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.data.repository.ActorsRepositoryImpl
 import com.example.filmsdataapp.data.repository.MoviesRepositoryImpl
 import com.example.filmsdataapp.data.repository.NewsRepositoryImpl
@@ -17,7 +14,6 @@ import com.example.filmsdataapp.data.repository.TitleRepositoryImpl
 import com.example.filmsdataapp.domain.model.Actor
 import com.example.filmsdataapp.domain.model.ActorInfo
 import com.example.filmsdataapp.domain.model.FilterStatus
-import com.example.filmsdataapp.domain.model.Genre
 import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.Review
 import com.example.filmsdataapp.domain.model.SORTED_BY
@@ -32,13 +28,12 @@ import com.example.filmsdataapp.domain.usecase.GetActorsUseCase
 import com.example.filmsdataapp.domain.usecase.GetComingSoonMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetCurrentlyTrendingMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularMoviesUseCase
-import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
-import com.example.filmsdataapp.domain.usecase.GetTitleWithAppliedFiltersUseCase
-import com.example.filmsdataapp.domain.usecase.GetTitlesReleasedInCertainYear
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -49,12 +44,19 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     private var networkMonitor = NetworkMonitor(context)
     val isConnected: StateFlow<Boolean> = networkMonitor.networkStatus
 
+    lateinit var firebaseAuth : FirebaseAuth
+    var user : FirebaseUser? = null
     private val moviesRepository : MoviesRepository = MoviesRepositoryImpl()
     private val newsRepository : NewsRepository = NewsRepositoryImpl()
     private val tvShowsRepository : TVShowsRepository = TVShowsRepositoryImpl()
     private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
     private val titleRepository : TitleRepository = TitleRepositoryImpl()
     var searchEnded = MutableLiveData<Boolean>()
+    var userNotSingedIn = MutableLiveData<Boolean>()
+
+    var showWarningInAuthenticationScreen = MutableLiveData<Boolean>()
+    var warningInAuthenticationScreen = MutableLiveData<String>()
+
     var recievedActorInfo = MutableLiveData<Boolean>(false)
     private var _mostPopularMovies = MutableLiveData<List<Title>>()
     private var _comingSoonMovies = MutableLiveData<List<Title>>()
@@ -95,6 +97,58 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
     fun startInternetObserve(){
         networkMonitor = NetworkMonitor(context)
+    }
+
+    fun checkIfUserIsSignedIn(){
+        val currentUser = firebaseAuth.currentUser
+        userNotSingedIn.value = currentUser == null
+
+    }
+
+    fun inputWasSuccessfullyValidated(email : String, password: String) : Pair<Boolean, String?>{
+        val pair = validateUserAuthenticationInput(email, password)
+        if(!pair.first){
+            showWarningInAuthenticationScreen.value = true
+            warningInAuthenticationScreen.value = pair.second.second
+            return false to pair.second.first
+        }
+        return true to null
+
+    }
+    private fun validateUserAuthenticationInput(email: String, password: String): Pair<Boolean,Pair<String, String?>> {
+
+        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\$")
+
+        val forbiddenCharsRegex = Regex("[\\s\"',;]")
+
+        if (email.isBlank()) {
+            return Pair<Boolean,Pair<String, String?>>(false, "email" to "Email cannot be empty.")
+        }
+        if (!emailRegex.matches(email)) {
+            return Pair<Boolean,Pair<String, String?>>(false, "email" to "Please enter a valid email address.")
+        }
+        if (forbiddenCharsRegex.containsMatchIn(email)) {
+            return Pair<Boolean,Pair<String, String?>>(false, "email" to "Email contains invalid characters.")
+        }
+
+        if (password.isBlank()) {
+            return Pair<Boolean,Pair<String, String?>>(false, "password" to "Password cannot be empty.")
+        }
+        if (password.length < 8) {
+            return Pair<Boolean,Pair<String, String?>>(false, "password" to "Password must be at least 8 characters long.")
+        }
+        if (forbiddenCharsRegex.containsMatchIn(password)) {
+            return Pair<Boolean,Pair<String, String?>>(false, "password" to "Password contains invalid characters.")
+        }
+
+        val containsLetter = password.any { it.isLetter() }
+        val containsDigit = password.any { it.isDigit() }
+
+        if (!containsLetter || !containsDigit) {
+            return Pair<Boolean,Pair<String, String?>>(false, "password" to "Password must contain at least one letter and one number.")
+        }
+
+        return Pair<Boolean,Pair<String, String?>>(true, "" to null)
     }
     private fun loadMovies() {
         viewModelScope.launch {
@@ -156,6 +210,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
         }
     }
+
+
 
     fun searchTitle(query:String){
         viewModelScope.launch {

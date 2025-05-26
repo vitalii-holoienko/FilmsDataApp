@@ -69,6 +69,7 @@ fun Header(
     navigateToProfileScreen: () -> Unit,
     navigateToSearchedTitlesScreen: () -> Unit,
     onMenuClick: () -> Unit,
+    navigateToAuthenticationScreen: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
@@ -137,7 +138,14 @@ fun Header(
                         .size(35.dp)
                         .align(Alignment.CenterVertically)
                         .scale(1.5f)
-                        .clickable { navigateToProfileScreen() }
+                        .clickable {
+                            if(viewModel.userNotSingedIn.value!!){
+                                navigateToAuthenticationScreen()
+                            }else{
+                                navigateToProfileScreen()
+                            }
+
+                        }
                 )
             }
         }
