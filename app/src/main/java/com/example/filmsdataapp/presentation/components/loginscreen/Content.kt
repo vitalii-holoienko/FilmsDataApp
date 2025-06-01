@@ -53,7 +53,10 @@ import com.example.filmsdataapp.ui.theme.TextColor
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.os.Bundle
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.Shape
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
@@ -116,12 +119,18 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
                 onClick = {
                     viewModel.showSignInUsingGoogleOption.value = true
                 },
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                colors = ButtonDefaults.buttonColors(
+                    contentColor = PrimaryColor,
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(2.dp, Color.White),
+                shape = RoundedCornerShape(0.dp),
 
-            ){
+
+                ){
                 Text(
-                    text = "Log in using google",
+                    text = "Continue with Google",
                     modifier = Modifier.padding(8.dp, 0.dp),
                     fontSize = 12.sp,
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
@@ -132,12 +141,18 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
                 onClick = {
                     navigateToSignInWithPhoneNumberScreen()
                 },
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                colors = ButtonDefaults.buttonColors(
+                    contentColor = PrimaryColor,
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(2.dp, Color.White),
+                shape = RoundedCornerShape(0.dp),
 
-            ){
+
+                ){
                 Text(
-                    text = "Log in using phone number",
+                    text = "Continue with Phone Number",
                     modifier = Modifier.padding(8.dp, 0.dp),
                     fontSize = 12.sp,
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),

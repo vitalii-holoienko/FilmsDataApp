@@ -18,8 +18,11 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -43,17 +46,22 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
+import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
 fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Unit){
+
+
     var phoneNumber by remember { mutableStateOf("") }
 
     var verificationCode by remember { mutableStateOf("") }
 
-    var showWarning by remember { mutableStateOf(false) }
+
+
+
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -61,13 +69,21 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
 
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
 
+    LaunchedEffect(Unit){
+        viewModel.showWarningInPhoneNumberScreen.value = false
+    }
+
     var appGotUserPhoneNumber = viewModel.appGotUserPhoneNumber.observeAsState()
     var userSuccessfullySignedInUsingGoogle = viewModel.userSuccessfullySignedIn.observeAsState(false)
+    var showWarning = viewModel.showWarningInPhoneNumberScreen.observeAsState(false)
+    var warning = viewModel.warningInPhoneNumberScreen.observeAsState("")
+
 
     if(userSuccessfullySignedInUsingGoogle.value){
         navigateToMainScreen()
         viewModel.userSuccessfullySignedIn.value = false
     }
+
 
 
 
@@ -83,7 +99,7 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
                 Text(
                     text = "Log in using phone number",
                     color = TextColor,
-                    fontSize = 25.sp,
+                    fontSize = 18.sp,
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 10.dp)
                 )
@@ -126,11 +142,30 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
                 )
             }
 
-            Text(
-                text = "Enter phone number, and we will send verification code",
-                color = Color.Gray,
-                fontSize = 10.sp
-            )
+            if(showWarning.value!!){
+                Box(modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(20.dp, 0.dp)){
+                    Text(
+                        text = warning.value!!,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+            }
+            Box(modifier = Modifier
+                .align(Alignment.Start)
+                .padding(20.dp, 0.dp)){
+                Text(
+                    text = "Enter phone number, and we will send verification code",
+                    color = Color.Gray,
+                    fontSize = 10.sp
+                )
+            }
+
+
         }
         Column(modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -139,11 +174,17 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
         ){
             Button(
                 onClick = {
-                    viewModel.appGotUserPhoneNumber.value = true
-                    viewModel.enteredPhoneNumber.value = phoneNumber
+                    if(viewModel.verifyPhoneNumber(phoneNumber)){
+                        viewModel.appGotUserPhoneNumber.value = true
+                        viewModel.enteredPhoneNumber.value = phoneNumber
+                    }else{
+                        phoneNumber = ""
+                    }
+
                 },
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+
 
             ){
                 Text(
@@ -218,39 +259,66 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
                     }
                 )
             }
+            if(showWarning.value!!){
+                Box(modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(20.dp, 0.dp)){
+                    Text(
+                        text = warning.value!!,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = "We will send verification code on your phone",
-                color = Color.Gray,
-                fontSize = 16.sp
-            )
-
-            Button(
-                onClick = {
-                    viewModel.verifyCode(verificationCode)
-                },
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth()
-
-            ){
+            }
+            Box(modifier = Modifier
+                .align(Alignment.Start)
+                .padding(20.dp, 0.dp)){
                 Text(
-                    text = "Apply",
-                    modifier = Modifier.padding(8.dp, 0.dp),
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                    color = TextColor
+                    text = "We will send verification code on your phone",
+                    color = Color.Gray,
+                    fontSize = 10.sp
                 )
             }
-            Box(modifier = Modifier.align(Alignment.Start)){
-                Text(
-                    text = "Back",
-                    modifier = Modifier.padding(8.dp, 0.dp).clickable {
-                               viewModel.appGotUserPhoneNumber.value = false
+
+
+            //viewModel.verifyCode(verificationCode)
+            Column(modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .fillMaxWidth()
+                .wrapContentHeight()
+            ){
+                Button(
+                    onClick = {
+                        viewModel.verifyCode(verificationCode)
+
                     },
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                    color = LinksColor
-                )
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth(),
+
+
+                    ){
+                    Text(
+                        text = "Apply",
+                        modifier = Modifier.padding(8.dp, 0.dp),
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                        color = TextColor
+                    )
+                }
+
+                Box(modifier = Modifier.align(Alignment.Start)){
+                    Text(
+                        text = "Back",
+                        modifier = Modifier.clickable {
+                            viewModel.appGotUserPhoneNumber.value = false
+                        },
+                        fontSize = 16.sp,
+                        fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                        color = LinksColor
+                    )
+                }
             }
 
         }

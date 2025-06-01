@@ -75,6 +75,9 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
     var showWarningInAuthenticationScreen = MutableLiveData<Boolean>()
 
+    var showWarningInPhoneNumberScreen = MutableLiveData<Boolean>(false)
+    var warningInPhoneNumberScreen = MutableLiveData<String>("")
+
     var showSignInUsingGoogleOption = MutableLiveData<Boolean>()
 
     var userSuccessfullySignedIn =  MutableLiveData<Boolean>()
@@ -84,6 +87,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     var warningInAuthenticationScreen = MutableLiveData<String>()
 
     var enteredPhoneNumber = MutableLiveData("")
+
+
 
     var recievedActorInfo = MutableLiveData<Boolean>(false)
     private var _mostPopularMovies = MutableLiveData<List<Title>>()
@@ -137,9 +142,11 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         override fun onVerificationFailed(e: FirebaseException) {
             // This callback is invoked in an invalid request for verification is made,
             // for instance if the the phone number format is not valid.
-            Log.d("TEKKEN", "onVerificationFailed", e)
+
 
             if (e is FirebaseAuthInvalidCredentialsException) {
+                showWarningInPhoneNumberScreen.value = true
+                warningInPhoneNumberScreen.value = "Verification code is incorrect"
                 // Invalid request
             } else if (e is FirebaseTooManyRequestsException) {
                 // The SMS quota for the project has been exceeded
@@ -147,6 +154,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                 // reCAPTCHA verification attempted with null Activity
             }
 
+            showWarningInPhoneNumberScreen.value = true
+            warningInPhoneNumberScreen.value = "Something went wrong, try again later"
             // Show a message and update the UI
         }
 
@@ -302,8 +311,24 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     }
 
     fun verifyCode(code: String) {
+        if(code.isEmpty()){
+            showWarningInPhoneNumberScreen.value = true
+            warningInPhoneNumberScreen.value = "Please enter verification code"
+            return
+        }
         val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
         signInWithPhoneAuthCredential(credential)
+    }
+
+    fun verifyPhoneNumber(number : String) : Boolean{
+        if(number.isEmpty()){
+            showWarningInPhoneNumberScreen.value = true
+            warningInPhoneNumberScreen.value = "Please enter your phone number"
+            return false
+        }
+        return true
+
+
     }
     private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
         firebaseAuth.signInWithCredential(credential)
