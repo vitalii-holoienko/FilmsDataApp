@@ -3,6 +3,11 @@ package com.example.filmsdataapp.presentation.viewmodels
 import android.content.Context
 import androidx.credentials.CredentialManager
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.Credential
+import androidx.credentials.CustomCredential
+import androidx.credentials.exceptions.ClearCredentialException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,6 +38,7 @@ import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -215,10 +221,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 //            } catch (e: Exception) {
 //                Log.d("TEKKEN", e.message.toString())
 //            }
-        }.invokeOnCompletion {
-
-
-        }
+        }.invokeOnCompletion {}
     }
 
 
@@ -234,9 +237,29 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
     }
 
+
+    fun signOut() {
+        // Firebase sign out
+        firebaseAuth.signOut()
+        userNotSingedIn.value = true
+
+        // When a user signs out, clear the current user credential state from all credential providers.
+        viewModelScope.launch {
+            try {
+                val clearRequest = ClearCredentialStateRequest()
+                credentialManager?.clearCredentialState(clearRequest)
+
+            } catch (e: ClearCredentialException) {
+                Log.e("TEKKEN", "Couldn't clear user credentials: ${e.localizedMessage}")
+            }
+        }
+
+
+    }
     fun stopSearching(){
         searchEnded.value = false
     }
+
     fun getTitleReviews(id:String){
         viewModelScope.launch {
             val result = GetReviewsByIdUseCase(titleRepository)
@@ -256,10 +279,6 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         }catch (e : Exception){
 
         }
-
-
-
-
     }
 
     fun applyFilter(){
@@ -296,6 +315,35 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                 }
             }
             .toList()
+    }
+
+    fun handleSignIn(credential: Credential, componentActivity: ComponentActivity) {
+        // Check if credential is of type Google ID
+        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+            // Create Google ID Token
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+
+            // Sign in to Firebase with using the token
+            firebaseAuthWithGoogle(googleIdTokenCredential.idToken, componentActivity)
+        } else {
+            Log.w("TEKKEN", "Credential is not of type Google ID!")
+        }
+    }
+
+    fun firebaseAuthWithGoogle(idToken: String, componentActivity: ComponentActivity) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener(componentActivity) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d("TEKKEN", "signInWithCredential:success")
+                    userNotSingedIn.value = false
+                    userSuccessfullySignedInUsingGoogle.value = true
+                } else {
+                    // If sign in fails, display a message to the user
+                    Log.w("TEKKEN", "signInWithCredential:failure", task.exception)
+                }
+            }
     }
 
 }

@@ -88,6 +88,7 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
 
     if(userSuccessfullySignedInUsingGoogle.value){
         navigateToMainScreen()
+        viewModel.userSuccessfullySignedInUsingGoogle.value = false
     }
 
     val focusRequester = remember { FocusRequester() }

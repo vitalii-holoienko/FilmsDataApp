@@ -113,8 +113,8 @@ fun Header(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .clickable { navigateToMainScreen() },
-                    fontSize = 20.sp,
-                    fontFamily = FontFamily(Font(R.font.boldonse_regular))
+                    fontSize = 30.sp,
+                    fontFamily = FontFamily(Font(R.font.rubik_medium))
                 )
 
                 Spacer(modifier = Modifier.weight(1f))

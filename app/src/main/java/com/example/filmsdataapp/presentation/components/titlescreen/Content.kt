@@ -123,10 +123,10 @@ fun Content(title : Title) {
                         color = Color(23,96,161)
                     )
                     Image(
-                        painter = painterResource(id = R.drawable.triangle_go_to_icon),
+                        painter = painterResource(id = R.drawable.open_drop_box_icon),
                         contentDescription = "",
                         Modifier
-                            .size(40.dp)
+                            .size(35.dp)
                             .scale(1f)
                             .align(Alignment.CenterVertically)
                             .padding(5.dp, 0.dp),

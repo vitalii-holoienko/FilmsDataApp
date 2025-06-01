@@ -1,5 +1,6 @@
 package com.example.filmsdataapp
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.credentials.GetCredentialException
 import android.net.Uri
@@ -71,6 +72,7 @@ class MainActivity : ComponentActivity() {
         viewModel.checkIfUserIsSignedIn()
     }
 
+    @SuppressLint("SuspiciousIndentation")
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -82,7 +84,7 @@ class MainActivity : ComponentActivity() {
         viewModel.firebaseAuth = Firebase.auth
         viewModel.credentialManager = credentialManager
 
-
+        var cp = this
         setContent {
             FilmsDataAppTheme {
                 //loading initial data
@@ -91,9 +93,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 var showSignInUsingGoogleOption = viewModel.showSignInUsingGoogleOption.observeAsState(false)
-                    Log.d("TEKKEN", "+1")
                     if(showSignInUsingGoogleOption.value!!){
-                        Log.d("TEKKEN", "+2")
                         val googleIdOption = GetGoogleIdOption.Builder()
 
                             .setServerClientId(BuildConfig.WEB_APP_CLIENT_ID)
@@ -104,8 +104,6 @@ class MainActivity : ComponentActivity() {
                         val request = GetCredentialRequest.Builder()
                             .addCredentialOption(googleIdOption)
                             .build()
-
-                        Log.d("TEKKEN", "+3")
                         lifecycleScope.launch {
                             try {
                                 // Launch Credential Manager UI
@@ -114,10 +112,9 @@ class MainActivity : ComponentActivity() {
                                     request = request
                                 )
 
-                                Log.d("TEKKEN", "+4")
 
                                 // Extract credential from the result returned by Credential Manager
-                                handleSignIn(result.credential)
+                                viewModel.handleSignIn(result.credential, cp)
                             } catch (e: GetCredentialException) {
                                 Log.e("TEKKEN", "Couldn't retrieve user's credentials: ${e.localizedMessage}")
                             }
@@ -499,39 +496,6 @@ class MainActivity : ComponentActivity() {
 
             }
         }
-    }
-
-    private fun handleSignIn(credential: Credential) {
-        // Check if credential is of type Google ID
-        if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-            Log.d("TEKKEN", "+5")
-            // Create Google ID Token
-            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-
-            // Sign in to Firebase with using the token
-            Log.d("TEKKEN", "+6")
-            firebaseAuthWithGoogle(googleIdTokenCredential.idToken)
-        } else {
-            Log.w("TEKKEN", "Credential is not of type Google ID!")
-        }
-    }
-
-    private fun firebaseAuthWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        Log.d("TEKKEN", "+7")
-        viewModel.firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    Log.d("TEKKEN", "+8")
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("TEKKEN", "signInWithCredential:success")
-                    viewModel.userNotSingedIn.value = false
-                    viewModel.userSuccessfullySignedInUsingGoogle.value = true
-                } else {
-                    // If sign in fails, display a message to the user
-                    Log.w("TEKKEN", "signInWithCredential:failure", task.exception)
-                }
-            }
     }
 }
 
