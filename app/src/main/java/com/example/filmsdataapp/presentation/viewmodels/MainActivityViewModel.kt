@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.viewmodels
 
+import android.app.Activity
 import android.content.Context
 import androidx.credentials.CredentialManager
 import android.util.Log
@@ -39,12 +40,20 @@ import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.FirebaseException
+import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class MainActivityViewModel(private val context: Context) : ViewModel() {
     val filterStatus : FilterStatus = FilterStatus()
@@ -68,9 +77,13 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
     var showSignInUsingGoogleOption = MutableLiveData<Boolean>()
 
-    var userSuccessfullySignedInUsingGoogle =  MutableLiveData<Boolean>()
+    var userSuccessfullySignedIn =  MutableLiveData<Boolean>()
+
+    var appGotUserPhoneNumber = MutableLiveData(false)
 
     var warningInAuthenticationScreen = MutableLiveData<String>()
+
+    var enteredPhoneNumber = MutableLiveData("")
 
     var recievedActorInfo = MutableLiveData<Boolean>(false)
     private var _mostPopularMovies = MutableLiveData<List<Title>>()
@@ -104,6 +117,55 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     val news : LiveData<List<News>> get() = _news
     val currentlyTrendingMovies: LiveData<List<Title>> get() = _currentlyTrendingMovies
     val actors: LiveData<List<Actor>> get() = _actors
+
+
+    private var storedVerificationId: String? = ""
+    private lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
+    var callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+            // This callback will be invoked in two situations:
+            // 1 - Instant verification. In some cases the phone number can be instantly
+            //     verified without needing to send or enter a verification code.
+            // 2 - Auto-retrieval. On some devices Google Play services can automatically
+            //     detect the incoming verification SMS and perform verification without
+            //     user action.
+
+            signInWithPhoneAuthCredential(credential)
+        }
+
+        override fun onVerificationFailed(e: FirebaseException) {
+            // This callback is invoked in an invalid request for verification is made,
+            // for instance if the the phone number format is not valid.
+            Log.d("TEKKEN", "onVerificationFailed", e)
+
+            if (e is FirebaseAuthInvalidCredentialsException) {
+                // Invalid request
+            } else if (e is FirebaseTooManyRequestsException) {
+                // The SMS quota for the project has been exceeded
+            } else if (e is FirebaseAuthMissingActivityForRecaptchaException) {
+                // reCAPTCHA verification attempted with null Activity
+            }
+
+            // Show a message and update the UI
+        }
+
+        override fun onCodeSent(
+            verificationId: String,
+            token: PhoneAuthProvider.ForceResendingToken,
+        ) {
+            // The SMS verification code has been sent to the provided phone number, we
+            // now need to ask the user to enter the code and then construct a credential
+            // by combining the code with a verification ID.
+            Log.d("TEKKEN", "onCodeSent:$verificationId")
+
+            // Save verification ID and resending token so we can use them later
+            storedVerificationId = verificationId
+            resendToken = token
+
+
+        }
+    }
 
 
     fun loadInitialData(){
@@ -225,6 +287,43 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     }
 
 
+    //LOGIC CONNECTED WITH PHONE NUMBER AUTHENTICATION
+
+    fun startPhoneNumberVerification(activity: Activity) {
+
+        appGotUserPhoneNumber.value = true
+        val options = PhoneAuthOptions.newBuilder(firebaseAuth)
+            .setPhoneNumber(enteredPhoneNumber.value!!) // Phone number to verify
+            .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+            .setActivity(activity) // Activity (for callback binding)
+            .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
+            .build()
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
+
+    fun verifyCode(code: String) {
+        val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
+        signInWithPhoneAuthCredential(credential)
+    }
+    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
+        firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener{ task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d("TEKKEN", "signInWithCredential:success")
+                    userNotSingedIn.value = false
+                    userSuccessfullySignedIn.value = true
+
+                } else {
+                    // Sign in failed, display a message and update the UI
+                    Log.w("TEKKEN", "signInWithCredential:failure", task.exception)
+                    if (task.exception is FirebaseAuthInvalidCredentialsException) {
+                        // The verification code entered was invalid
+                    }
+                    // Update UI
+                }
+            }
+    }
 
     fun searchTitle(query:String){
         viewModelScope.launch {
@@ -256,6 +355,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
 
     }
+
+
     fun stopSearching(){
         searchEnded.value = false
     }
@@ -338,7 +439,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("TEKKEN", "signInWithCredential:success")
                     userNotSingedIn.value = false
-                    userSuccessfullySignedInUsingGoogle.value = true
+                    userSuccessfullySignedIn.value = true
                 } else {
                     // If sign in fails, display a message to the user
                     Log.w("TEKKEN", "signInWithCredential:failure", task.exception)

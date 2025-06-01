@@ -72,7 +72,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : () -> Unit){
+fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : () -> Unit, navigateToSignInWithPhoneNumberScreen : () -> Unit){
     var loginText by remember { mutableStateOf("") }
 
     var passwordText by remember { mutableStateOf("") }
@@ -84,11 +84,11 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
 
 
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
-    var userSuccessfullySignedInUsingGoogle = viewModel.userSuccessfullySignedInUsingGoogle.observeAsState(false)
+    var userSuccessfullySignedInUsingGoogle = viewModel.userSuccessfullySignedIn.observeAsState(false)
 
     if(userSuccessfullySignedInUsingGoogle.value){
         navigateToMainScreen()
-        viewModel.userSuccessfullySignedInUsingGoogle.value = false
+        viewModel.userSuccessfullySignedIn.value = false
     }
 
     val focusRequester = remember { FocusRequester() }
@@ -121,7 +121,23 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
 
             ){
                 Text(
-                    text = "Google",
+                    text = "Log in using google",
+                    modifier = Modifier.padding(8.dp, 0.dp),
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                    color = TextColor
+                )
+            }
+            Button(
+                onClick = {
+                    navigateToSignInWithPhoneNumberScreen()
+                },
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.fillMaxWidth()
+
+            ){
+                Text(
+                    text = "Log in using phone number",
                     modifier = Modifier.padding(8.dp, 0.dp),
                     fontSize = 12.sp,
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),

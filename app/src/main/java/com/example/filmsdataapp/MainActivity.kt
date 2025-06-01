@@ -1,6 +1,7 @@
 package com.example.filmsdataapp
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.credentials.GetCredentialException
 import android.net.Uri
@@ -46,6 +47,7 @@ import com.example.filmsdataapp.presentation.screens.MoviesScreen
 import com.example.filmsdataapp.presentation.screens.NewsScreen
 import com.example.filmsdataapp.presentation.screens.ProfileScreen
 import com.example.filmsdataapp.presentation.screens.SearchedTitlesScreen
+import com.example.filmsdataapp.presentation.screens.SignInWithPhoneNumberScreen
 import com.example.filmsdataapp.presentation.screens.TVShowsScreen
 import com.example.filmsdataapp.presentation.screens.TitleScreen
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
@@ -63,6 +65,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.math.sign
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainActivityViewModel
@@ -128,10 +131,17 @@ class MainActivity : ComponentActivity() {
 
 
                 val isConnected by viewModel.isConnected.collectAsState()
+                var appGotUserPhoneNumber = viewModel.appGotUserPhoneNumber.observeAsState()
 
                 if (isConnected) {
                     LaunchedEffect(Unit){
                         viewModel.loadInitialData()
+                    }
+                }
+                val activity = LocalContext.current as Activity
+                if(appGotUserPhoneNumber.value!!){
+                    LaunchedEffect(Unit){
+                        viewModel.startPhoneNumberVerification(activity)
                     }
                 }
 
@@ -213,8 +223,24 @@ class MainActivity : ComponentActivity() {
                                 navigateToSearchedTitleScreen = {
                                     navController.navigate("searched_titles_screen")
                                 },
-                                navigateToAuthenticationScreen= {navController.navigate("authentication_screen")})
+                                navigateToAuthenticationScreen= {navController.navigate("authentication_screen")},
+                                navigateToSignInWithPhoneNumberScreen = {navController.navigate("sign_in_with_phone_number_screen")})
 
+                        }
+
+                        composable(route = "sign_in_with_phone_number_screen"){
+                            SignInWithPhoneNumberScreen(
+                                navigateToMainScreen = { navController.navigate("main_screen") },
+
+                                navigateToProfilePage = { navController.navigate("profile_screen") },
+
+                                onMenuClick = { scope.launch { drawerState.open() }  },
+
+                                navigateToSearchedTitleScreen = { navController.navigate("searched_titles_screen")},
+
+                                navigateToAuthenticationScreen = {navController.navigate("authentication_screen")},
+                                navigateToLogInScreen = {navController.navigate("log_in_screen")}
+                            )
                         }
 
 

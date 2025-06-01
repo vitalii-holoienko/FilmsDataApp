@@ -8,20 +8,21 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.filmsdataapp.presentation.components.Header
-import com.example.filmsdataapp.presentation.components.loginscreen.Content
+import com.example.filmsdataapp.presentation.components.signinwithphonenumberscreen.Content
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun LogInScreen(navigateToMainScreen : () -> Unit,
-                         navigateToProfilePage : () ->Unit,
-                         onMenuClick : () -> Unit,
-                         navigateToSearchedTitleScreen : () -> Unit,
-                         navigateToAuthenticationScreen : () -> Unit,
-                    navigateToSignInWithPhoneNumberScreen : () -> Unit
+fun SignInWithPhoneNumberScreen(
+    navigateToMainScreen : () -> Unit,
+                navigateToProfilePage : () ->Unit,
+                onMenuClick : () -> Unit,
+                navigateToSearchedTitleScreen : () -> Unit,
+                navigateToAuthenticationScreen : () -> Unit,
+                navigateToLogInScreen : () -> Unit
 ){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
         Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen,onMenuClick, navigateToAuthenticationScreen)
-        Content(navigateToMainScreen, navigateToAuthenticationScreen, navigateToSignInWithPhoneNumberScreen)
+        Content(navigateToMainScreen, navigateToLogInScreen)
     }
 }
