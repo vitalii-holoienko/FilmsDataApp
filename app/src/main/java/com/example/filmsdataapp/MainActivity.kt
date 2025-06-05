@@ -34,12 +34,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.Title
+import com.example.filmsdataapp.presentation.common.NavigationEvent
 import com.example.filmsdataapp.presentation.components.NavigationMenuWrapper
 import com.example.filmsdataapp.presentation.screens.AboutProgramScreen
 import com.example.filmsdataapp.presentation.screens.ActorInfoScreen
 import com.example.filmsdataapp.presentation.screens.ActorsScreen
 import com.example.filmsdataapp.presentation.screens.AuthenticationScreen
 import com.example.filmsdataapp.presentation.screens.ComingSoonScreen
+import com.example.filmsdataapp.presentation.screens.CreateProfileScreen
 import com.example.filmsdataapp.presentation.screens.CurrentlyTrendingScreen
 import com.example.filmsdataapp.presentation.screens.LogInScreen
 import com.example.filmsdataapp.presentation.screens.MainScreen
@@ -65,6 +67,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.net.URLEncoder
 import kotlin.math.sign
 
 class MainActivity : ComponentActivity() {
@@ -132,7 +135,7 @@ class MainActivity : ComponentActivity() {
 
                 val isConnected by viewModel.isConnected.collectAsState()
                 var appGotUserPhoneNumber = viewModel.appGotUserPhoneNumber.observeAsState()
-
+                val navigationEvent by viewModel.navigation.collectAsState()
                 if (isConnected) {
                     LaunchedEffect(Unit){
                         viewModel.loadInitialData()
@@ -145,9 +148,14 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+
+
+
+
                 val navController = rememberNavController()
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
+
 
                 NavigationMenuWrapper(
                     drawerState = drawerState,
@@ -162,54 +170,13 @@ class MainActivity : ComponentActivity() {
                         popExitTransition = { ExitTransition.None }){
                         composable(route = "main_screen") {
                             MainScreen(
-                                navigateToNewReleasesPage = {
-                                    navController.navigate("new_releases_screen")
-                                },
-                                navigateToCurrentlyTrendingPage = {
-                                    navController.navigate("currently_trending_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
-                                navigateToTVShowsScreen = {
-                                    navController.navigate("tvshows_screen")
-                                },
-                                navigateToMoviesScreen = {
-                                    navController.navigate("movies_screen")
-                                },
-                                navigateToActorsScreen = {
-                                    navController.navigate("actors_screen")
-                                },
-                                navigateToTitleScreen = { title ->
-                                    val json = Json.encodeToString(title)
-                                    val encoded = Uri.encode(json)
-                                    navController.navigate("title_screen/$encoded")
-                                },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToNewsScreen = { news ->
-                                    val json = Json.encodeToString(news)
-                                    val encoded = Uri.encode(json)
-                                    navController.navigate("news_screen/$encoded")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+
                             )
                         }
                         composable(route = "authentication_screen") {
                             AuthenticationScreen(
                                 navigateToMainScreen = { navController.navigate("main_screen")},
-                                navigateToProfilePage = { navController.navigate("profile_screen")},
-                                onMenuClick = { scope.launch { drawerState.open() } },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen= {navController.navigate("authentication_screen")},
+
                                 navigateToLogInScreen= {navController.navigate("log_in_screen")},
                             )
 
@@ -218,13 +185,14 @@ class MainActivity : ComponentActivity() {
                         composable(route = "log_in_screen") {
                             LogInScreen(
                                 navigateToMainScreen = { navController.navigate("main_screen")},
-                                navigateToProfilePage = { navController.navigate("profile_screen")},
-                                onMenuClick = { scope.launch { drawerState.open() } },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
+
                                 navigateToAuthenticationScreen= {navController.navigate("authentication_screen")},
                                 navigateToSignInWithPhoneNumberScreen = {navController.navigate("sign_in_with_phone_number_screen")})
+
+                        }
+
+                        composable(route="create_profile_screen"){
+                            CreateProfileScreen()
 
                         }
 
@@ -232,13 +200,7 @@ class MainActivity : ComponentActivity() {
                             SignInWithPhoneNumberScreen(
                                 navigateToMainScreen = { navController.navigate("main_screen") },
 
-                                navigateToProfilePage = { navController.navigate("profile_screen") },
 
-                                onMenuClick = { scope.launch { drawerState.open() }  },
-
-                                navigateToSearchedTitleScreen = { navController.navigate("searched_titles_screen")},
-
-                                navigateToAuthenticationScreen = {navController.navigate("authentication_screen")},
                                 navigateToLogInScreen = {navController.navigate("log_in_screen")}
                             )
                         }
@@ -255,21 +217,7 @@ class MainActivity : ComponentActivity() {
 
                             TitleScreen(
                                 title = title!!,
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+
                             )
                         }
 
@@ -282,241 +230,194 @@ class MainActivity : ComponentActivity() {
 
                              NewsScreen(
                                 news = news!!,
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                 navigateToAuthenticationScreen = {
-                                     navController.navigate("authentication_screen")
-                                 }
+
                             )
                         }
 
 
                         composable(route = "movies_screen") {
                             MoviesScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
+
                                 navigateToTitleScreen = { title ->
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
                                 },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+
 
                             )
                         }
 
                         composable(route = "actor_info_screen") {
                             ActorInfoScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+
 
                             )
                         }
                         composable(route = "actors_screen") {
                             ActorsScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
+
                                 navigateToTitleScreen = { title ->
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
                                 },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
+
                                 navigateToActorInfoScreen = {
                                     navController.navigate("actor_info_screen")
                                 },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+
 
                             )
                         }
 
                         composable(route = "tvshows_screen") {
                             TVShowsScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
+
                                 navigateToTitleScreen = { title ->
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
                                 },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+
 
                             )
                         }
 
                         composable(route = "new_releases_screen") {
                             ComingSoonScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
+
                                 navigateToTitleScreen = { title ->
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
                                 },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+
                             )
                         }
                         composable(route = "about_program_screen") {
-                            AboutProgramScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
-                            )
+                            AboutProgramScreen()
+
                         }
 
 
                         composable(route = "currently_trending_screen") {
                             CurrentlyTrendingScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
+
                                 navigateToTitleScreen = { title ->
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
                                 },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+
                             )
                         }
 
                         composable(route = "searched_titles_screen") {
                             SearchedTitlesScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
+
                                 navigateToTitleScreen = { title ->
                                     val json = Json.encodeToString(title)
                                     val encoded = Uri.encode(json)
                                     navController.navigate("title_screen/$encoded")
                                 },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+
                             )
                         }
                         composable(route = "profile_screen"){
                             ProfileScreen(
-                                navigateToMainScreen = {
-                                    navController.navigate("main_screen")
-                                },
-                                navigateToProfilePage = {
-                                    navController.navigate("profile_screen")
-                                },
-                                onMenuClick = {
-                                    scope.launch { drawerState.open() }
-                                },
-                                navigateToSearchedTitleScreen = {
-                                    navController.navigate("searched_titles_screen")
-                                },
-                                navigateToAuthenticationScreen = {
-                                    navController.navigate("authentication_screen")
-                                }
+                                
                             )
 
                         }
                     }
+                }
+
+                LaunchedEffect(navigationEvent) {
+                    navigationEvent?.let { event ->
+                        when (event) {
+                            is NavigationEvent.ToNews -> {
+                                val json = Json.encodeToString(event.news)
+                                val encoded = Uri.encode(json)
+
+                                navController.navigate("news_screen/$encoded")
+
+                                viewModel.clearNavigation()
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+
+
+
+                LaunchedEffect(navigationEvent) {
+                    navigationEvent?.let { event ->
+                        when (event) {
+                            is NavigationEvent.ToTitle -> {
+                                val json = Json.encodeToString(event.title)
+                                val encoded = Uri.encode(json)
+                                navController.navigate("title_screen/$encoded")
+
+                                viewModel.clearNavigation()
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+
+
+
+
+                LaunchedEffect(navigationEvent) {
+                    when (navigationEvent) {
+                        is NavigationEvent.ToProfile -> {
+                            navController.navigate("profile_screen")
+                        }
+                        is NavigationEvent.ToMain -> {
+                            navController.navigate("main_screen")
+                        }
+                        is NavigationEvent.ToAuth -> {
+                            navController.navigate("authentication_screen")
+                        }
+                        is NavigationEvent.OpenNav -> {
+                            scope.launch { drawerState.open() }
+                        }
+                        is NavigationEvent.ToSearchTitle -> {
+                            navController.navigate("searched_titles_screen")
+                        }
+                        is NavigationEvent.ToActorInfo -> {
+                            navController.navigate("actor_info_screen")
+                        }
+                        is NavigationEvent.ToLogIn -> {
+                            navController.navigate("log_in_screen")
+                        }
+                        is NavigationEvent.ToPhoneNumberSignIn -> {
+                            navController.navigate("sign_in_with_phone_number_screen")
+                        }
+                        is NavigationEvent.ToCurrentlyTrendingTitles -> {
+                            navController.navigate("currently_trending_screen")
+                        }
+                        is NavigationEvent.ToComingSoonTitles -> {
+                            navController.navigate("new_releases_screen")
+                        }
+                        is NavigationEvent.ToTVShow -> {
+                            navController.navigate("tvshows_screen")
+                        }
+                        is NavigationEvent.ToActors -> {
+                            navController.navigate("actors_screen")
+                        }
+                        is NavigationEvent.ToMovie -> {
+                            navController.navigate("movies_screen")
+                        }
+                        NavigationEvent.None -> {
+
+                        }
+                        else ->{}
+                    }
+
+                    // После обработки нужно сбросить событие, чтобы не повторять навигацию
+                    viewModel.clearNavigation()
                 }
 
 

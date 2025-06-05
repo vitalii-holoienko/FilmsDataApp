@@ -1,6 +1,7 @@
 package com.example.filmsdataapp.presentation.components.mainscreen.content
 
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,22 +19,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.News
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 
 @Composable
-fun News(news : List<News>?, navigateToNewsScreen : (News) -> Unit){
+fun News(news : List<News>?){
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     Column(modifier = Modifier.fillMaxSize()){
         if(news != null){
             if(!news.isEmpty()){
@@ -45,7 +50,7 @@ fun News(news : List<News>?, navigateToNewsScreen : (News) -> Unit){
                         contentAlignment = Alignment.Center
                     )
                     {
-                        Column(modifier = Modifier.padding(7.dp).clickable { navigateToNewsScreen(it) }) {
+                        Column(modifier = Modifier.padding(7.dp).clickable { viewModel.onNewsClicked(it) }) {
                             Image(
                                 painter = rememberAsyncImagePainter(it.image!!.url),
                                 contentDescription = null,

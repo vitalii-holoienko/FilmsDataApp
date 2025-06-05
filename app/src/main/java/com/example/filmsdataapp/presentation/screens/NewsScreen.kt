@@ -13,13 +13,11 @@ import com.example.filmsdataapp.presentation.components.profilescreen.Content
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun NewsScreen(news: News, navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit,
-               onMenuClick : () -> Unit, navigateToSearchedTitleScreen : () -> Unit,
-               navigateToAuthenticationScreen : () -> Unit){
+fun NewsScreen(news: News){
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = BackGroundColor)){
-        Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen , onMenuClick,  navigateToAuthenticationScreen)
+        Header()
         Content(news)
     }
 }

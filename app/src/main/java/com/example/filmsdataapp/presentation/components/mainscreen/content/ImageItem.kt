@@ -1,6 +1,7 @@
 package com.example.filmsdataapp.presentation.components.mainscreen.content
 
 import Movie
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -27,10 +29,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.Title
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
@@ -39,7 +43,8 @@ import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 
 @Composable
-fun ImageItem(width: Dp, movie: Title?, navigateToTitleScreen: (Title) -> Unit) {
+fun ImageItem(width: Dp, movie: Title?) {
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     if(movie != null){
         val painter = rememberAsyncImagePainter(movie.primaryImage)
         val imageState = painter.state
@@ -50,7 +55,7 @@ fun ImageItem(width: Dp, movie: Title?, navigateToTitleScreen: (Title) -> Unit) 
                     .width(width)
                     .height(170.dp)
                     .clickable(enabled = movie.primaryImage != null) {
-                        navigateToTitleScreen(movie)
+                        viewModel.onTitleClicked(movie)
                     }
             ) {
                 if (movie.primaryImage != null) {

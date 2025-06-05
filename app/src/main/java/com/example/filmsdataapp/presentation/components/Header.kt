@@ -62,14 +62,8 @@ import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Header(
-    navigateToMainScreen: () -> Unit,
-    navigateToProfileScreen: () -> Unit,
-    navigateToSearchedTitlesScreen: () -> Unit,
-    onMenuClick: () -> Unit,
-    navigateToAuthenticationScreen: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
@@ -81,7 +75,7 @@ fun Header(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     if(searchEnded.value){
-        navigateToSearchedTitlesScreen()
+        viewModel.onSearchTitleClicked()
         viewModel.stopSearching()
     }
 
@@ -103,7 +97,7 @@ fun Header(
                     modifier = Modifier
                         .size(35.dp)
                         .align(Alignment.CenterVertically)
-                        .clickable { onMenuClick() }
+                        .clickable { viewModel.onMenuClicked() }
                 )
                 Spacer(modifier = Modifier.width(20.dp))
 
@@ -112,7 +106,7 @@ fun Header(
                     color = TextColor,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .clickable { navigateToMainScreen() },
+                        .clickable { viewModel.onMainClicked() },
                     fontSize = 30.sp,
                     fontFamily = FontFamily(Font(R.font.rubik_medium))
                 )
@@ -140,11 +134,10 @@ fun Header(
                         .scale(1.5f)
                         .clickable {
                             if(viewModel.userNotSingedIn.value!!){
-                                navigateToAuthenticationScreen()
+                                viewModel.onAuthClicked()
                             }else{
-                                navigateToProfileScreen()
+                                viewModel.onProfileClicked()
                             }
-
                         }
                 )
             }

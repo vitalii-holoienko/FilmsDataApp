@@ -13,14 +13,10 @@ import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Conte
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun AboutProgramScreen(navigateToMainScreen : () -> Unit,
-                       navigateToProfilePage : () ->Unit,
-                       onMenuClick : () -> Unit,
-                       navigateToSearchedTitleScreen : () -> Unit,
-                       navigateToAuthenticationScreen : () -> Unit,){
+fun AboutProgramScreen(){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
-        Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen,onMenuClick, navigateToAuthenticationScreen)
+        Header()
         Content()
     }
 }

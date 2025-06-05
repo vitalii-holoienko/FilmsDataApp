@@ -13,16 +13,13 @@ import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Conte
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun TVShowsScreen(navigateToMainScreen : () -> Unit,
-                  navigateToProfilePage : () ->Unit,
-                  onMenuClick : () -> Unit,
+fun TVShowsScreen(
                   navigateToTitleScreen: (Title) -> Unit,
-                  navigateToSearchedTitleScreen : () -> Unit,
-                  navigateToAuthenticationScreen : () -> Unit
+
 ){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
-        Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen , onMenuClick, navigateToAuthenticationScreen)
+        Header()
         Content("TVShows", navigateToTitleScreen)
     }
 }

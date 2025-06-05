@@ -11,13 +11,11 @@ import com.example.filmsdataapp.presentation.components.titlescreen.Content
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun TitleScreen(title: Title, navigateToMainScreen : () -> Unit, navigateToProfilePage : () ->Unit,
-                onMenuClick : () -> Unit, navigateToSearchedTitleScreen : () -> Unit,
-                navigateToAuthenticationScreen : () -> Unit){
+fun TitleScreen(title: Title){
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = BackGroundColor)){
-        Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen , onMenuClick, navigateToAuthenticationScreen)
+        Header()
         Content(title)
     }
 }

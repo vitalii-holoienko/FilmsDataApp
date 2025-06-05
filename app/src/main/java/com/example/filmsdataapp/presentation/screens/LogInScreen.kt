@@ -13,15 +13,13 @@ import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
 fun LogInScreen(navigateToMainScreen : () -> Unit,
-                         navigateToProfilePage : () ->Unit,
-                         onMenuClick : () -> Unit,
-                         navigateToSearchedTitleScreen : () -> Unit,
+
                          navigateToAuthenticationScreen : () -> Unit,
-                    navigateToSignInWithPhoneNumberScreen : () -> Unit
+                    navigateToSignInWithPhoneNumberScreen : () -> Unit,
 ){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
-        Header(navigateToMainScreen, navigateToProfilePage, navigateToSearchedTitleScreen,onMenuClick, navigateToAuthenticationScreen)
+        Header()
         Content(navigateToMainScreen, navigateToAuthenticationScreen, navigateToSignInWithPhoneNumberScreen)
     }
 }

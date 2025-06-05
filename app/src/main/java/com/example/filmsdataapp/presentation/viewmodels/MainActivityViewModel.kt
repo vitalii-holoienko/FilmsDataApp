@@ -38,6 +38,7 @@ import com.example.filmsdataapp.domain.usecase.GetMostPopularMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
+import com.example.filmsdataapp.presentation.common.NavigationEvent
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.FirebaseException
@@ -61,15 +62,25 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     private var networkMonitor = NetworkMonitor(context)
     val isConnected: StateFlow<Boolean> = networkMonitor.networkStatus
 
-
     var credentialManager : CredentialManager? = null
     lateinit var firebaseAuth : FirebaseAuth
     var user : FirebaseUser? = null
+
     private val moviesRepository : MoviesRepository = MoviesRepositoryImpl()
     private val newsRepository : NewsRepository = NewsRepositoryImpl()
     private val tvShowsRepository : TVShowsRepository = TVShowsRepositoryImpl()
     private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
     private val titleRepository : TitleRepository = TitleRepositoryImpl()
+
+    private val _navigation = MutableStateFlow<NavigationEvent>(NavigationEvent.None)
+    val navigation: StateFlow<NavigationEvent> = _navigation
+
+    var clickedTitle = MutableLiveData<Title>()
+    var clickedNews = MutableLiveData<News>()
+
+
+
+
     var searchEnded = MutableLiveData<Boolean>()
     var userNotSingedIn = MutableLiveData<Boolean>()
 
@@ -176,7 +187,60 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         }
     }
 
+    //NAVIGATION
 
+    fun clearNavigation() {
+        _navigation.value = NavigationEvent.None
+    }
+
+    fun onNewsClicked(news: News) {
+        _navigation.value = NavigationEvent.ToNews(news)
+    }
+
+    fun onTitleClicked(title: Title) {
+        _navigation.value = NavigationEvent.ToTitle(title)
+    }
+
+    fun onCurrentlyTrendingTitlesClicked(){
+        _navigation.value = NavigationEvent.ToCurrentlyTrendingTitles
+    }
+
+    fun onComingSoonTitlesClicked(){
+        _navigation.value = NavigationEvent.ToComingSoonTitles
+    }
+
+    fun onTVShowsClicked(){
+        _navigation.value = NavigationEvent.ToTVShow
+    }
+
+    fun onMoviesClicked(){
+        _navigation.value = NavigationEvent.ToMovie
+    }
+
+    fun onActorsClicked(){
+        _navigation.value = NavigationEvent.ToActors
+    }
+
+    fun onMainClicked(){
+        _navigation.value = NavigationEvent.ToMain
+    }
+
+    fun onProfileClicked(){
+        _navigation.value = NavigationEvent.ToProfile
+    }
+
+    fun onSearchTitleClicked(){
+        _navigation.value = NavigationEvent.ToSearchTitle
+    }
+
+    fun onMenuClicked(){
+        _navigation.value = NavigationEvent.OpenNav
+    }
+
+    fun onAuthClicked(){
+        _navigation.value = NavigationEvent.ToAuth
+    }
+    //-------------------------------------------------------------------------------
     fun loadInitialData(){
         loadMovies()
     }
@@ -334,14 +398,24 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener{ task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
                     Log.d("TEKKEN", "signInWithCredential:success")
+
+                    val isNewUser = task.result?.additionalUserInfo?.isNewUser == true
+                    if (isNewUser) {
+
+                        Log.d("Auth", "New user registered")
+                    } else {
+
+                        Log.d("Auth", "User signed in")
+                    }
+
                     userNotSingedIn.value = false
                     userSuccessfullySignedIn.value = true
 
                 } else {
                     // Sign in failed, display a message and update the UI
                     Log.w("TEKKEN", "signInWithCredential:failure", task.exception)
+
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
                         // The verification code entered was invalid
                     }

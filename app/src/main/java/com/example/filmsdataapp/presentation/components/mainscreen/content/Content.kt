@@ -47,13 +47,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Content(
-    navigateToNewReleasesPage : () -> Unit,
-    navigateToCurrentlyTrendingPage : () ->Unit,
-    navigateToTVShowsScreen : () -> Unit,
-    navigateToMoviesScreen : () -> Unit,
-    navigateToActorsScreen : () -> Unit,
-    navigateToTitleScreen: (Title) -> Unit,
-    navigateToNewsScreen : (News) -> Unit
+
 ) {
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val comingSoonMovies = viewModel.comingSoonMovies.observeAsState(emptyList())
@@ -70,7 +64,7 @@ fun Content(
                 .fillMaxWidth()
                 .height(35.dp)
                 .background(color = PrimaryColor)
-                .clickable { navigateToCurrentlyTrendingPage() }
+                .clickable { viewModel.onCurrentlyTrendingTitlesClicked() }
             ){
                 Text(
                     text = "Currently trending",
@@ -99,7 +93,7 @@ fun Content(
                 .background(color = PrimaryColor),
                 contentAlignment = Alignment.Center
             ){
-                ImageSlider(currentlyTrendingMovies.value!!, navigateToTitleScreen)
+                ImageSlider(currentlyTrendingMovies.value!!)
             }
             Spacer(modifier = Modifier.height(70.dp))
             Box(modifier = Modifier
@@ -107,7 +101,7 @@ fun Content(
                 .height(35.dp)
                 .background(color = PrimaryColor)
                 .clickable {
-                    navigateToNewReleasesPage()
+                    viewModel.onComingSoonTitlesClicked()
                 }
             ){
                 Text(
@@ -136,7 +130,7 @@ fun Content(
                 .height(220.dp),
                 contentAlignment = Alignment.Center
             ){
-                ImageSlider(comingSoonMovies.value!!, navigateToTitleScreen)
+                ImageSlider(comingSoonMovies.value!!)
             }
             Spacer(modifier = Modifier.height(40.dp))
             //MAIN TAGS
@@ -147,7 +141,7 @@ fun Content(
                     .fillMaxHeight()
                     .weight(1f)
                     .background(color = Color.White).clickable {
-                        navigateToMoviesScreen()
+                        viewModel.onMoviesClicked()
                     }
                 ){
                     Row(modifier = Modifier
@@ -157,7 +151,7 @@ fun Content(
                             .fillMaxHeight()
                             .width(8.dp)
                             .background(color = Color(255, 159, 140)).clickable {
-                                navigateToMoviesScreen()
+                                viewModel.onMoviesClicked()
                             })
                         Text(
                             text = "Movies",
@@ -188,7 +182,7 @@ fun Content(
                     .weight(1f)
                     .background(color = Color.White)
                     .clickable {
-                        navigateToTVShowsScreen()
+                        viewModel.onTVShowsClicked()
                     }
                 ){
                     Row(modifier = Modifier
@@ -231,7 +225,7 @@ fun Content(
                         .fillMaxSize()
                         .background(color = Color(231, 246, 218))
                         .clickable {
-                            navigateToActorsScreen()
+                            viewModel.onActorsClicked()
                         }
                     ){
                         Box(modifier = Modifier
@@ -412,8 +406,7 @@ fun Content(
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            News(news.value, navigateToNewsScreen)
-
+            News(news.value)
         }
 
     }

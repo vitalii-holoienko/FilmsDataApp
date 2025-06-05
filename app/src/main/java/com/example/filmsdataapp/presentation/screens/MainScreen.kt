@@ -16,32 +16,13 @@ import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
 fun MainScreen(
-    navigateToNewReleasesPage : () -> Unit,
-    navigateToCurrentlyTrendingPage : () ->Unit,
-    navigateToProfilePage : () ->Unit,
-    onMenuClick : () -> Unit,
-    navigateToTVShowsScreen : () -> Unit,
-    navigateToMoviesScreen : () -> Unit,
-    navigateToActorsScreen : () -> Unit,
-    navigateToTitleScreen: (Title) -> Unit,
-    navigateToSearchedTitleScreen : () -> Unit,
-    navigateToNewsScreen : (News) -> Unit,
-    navigateToAuthenticationScreen : () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
             .background(color= BackGroundColor).verticalScroll(rememberScrollState())
     ){
-        Header({}, navigateToProfilePage,navigateToSearchedTitleScreen, onMenuClick,  navigateToAuthenticationScreen)
-        Content(
-            navigateToNewReleasesPage,
-            navigateToCurrentlyTrendingPage,
-            navigateToTVShowsScreen,
-            navigateToMoviesScreen,
-            navigateToActorsScreen,
-            navigateToTitleScreen,
-            navigateToNewsScreen
-        )
+        Header()
+        Content()
     }
 
 }

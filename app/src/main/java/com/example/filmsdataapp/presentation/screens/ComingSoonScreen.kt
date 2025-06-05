@@ -13,15 +13,11 @@ import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Conte
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun ComingSoonScreen(navigateToMainScreen : () -> Unit,
-                     navigateToProfilePage : () ->Unit,
-                     onMenuClick : () -> Unit,
-                     navigateToTitleScreen: (Title) -> Unit,
-                     navigateToSearchedTitleScreen : () -> Unit,
-                     navigateToAuthenticationScreen : () -> Unit){
+fun ComingSoonScreen(
+                     navigateToTitleScreen: (Title) -> Unit, ){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
-        Header(navigateToMainScreen, navigateToProfilePage,navigateToSearchedTitleScreen, onMenuClick, navigateToAuthenticationScreen)
+        Header()
         Content("Coming soon", navigateToTitleScreen)
     }
 
