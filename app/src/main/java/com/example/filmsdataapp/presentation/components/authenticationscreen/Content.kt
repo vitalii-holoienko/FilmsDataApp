@@ -4,6 +4,7 @@ import android.graphics.Color.rgb
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +52,7 @@ import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Unit,){
+fun Content(){
     var loginText by remember { mutableStateOf("") }
 
     var passwordText by remember { mutableStateOf("")}
@@ -78,11 +80,57 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
             )
         }
 
-        Box(modifier = Modifier
+        Column(modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .fillMaxWidth()
             .height(170.dp)
-            .background(color = PrimaryColor))
+            .background(color = PrimaryColor)
+        ){
+            Button(
+                onClick = {
+                    viewModel.showSignInUsingGoogleOption.value = true
+                },
+                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                colors = ButtonDefaults.buttonColors(
+                    contentColor = PrimaryColor,
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(2.dp, Color.White),
+                shape = RoundedCornerShape(0.dp),
+
+
+                ){
+                Text(
+                    text = "Continue with Google",
+                    modifier = Modifier.padding(8.dp, 0.dp),
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                    color = TextColor
+                )
+            }
+            Button(
+                onClick = {
+                    viewModel.onSignInWithTelephoneNumberClicked()
+                },
+                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                colors = ButtonDefaults.buttonColors(
+                    contentColor = PrimaryColor,
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(2.dp, Color.White),
+                shape = RoundedCornerShape(0.dp),
+
+
+                ){
+                Text(
+                    text = "Continue with Phone Number",
+                    modifier = Modifier.padding(8.dp, 0.dp),
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                    color = TextColor
+                )
+            }
+        }
         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)){
             BasicTextField(
                 value = loginText,
@@ -181,26 +229,9 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
                 onClick = {
                    val p = viewModel.inputWasSuccessfullyValidated(loginText, passwordText)
                     if(p.first){
-                        val auth = viewModel.firebaseAuth
-                        auth.createUserWithEmailAndPassword(loginText, passwordText)
-                            .addOnCompleteListener() { task ->
-                                if (task.isSuccessful) {
-                                    viewModel.user = auth.currentUser
-                                    viewModel.userNotSingedIn.value = false
-                                    navigateToMainScreen()
-                                }else{
-                                    Log.w("TEKKEN", "createUserWithEmail:failure", task.exception)
-                                    Toast.makeText(
-                                        c,
-                                        "Authentication failed.",
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
-                                }
-                            }
+                        viewModel.createUserWithEmailAndPassword(loginText, passwordText)
                     }else{
-                        Log.d("TEKKEN", viewModel.warningInAuthenticationScreen.value!!)
-                        Log.d("TEKKEN", p.second!!)
-                        if(p.second == "email") {showEmailWarning = true; showPasswordWarning = false; Log.d("TEKKEN", "!")}
+                        if(p.second == "email") {showEmailWarning = true; showPasswordWarning = false}
                         if(p.second == "password") {showPasswordWarning = true; showEmailWarning = false}
                     }
                 },
@@ -230,7 +261,7 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
                     fontSize = 15.sp,
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                     color = LinksColor,
-                    modifier = Modifier.clickable { navigateToLogInScreen() }
+                    modifier = Modifier.clickable { viewModel.onLogInClicked() }
                 )
             }
         }

@@ -4,11 +4,13 @@ import android.app.Activity
 import android.content.Context
 import androidx.credentials.CredentialManager
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
 import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -41,6 +43,7 @@ import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.presentation.common.NavigationEvent
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.play.integrity.internal.c
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
@@ -82,7 +85,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
 
     var searchEnded = MutableLiveData<Boolean>()
-    var userNotSingedIn = MutableLiveData<Boolean>()
+    var showWarningInLogInScreen = MutableLiveData(false)
 
     var showWarningInAuthenticationScreen = MutableLiveData<Boolean>()
 
@@ -240,6 +243,21 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     fun onAuthClicked(){
         _navigation.value = NavigationEvent.ToAuth
     }
+    fun onActorInfoClicked(){
+        _navigation.value = NavigationEvent.ToActorInfo
+    }
+
+    fun onLogInClicked(){
+        _navigation.value = NavigationEvent.ToLogIn
+    }
+
+    fun onSignInWithTelephoneNumberClicked(){
+        _navigation.value = NavigationEvent.ToPhoneNumberSignIn
+    }
+
+    fun onCreateProfileClicked(){
+        _navigation.value = NavigationEvent.ToCreateProfile
+    }
     //-------------------------------------------------------------------------------
     fun loadInitialData(){
         loadMovies()
@@ -249,10 +267,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         networkMonitor = NetworkMonitor(context)
     }
 
-    fun checkIfUserIsSignedIn(){
-        val currentUser = firebaseAuth.currentUser
-        userNotSingedIn.value = currentUser == null
-
+    fun checkIfUserIsSignedIn() : Boolean{
+        return firebaseAuth.currentUser != null
     }
 
 
@@ -402,14 +418,13 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
                     val isNewUser = task.result?.additionalUserInfo?.isNewUser == true
                     if (isNewUser) {
-
-                        Log.d("Auth", "New user registered")
+                        onCreateProfileClicked()
                     } else {
 
-                        Log.d("Auth", "User signed in")
+                        onMainClicked()
                     }
 
-                    userNotSingedIn.value = false
+
                     userSuccessfullySignedIn.value = true
 
                 } else {
@@ -439,7 +454,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     fun signOut() {
         // Firebase sign out
         firebaseAuth.signOut()
-        userNotSingedIn.value = true
+
 
         // When a user signs out, clear the current user credential state from all credential providers.
         viewModelScope.launch {
@@ -518,32 +533,80 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     }
 
     fun handleSignIn(credential: Credential, componentActivity: ComponentActivity) {
-        // Check if credential is of type Google ID
-        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-            // Create Google ID Token
-            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+        try{
+            // Check if credential is of type Google ID
+            if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                // Create Google ID Token
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
-            // Sign in to Firebase with using the token
-            firebaseAuthWithGoogle(googleIdTokenCredential.idToken, componentActivity)
-        } else {
-            Log.w("TEKKEN", "Credential is not of type Google ID!")
+                // Sign in to Firebase with using the token
+                firebaseAuthWithGoogle(googleIdTokenCredential.idToken, componentActivity)
+            } else {
+                Log.w("TEKKEN", "Credential is not of type Google ID!")
+            }
+        }catch (e : Exception){
+            Log.w("TEKKEN", e)
         }
+
     }
 
-    fun firebaseAuthWithGoogle(idToken: String, componentActivity: ComponentActivity) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(componentActivity) { task ->
+    fun createUserWithEmailAndPassword(email : String, password: String){
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener() { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("TEKKEN", "signInWithCredential:success")
-                    userNotSingedIn.value = false
-                    userSuccessfullySignedIn.value = true
-                } else {
-                    // If sign in fails, display a message to the user
-                    Log.w("TEKKEN", "signInWithCredential:failure", task.exception)
+                    onCreateProfileClicked()
+                }else{
                 }
             }
+    }
+
+    fun signInUserWithEmailAndPassword(email:String, password: String){
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener() { task ->
+                if (task.isSuccessful) {
+                    onMainClicked()
+                } else {
+                    Log.d("TEKKEN", "signInWithEmail:failure", task.exception)
+                }
+            }.addOnFailureListener {
+
+            }
+    }
+
+
+    fun firebaseAuthWithGoogle(idToken: String, componentActivity: ComponentActivity) {
+        try{
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            firebaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener(componentActivity) { task ->
+                    if (task.isSuccessful) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d("TEKKEN", "signInWithCredential:success")
+                        val isNewUser = task.result?.additionalUserInfo?.isNewUser == true
+                        if (isNewUser) {
+                            onCreateProfileClicked()
+                        } else {
+                            onMainClicked()
+                        }
+
+                        userSuccessfullySignedIn.value = true
+                    } else {
+                        // If sign in fails, display a message to the user
+                        Log.w("TEKKEN", "signInWithCredential:failure", task.exception)
+                    }
+                }.addOnFailureListener {
+                    if (it is GetCredentialCancellationException) {
+
+                        Log.i("Auth", "User cancelled credential selection")
+                    } else {
+
+                        Log.e("Auth", "Credential error", it)
+                    }
+                }
+        } catch (e : Exception){
+            Log.w("TEKKEN", "signInWithCredential:failure", e)
+        }
+
     }
 
 }

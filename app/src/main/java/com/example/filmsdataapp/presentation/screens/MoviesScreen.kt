@@ -14,12 +14,10 @@ import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Conte
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun MoviesScreen(
-                 navigateToTitleScreen: (Title) -> Unit,
-                 ){
+fun MoviesScreen(){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
         Header()
-        Content("Movies", navigateToTitleScreen)
+        Content("Movies")
     }
 }

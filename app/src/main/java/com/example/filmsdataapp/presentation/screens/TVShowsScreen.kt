@@ -13,13 +13,10 @@ import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Conte
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun TVShowsScreen(
-                  navigateToTitleScreen: (Title) -> Unit,
-
-){
+fun TVShowsScreen(){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
         Header()
-        Content("TVShows", navigateToTitleScreen)
+        Content("TVShows")
     }
 }

@@ -75,22 +75,23 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : () -> Unit, navigateToSignInWithPhoneNumberScreen : () -> Unit){
+fun Content(){
     var loginText by remember { mutableStateOf("") }
 
     var passwordText by remember { mutableStateOf("") }
 
-    var showWarning by remember { mutableStateOf(false) }
+
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
 
 
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+    var showWarning = viewModel.showWarningInLogInScreen.observeAsState()
     var userSuccessfullySignedInUsingGoogle = viewModel.userSuccessfullySignedIn.observeAsState(false)
 
     if(userSuccessfullySignedInUsingGoogle.value){
-        navigateToMainScreen()
+        viewModel.onMainClicked()
         viewModel.userSuccessfullySignedIn.value = false
     }
 
@@ -119,7 +120,9 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
                 onClick = {
                     viewModel.showSignInUsingGoogleOption.value = true
                 },
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
                 colors = ButtonDefaults.buttonColors(
                     contentColor = PrimaryColor,
                     containerColor = Color.Transparent
@@ -139,9 +142,11 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
             }
             Button(
                 onClick = {
-                    navigateToSignInWithPhoneNumberScreen()
+                    viewModel.onSignInWithTelephoneNumberClicked()
                 },
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
                 colors = ButtonDefaults.buttonColors(
                     contentColor = PrimaryColor,
                     containerColor = Color.Transparent
@@ -165,13 +170,13 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)){
             BasicTextField(
                 value = loginText,
-                onValueChange = { loginText = it; showWarning = false },
+                onValueChange = { loginText = it; viewModel.showWarningInLogInScreen.value = false },
                 cursorBrush = SolidColor(TextColor),
                 modifier = Modifier
 
                     .background(PrimaryColor, shape = RoundedCornerShape(8.dp))
                     .focusRequester(focusRequester)
-                    .onFocusChanged { showWarning = false }
+                    .onFocusChanged { viewModel.showWarningInLogInScreen.value = false }
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 textStyle = TextStyle(
@@ -203,12 +208,12 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)){
             BasicTextField(
                 value = passwordText,
-                onValueChange = { passwordText = it; showWarning = false;},
+                onValueChange = { passwordText = it; viewModel.showWarningInLogInScreen.value = false},
                 cursorBrush = SolidColor(TextColor),
                 modifier = Modifier
                     .background(PrimaryColor, shape = RoundedCornerShape(8.dp))
                     .focusRequester(focusRequester)
-                    .onFocusChanged { showWarning = false; }
+                    .onFocusChanged { viewModel.showWarningInLogInScreen.value = false}
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 textStyle = TextStyle(
@@ -234,7 +239,7 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
                 }
             )
         }
-        if(showWarning){
+        if(showWarning.value!!){
             Box(modifier = Modifier
                 .align(Alignment.Start)
                 .padding(horizontal = 16.dp, vertical = 0.dp)){
@@ -253,23 +258,7 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
             val c = LocalContext.current
             Button(
                 onClick = {
-                    val auth = viewModel.firebaseAuth
-                    auth.signInWithEmailAndPassword(loginText, passwordText)
-                        .addOnCompleteListener() { task ->
-                            if (task.isSuccessful) {
-                                Log.d("TEKKEN", "SUCCESS")
-                                viewModel.user = auth.currentUser
-                                viewModel.userNotSingedIn.value = false
-                                navigateToMainScreen()
-
-                            } else {
-
-                                Log.d("TEKKEN", "signInWithEmail:failure", task.exception)
-
-
-                                showWarning = true;
-                            }
-                        }
+                    viewModel.signInUserWithEmailAndPassword(loginText, passwordText)
                 },
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -297,7 +286,7 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToAuthenticationScreen : 
                     fontSize = 15.sp,
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                     color = LinksColor,
-                    modifier = Modifier.clickable { navigateToAuthenticationScreen() }
+                    modifier = Modifier.clickable { viewModel.onAuthClicked() }
                 )
             }
         }

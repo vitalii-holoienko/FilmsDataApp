@@ -14,13 +14,10 @@ import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Conte
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun ActorsScreen(
-                 navigateToTitleScreen: (Title) -> Unit,
-                 navigateToActorInfoScreen : () -> Unit,
-                 ){
+fun ActorsScreen(){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
         Header()
-        Content("Actors", navigateToTitleScreen, navigateToActorInfoScreen)
+        Content("Actors")
     }
 }

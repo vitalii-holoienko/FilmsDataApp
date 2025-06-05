@@ -11,8 +11,7 @@ import com.example.filmsdataapp.presentation.components.actorinfoscreen.Content
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun ActorInfoScreen(
-){
+fun ActorInfoScreen(){
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = BackGroundColor)){

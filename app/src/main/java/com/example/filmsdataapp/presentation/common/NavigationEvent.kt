@@ -28,5 +28,7 @@ sealed class NavigationEvent {
 
     data class ToNews(val news: News) : NavigationEvent()
 
+    object ToCreateProfile : NavigationEvent()
+
     object None : NavigationEvent()
 }

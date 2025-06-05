@@ -12,16 +12,11 @@ import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Conte
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun SearchedTitlesScreen(
-                         navigateToTitleScreen: (Title) -> Unit,
-){
+fun SearchedTitlesScreen(){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
         Header()
-        Content(
-            "Searched",
-            navigateToTitleScreen
-        )
+        Content("Searched",)
     }
 
 }

@@ -25,6 +25,7 @@ import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -99,36 +100,39 @@ class MainActivity : ComponentActivity() {
                 }
 
                 var showSignInUsingGoogleOption = viewModel.showSignInUsingGoogleOption.observeAsState(false)
-                    if(showSignInUsingGoogleOption.value!!){
-                        val googleIdOption = GetGoogleIdOption.Builder()
+                if (showSignInUsingGoogleOption.value) {
+                    viewModel.showSignInUsingGoogleOption.value = false
 
-                            .setServerClientId(BuildConfig.WEB_APP_CLIENT_ID)
+                    val googleIdOption = GetGoogleIdOption.Builder()
+                        .setServerClientId(BuildConfig.WEB_APP_CLIENT_ID)
+                        .setFilterByAuthorizedAccounts(false)
+                        .build()
 
-                            .setFilterByAuthorizedAccounts(false)
-                            .build()
+                    val request = GetCredentialRequest.Builder()
+                        .addCredentialOption(googleIdOption)
+                        .build()
 
-                        val request = GetCredentialRequest.Builder()
-                            .addCredentialOption(googleIdOption)
-                            .build()
-                        lifecycleScope.launch {
-                            try {
-                                // Launch Credential Manager UI
-                                val result = credentialManager!!.getCredential(
-                                    context = baseContext,
-                                    request = request
-                                )
+                    lifecycleScope.launch {
+                        try {
+                            val result = credentialManager!!.getCredential(
+                                context = baseContext,
+                                request = request
+                            )
 
+                            viewModel.handleSignIn(result.credential, cp)
 
-                                // Extract credential from the result returned by Credential Manager
-                                viewModel.handleSignIn(result.credential, cp)
-                            } catch (e: GetCredentialException) {
-                                Log.e("TEKKEN", "Couldn't retrieve user's credentials: ${e.localizedMessage}")
-                            }
+                        } catch (e: GetCredentialCancellationException) {
+
+                            Log.i("TEKKEN", "User cancelled credential selection")
+                        } catch (e: GetCredentialException) {
+
+                            Log.e("TEKKEN", "CredentialManager error: ${e.localizedMessage}")
+                        } catch (e: Exception) {
+
+                            Log.e("TEKKEN", "Unknown error: ${e.localizedMessage}")
                         }
-                        viewModel.showSignInUsingGoogleOption.value = false
-
-
                     }
+                }
 
 
 
@@ -169,26 +173,15 @@ class MainActivity : ComponentActivity() {
                         popEnterTransition = { EnterTransition.None },
                         popExitTransition = { ExitTransition.None }){
                         composable(route = "main_screen") {
-                            MainScreen(
-
-                            )
+                            MainScreen()
                         }
                         composable(route = "authentication_screen") {
-                            AuthenticationScreen(
-                                navigateToMainScreen = { navController.navigate("main_screen")},
-
-                                navigateToLogInScreen= {navController.navigate("log_in_screen")},
-                            )
+                            AuthenticationScreen()
 
                         }
 
                         composable(route = "log_in_screen") {
-                            LogInScreen(
-                                navigateToMainScreen = { navController.navigate("main_screen")},
-
-                                navigateToAuthenticationScreen= {navController.navigate("authentication_screen")},
-                                navigateToSignInWithPhoneNumberScreen = {navController.navigate("sign_in_with_phone_number_screen")})
-
+                            LogInScreen()
                         }
 
                         composable(route="create_profile_screen"){
@@ -197,12 +190,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(route = "sign_in_with_phone_number_screen"){
-                            SignInWithPhoneNumberScreen(
-                                navigateToMainScreen = { navController.navigate("main_screen") },
-
-
-                                navigateToLogInScreen = {navController.navigate("log_in_screen")}
-                            )
+                            SignInWithPhoneNumberScreen()
                         }
 
 
@@ -215,10 +203,7 @@ class MainActivity : ComponentActivity() {
                             val json = backStackEntry.arguments?.getString("titleJson")
                             val title = json?.let { Json.decodeFromString<Title>(it) }
 
-                            TitleScreen(
-                                title = title!!,
-
-                            )
+                            TitleScreen(title = title!!,)
                         }
 
                         composable(
@@ -228,107 +213,42 @@ class MainActivity : ComponentActivity() {
                             val json = backStackEntry.arguments?.getString("newsJson")
                             val news = json?.let { Json.decodeFromString<News>(it) }
 
-                             NewsScreen(
-                                news = news!!,
-
-                            )
+                             NewsScreen(news = news!!,)
                         }
 
 
                         composable(route = "movies_screen") {
-                            MoviesScreen(
-
-                                navigateToTitleScreen = { title ->
-                                    val json = Json.encodeToString(title)
-                                    val encoded = Uri.encode(json)
-                                    navController.navigate("title_screen/$encoded")
-                                },
-
-
-                            )
+                            MoviesScreen()
                         }
 
                         composable(route = "actor_info_screen") {
-                            ActorInfoScreen(
-
-
-                            )
+                            ActorInfoScreen()
                         }
                         composable(route = "actors_screen") {
-                            ActorsScreen(
-
-                                navigateToTitleScreen = { title ->
-                                    val json = Json.encodeToString(title)
-                                    val encoded = Uri.encode(json)
-                                    navController.navigate("title_screen/$encoded")
-                                },
-
-                                navigateToActorInfoScreen = {
-                                    navController.navigate("actor_info_screen")
-                                },
-
-
-                            )
+                            ActorsScreen()
                         }
 
                         composable(route = "tvshows_screen") {
-                            TVShowsScreen(
-
-                                navigateToTitleScreen = { title ->
-                                    val json = Json.encodeToString(title)
-                                    val encoded = Uri.encode(json)
-                                    navController.navigate("title_screen/$encoded")
-                                },
-
-
-                            )
+                            TVShowsScreen()
                         }
 
                         composable(route = "new_releases_screen") {
-                            ComingSoonScreen(
-
-                                navigateToTitleScreen = { title ->
-                                    val json = Json.encodeToString(title)
-                                    val encoded = Uri.encode(json)
-                                    navController.navigate("title_screen/$encoded")
-                                },
-
-                            )
+                            ComingSoonScreen()
                         }
                         composable(route = "about_program_screen") {
                             AboutProgramScreen()
-
                         }
 
 
                         composable(route = "currently_trending_screen") {
-                            CurrentlyTrendingScreen(
-
-                                navigateToTitleScreen = { title ->
-                                    val json = Json.encodeToString(title)
-                                    val encoded = Uri.encode(json)
-                                    navController.navigate("title_screen/$encoded")
-                                },
-
-                            )
+                            CurrentlyTrendingScreen()
                         }
 
                         composable(route = "searched_titles_screen") {
-                            SearchedTitlesScreen(
-
-                                navigateToTitleScreen = { title ->
-                                    val json = Json.encodeToString(title)
-                                    val encoded = Uri.encode(json)
-                                    navController.navigate("title_screen/$encoded")
-                                },
-
-                            )
+                            SearchedTitlesScreen()
                         }
                         composable(route = "profile_screen"){
-                            ProfileScreen(
-                                
-                            )
-
+                            ProfileScreen()
                         }
                     }
                 }
@@ -410,13 +330,14 @@ class MainActivity : ComponentActivity() {
                         is NavigationEvent.ToMovie -> {
                             navController.navigate("movies_screen")
                         }
-                        NavigationEvent.None -> {
-
+                        is NavigationEvent.ToCreateProfile -> {
+                            navController.navigate("create_profile_screen")
                         }
+
+                        NavigationEvent.None -> {}
                         else ->{}
                     }
 
-                    // После обработки нужно сбросить событие, чтобы не повторять навигацию
                     viewModel.clearNavigation()
                 }
 

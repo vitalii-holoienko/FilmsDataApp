@@ -12,12 +12,10 @@ import com.example.filmsdataapp.presentation.components.authenticationscreen.Con
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun AuthenticationScreen(navigateToMainScreen : () -> Unit,
-                         navigateToLogInScreen : () -> Unit
-){
+fun AuthenticationScreen(){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
         Header()
-        Content(navigateToMainScreen, navigateToLogInScreen)
+        Content()
     }
 }

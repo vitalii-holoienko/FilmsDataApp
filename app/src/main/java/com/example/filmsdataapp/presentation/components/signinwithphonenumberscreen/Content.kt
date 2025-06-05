@@ -52,7 +52,7 @@ import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Unit){
+fun Content(){
 
 
     var phoneNumber by remember { mutableStateOf("") }
@@ -80,7 +80,7 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
 
 
     if(userSuccessfullySignedInUsingGoogle.value){
-        navigateToMainScreen()
+        viewModel.onMainClicked()
         viewModel.userSuccessfullySignedIn.value = false
     }
 
@@ -200,7 +200,7 @@ fun Content(navigateToMainScreen : () -> Unit, navigateToLogInScreen : () -> Uni
                 Text(
                     text = "Back to Log in",
                     modifier = Modifier.clickable {
-                        navigateToLogInScreen()
+                        viewModel.onLogInClicked()
                     },
                     fontSize = 16.sp,
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),

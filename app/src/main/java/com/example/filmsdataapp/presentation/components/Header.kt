@@ -133,7 +133,7 @@ fun Header(
                         .align(Alignment.CenterVertically)
                         .scale(1.5f)
                         .clickable {
-                            if(viewModel.userNotSingedIn.value!!){
+                            if(!viewModel.checkIfUserIsSignedIn()){
                                 viewModel.onAuthClicked()
                             }else{
                                 viewModel.onProfileClicked()

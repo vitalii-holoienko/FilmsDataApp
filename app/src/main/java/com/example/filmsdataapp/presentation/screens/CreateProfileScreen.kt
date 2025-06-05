@@ -12,8 +12,7 @@ import com.example.filmsdataapp.presentation.components.createprofilescreen.Cont
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun CreateProfileScreen(
-){
+fun CreateProfileScreen(){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
         Header()

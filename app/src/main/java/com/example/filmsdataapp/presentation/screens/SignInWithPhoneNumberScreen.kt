@@ -12,13 +12,10 @@ import com.example.filmsdataapp.presentation.components.signinwithphonenumberscr
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun SignInWithPhoneNumberScreen(
-    navigateToMainScreen : () -> Unit,
-                navigateToLogInScreen : () -> Unit
-){
+fun SignInWithPhoneNumberScreen(){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
         Header()
-        Content(navigateToMainScreen, navigateToLogInScreen)
+        Content()
     }
 }

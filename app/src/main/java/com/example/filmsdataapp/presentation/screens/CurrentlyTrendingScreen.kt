@@ -14,11 +14,10 @@ import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Conte
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun CurrentlyTrendingScreen(
-                            navigateToTitleScreen: (Title) -> Unit, ){
+fun CurrentlyTrendingScreen(){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor)){
         Header()
-        Content("Currently Trending", navigateToTitleScreen)
+        Content("Currently Trending")
     }
 }

@@ -64,7 +64,7 @@ import com.google.accompanist.placeholder.shimmer
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun Content(from : String, navigateToTitleScreen: (Title) -> Unit, navigateToActorInfoScreen : () -> Unit = {}){
+fun Content(from : String){
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     var pageName by remember(from) { mutableStateOf("") }
     var pageDescription by remember(from) { mutableStateOf("") }
@@ -124,7 +124,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit, navigateToAct
 
     LaunchedEffect(recievedActorInfo.value) {
         if (recievedActorInfo.value!!) {
-            navigateToActorInfoScreen()
+            viewModel.onActorInfoClicked()
             viewModel.recievedActorInfo.value = false
         }
     }
@@ -200,7 +200,7 @@ fun Content(from : String, navigateToTitleScreen: (Title) -> Unit, navigateToAct
                                             .width(imageWidth)
                                             .height(250.dp)
                                             .clickable {
-                                                navigateToTitleScreen(m)
+                                                viewModel.onTitleClicked(m)
                                             }
                                     )
                                     Text(
