@@ -213,7 +213,7 @@ fun Content(){
                 modifier = Modifier
                     .background(PrimaryColor, shape = RoundedCornerShape(8.dp))
                     .focusRequester(focusRequester)
-                    .onFocusChanged { viewModel.showWarningInLogInScreen.value = false}
+                    .onFocusChanged { viewModel.showWarningInLogInScreen.value = false }
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 textStyle = TextStyle(

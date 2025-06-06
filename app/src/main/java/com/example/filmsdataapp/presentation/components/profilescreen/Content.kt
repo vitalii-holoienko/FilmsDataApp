@@ -1,5 +1,7 @@
 package com.example.filmsdataapp.presentation.components.profilescreen
 
+import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,15 +18,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
@@ -40,12 +45,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
 fun Content(){
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val image = viewModel.userImageUri.value
+
     Spacer(modifier = Modifier.height(30.dp))
     Box(modifier = Modifier
         .fillMaxSize()
@@ -56,14 +67,13 @@ fun Content(){
                 .height(100.dp),
                 verticalAlignment = Alignment.Top
             ){
-                Image(
-                    painter = painterResource(id = R.drawable.test_image),
-                    contentDescription = "",
-                    Modifier
-                        .size(95.dp)
-                        .scale(1f),
+                AsyncImage(
+                    model = image,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape),
                     contentScale = ContentScale.Crop
-
                 )
                 Spacer(modifier = Modifier.width(20.dp))
                 Column(
@@ -73,7 +83,7 @@ fun Content(){
                     verticalArrangement = Arrangement.Top
                 ){
                     Text(
-                        text = "Mora64",
+                        text = viewModel.getUserNickname(),
                         color = TextColor,
                         fontSize = 25.sp,
                         fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),

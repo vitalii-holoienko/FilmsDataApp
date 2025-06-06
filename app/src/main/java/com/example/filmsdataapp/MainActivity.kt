@@ -96,6 +96,7 @@ class MainActivity : ComponentActivity() {
             FilmsDataAppTheme {
                 //loading initial data
                 LaunchedEffect(Unit) {
+                    viewModel.loadUserImage()
                     viewModel.startInternetObserve()
                 }
 

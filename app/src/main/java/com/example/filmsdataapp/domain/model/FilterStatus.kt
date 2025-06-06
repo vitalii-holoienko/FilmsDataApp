@@ -2,7 +2,7 @@ package com.example.filmsdataapp.domain.model
 //suspend fun getTitleWithAppliedFilters(type:String, genre:String, averageRatingFrom:Int, dateOfReleaseFrom:Int,
 //                                       dateOfReleaseTo: Int, language:String):String
 class FilterStatus(
-    var genre : MutableList<Genre>? = null,
+    var genre : MutableList<Genre>? = mutableListOf(),
     var averageRationFrom:Int? = null,
     var dateOfReleaseFrom:Int? = null,
     var dateOfReleaseTo:Int? = null,
@@ -13,7 +13,7 @@ class FilterStatus(
     val genres = mapOf(
         Genre.DRAMA to "Drama",
         Genre.COMEDY to "Comedy",
-        Genre.DOCUMENTARY to "Comedy",
+        Genre.DOCUMENTARY to "Documentary",
         Genre.ACTION to "Action",
         Genre.ROMANCE to "Romance",
         Genre.THRILLER to "Thriller",

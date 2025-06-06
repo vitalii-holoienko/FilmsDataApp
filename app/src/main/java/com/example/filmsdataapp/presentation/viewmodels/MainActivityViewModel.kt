@@ -2,10 +2,12 @@ package com.example.filmsdataapp.presentation.viewmodels
 
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import androidx.credentials.CredentialManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.mutableStateOf
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
@@ -15,6 +17,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.filmsdataapp.R
 import com.example.filmsdataapp.data.repository.ActorsRepositoryImpl
 import com.example.filmsdataapp.data.repository.MoviesRepositoryImpl
 import com.example.filmsdataapp.data.repository.NewsRepositoryImpl
@@ -54,6 +57,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.ktx.userProfileChangeRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -263,6 +267,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         loadMovies()
     }
 
+
     fun startInternetObserve(){
         networkMonitor = NetworkMonitor(context)
     }
@@ -375,6 +380,34 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         }.invokeOnCompletion {}
     }
 
+    fun createUserAccount(nickname : String, description : String, image : Uri?){
+        val profileUpdates = userProfileChangeRequest {
+            displayName = nickname
+            photoUri = image
+        }
+        FirebaseAuth.getInstance().currentUser?.updateProfile(profileUpdates)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onMainClicked()
+                }
+            }
+    }
+
+    fun getUserImage() : Uri{
+        return firebaseAuth.currentUser!!.photoUrl ?: Uri.parse("android.resource://com.example.filmsdataapp/${R.drawable.add_profile_image}")
+    }
+
+    fun getUserNickname() : String{
+        return firebaseAuth.currentUser!!.displayName ?: "Default"
+    }
+
+    val userImageUri = mutableStateOf<Uri?>(null)
+    fun loadUserImage() {
+        firebaseAuth.currentUser?.reload()?.addOnCompleteListener {
+            val photoUrl = firebaseAuth.currentUser?.photoUrl
+            userImageUri.value = photoUrl ?: Uri.parse("android.resource://com.example.filmsdataapp/${R.drawable.add_profile_image}")
+        }
+    }
 
     //LOGIC CONNECTED WITH PHONE NUMBER AUTHENTICATION
 
@@ -415,7 +448,6 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             .addOnCompleteListener{ task ->
                 if (task.isSuccessful) {
                     Log.d("TEKKEN", "signInWithCredential:success")
-
                     val isNewUser = task.result?.additionalUserInfo?.isNewUser == true
                     if (isNewUser) {
                         onCreateProfileClicked()
@@ -503,22 +535,32 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     private fun applyFiltersLogic(movies: List<Title>, filter: FilterStatus): List<Title> {
         return movies
             .asSequence()
+
             .filter { movie ->
-                filter.genre?.let { genre ->
-                    movie.genres?.any { it.equals(filter.genres[genre.get(0)], ignoreCase = true) } ?: false
-                } ?: true
-            }
+            filter.genre?.let { selectedGenres ->
+                val selectedGenreStrings = selectedGenres.mapNotNull { filter.genres[it] }
+                val movieGenres = movie.genres ?: emptyList()
+                movieGenres.any { movieGenre ->
+                    selectedGenreStrings.any { selected ->
+                        movieGenre.equals(selected, ignoreCase = true)
+                    }
+                }
+            } ?: true
+        }
+
             .filter { movie ->
                 filter.averageRationFrom?.let { from ->
                     movie.averageRating?.toInt()?.let { it >= from } ?: false
                 } ?: true
             }
+
             .filter { movie ->
                 val year = movie.startYear
                 val fromOk = filter.dateOfReleaseFrom?.let { year != null && year >= it } ?: true
                 val toOk = filter.dateOfReleaseTo?.let { year != null && year <= it } ?: true
                 fromOk && toOk
             }
+
             .sortedWith { a, b ->
                 when (filter.sortedBy) {
                     SORTED_BY.POPULARITY -> (b.numVotes ?: 0).compareTo(a.numVotes ?: 0)
