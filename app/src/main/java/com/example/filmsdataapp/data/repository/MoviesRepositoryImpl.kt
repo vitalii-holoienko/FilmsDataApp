@@ -45,10 +45,10 @@ class MoviesRepositoryImpl() : MoviesRepository{
         val json = Json { ignoreUnknownKeys = true }
         ids.forEach { id ->
             try {
-                val movieString = getMovieById(id)
+                val title = getTitleById(id)
 
-                val movie = json.decodeFromString<Title>(movieString)
-                result.add(movie)
+
+                result.add(title)
             } catch (e: Exception) {
                 Log.e("MOVIE_FETCH", "Error $id: ${e.message}")
             }
@@ -73,8 +73,13 @@ class MoviesRepositoryImpl() : MoviesRepository{
         return ""
     }
 
-    override suspend fun getMovieById(id:String): String = withContext(Dispatchers.IO){
-        return@withContext makeRequest("https://imdb236.p.rapidapi.com/api/imdb/${id}",1)
+    override suspend fun getTitleById(id:String): Title = withContext(Dispatchers.IO){
+        val json = Json {
+            ignoreUnknownKeys = true
+        }
+        val jsonString = makeRequest("https://imdb236.p.rapidapi.com/api/imdb/${id}", 1)
+        json.decodeFromString(jsonString)
+
     }
 
     override suspend fun getRatingById(id:String): String = withContext(Dispatchers.IO){

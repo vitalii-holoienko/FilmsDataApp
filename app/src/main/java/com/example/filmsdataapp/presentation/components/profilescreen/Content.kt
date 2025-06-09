@@ -252,6 +252,7 @@ fun TimeProgressBar(
 }
 @Composable
 fun ClickableTextExample() {
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val annotatedText = buildAnnotatedString {
 
 
@@ -302,26 +303,46 @@ fun ClickableTextExample() {
         onClick = { offset ->
             annotatedText.getStringAnnotations(tag = "PLANNED", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    println("Planned clicked")
+                    viewModel.getPlannedTitles {
+                        it.forEach {
+                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
+                        }
+                    }
                 }
 
             annotatedText.getStringAnnotations(tag = "WATCHING", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    println("Watching clicked")
+                    viewModel.getWatchingTitles {
+                        it.forEach {
+                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
+                        }
+                    }
                 }
 
             annotatedText.getStringAnnotations(tag = "COMPLETED", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    println("Completed clicked")
+                    viewModel.getCompletedTitles {
+                        it.forEach {
+                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
+                        }
+                    }
                 }
 
             annotatedText.getStringAnnotations(tag = "ON_HOLD", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    println("On Hold clicked")
+                    viewModel.getOnHoldTitles {
+                        it.forEach {
+                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
+                        }
+                    }
                 }
             annotatedText.getStringAnnotations(tag = "DROPPED", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    println("On Hold clicked")
+                    viewModel.getDroppedTitles {
+                        it.forEach {
+                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
+                        }
+                    }
                 }
         }
     )

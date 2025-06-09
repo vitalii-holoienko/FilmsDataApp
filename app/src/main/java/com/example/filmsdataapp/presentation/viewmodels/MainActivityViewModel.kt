@@ -42,6 +42,7 @@ import com.example.filmsdataapp.domain.usecase.GetCurrentlyTrendingMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
+import com.example.filmsdataapp.domain.usecase.GetTitleById
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.presentation.common.NavigationEvent
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
@@ -58,6 +59,7 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.ktx.userProfileChangeRequest
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -491,6 +493,253 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             .addOnFailureListener { exception ->
                 Log.w("TEKKEN", "get failed with ", exception)
                 callback("Default")
+            }
+    }
+
+    fun addTitleToWatchingList(titleId: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        val favRef = db.collection("users")
+            .document(uid)
+            .collection("watching")
+            .document(titleId)
+
+        val data = mapOf(
+            "addedAt" to FieldValue.serverTimestamp()
+        )
+
+        favRef.set(data)
+            .addOnSuccessListener {
+                Log.d("WATCHING", "Title $titleId added to favourites.")
+            }
+            .addOnFailureListener { e ->
+                Log.e("WATCHING", "Failed to add favourite", e)
+            }
+    }
+
+    fun addTitleToPlannedList(titleId: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        val favRef = db.collection("users")
+            .document(uid)
+            .collection("planned")
+            .document(titleId)
+
+        val data = mapOf(
+            "addedAt" to FieldValue.serverTimestamp()
+        )
+
+        favRef.set(data)
+            .addOnSuccessListener {
+                Log.d("PLANNED", "Title $titleId added to favourites.")
+            }
+            .addOnFailureListener { e ->
+                Log.e("PLANNED", "Failed to add favourite", e)
+            }
+    }
+
+    fun addTitleToCompletedList(titleId: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        val favRef = db.collection("users")
+            .document(uid)
+            .collection("completed")
+            .document(titleId)
+
+        val data = mapOf(
+            "addedAt" to FieldValue.serverTimestamp()
+        )
+
+        favRef.set(data)
+            .addOnSuccessListener {
+                Log.d("Completed", "Title $titleId added to favourites.")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Completed", "Failed to add favourite", e)
+            }
+    }
+
+    fun addTitleToOnHoldList(titleId: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        val favRef = db.collection("users")
+            .document(uid)
+            .collection("onhold")
+            .document(titleId)
+
+        val data = mapOf(
+            "addedAt" to FieldValue.serverTimestamp()
+        )
+
+        favRef.set(data)
+            .addOnSuccessListener {
+                Log.d("OnHold", "Title $titleId added to favourites.")
+            }
+            .addOnFailureListener { e ->
+                Log.e("OnHold", "Failed to add favourite", e)
+            }
+    }
+
+    fun getOnHoldTitles(callback: (List<Title>) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users")
+            .document(uid)
+            .collection("onhold")
+            .get()
+            .addOnSuccessListener { result ->
+                val ids = result.documents.map { it.id }
+                viewModelScope.launch {
+                    val r = mutableListOf<Title>()
+                    ids.forEach {
+                        val result = GetTitleById(moviesRepository).invoke(it)
+                        r.add(result)
+                    }
+                    callback(r)
+                }
+
+
+            }
+            .addOnFailureListener { e ->
+                Log.e("FAVOURITES", "Failed to get favourites", e)
+                callback(emptyList())
+            }
+    }
+
+
+    fun addTitleToDroppedList(titleId: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        val favRef = db.collection("users")
+            .document(uid)
+            .collection("dropped")
+            .document(titleId)
+
+        val data = mapOf(
+            "addedAt" to FieldValue.serverTimestamp()
+        )
+
+        favRef.set(data)
+            .addOnSuccessListener {
+                Log.d("OnHold", "Title $titleId added to favourites.")
+            }
+            .addOnFailureListener { e ->
+                Log.e("OnHold", "Failed to add favourite", e)
+            }
+    }
+    fun getDroppedTitles(callback: (List<Title>) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users")
+            .document(uid)
+            .collection("dropped")
+            .get()
+            .addOnSuccessListener { result ->
+                val ids = result.documents.map { it.id }
+                viewModelScope.launch {
+                    val r = mutableListOf<Title>()
+                    ids.forEach {
+                        val result = GetTitleById(moviesRepository).invoke(it)
+                        r.add(result)
+                    }
+                    callback(r)
+                }
+
+
+            }
+            .addOnFailureListener { e ->
+                Log.e("FAVOURITES", "Failed to get favourites", e)
+                callback(emptyList())
+            }
+    }
+
+    fun getCompletedTitles(callback: (List<Title>) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users")
+            .document(uid)
+            .collection("completed")
+            .get()
+            .addOnSuccessListener { result ->
+                val ids = result.documents.map { it.id }
+                viewModelScope.launch {
+                    val r = mutableListOf<Title>()
+                    ids.forEach {
+                        val result = GetTitleById(moviesRepository).invoke(it)
+                        r.add(result)
+                    }
+                    callback(r)
+                }
+
+
+            }
+            .addOnFailureListener { e ->
+                Log.e("FAVOURITES", "Failed to get favourites", e)
+                callback(emptyList())
+            }
+    }
+
+
+
+    fun getWatchingTitles(callback: (List<Title>) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users")
+            .document(uid)
+            .collection("watching")
+            .get()
+            .addOnSuccessListener { result ->
+                val ids = result.documents.map { it.id }
+                viewModelScope.launch {
+                    val r = mutableListOf<Title>()
+                    ids.forEach {
+                        val result = GetTitleById(moviesRepository).invoke(it)
+                        r.add(result)
+                    }
+                    callback(r)
+                }
+
+
+            }
+            .addOnFailureListener { e ->
+                Log.e("FAVOURITES", "Failed to get favourites", e)
+                callback(emptyList())
+            }
+    }
+
+    fun getPlannedTitles(callback: (List<Title>) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users")
+            .document(uid)
+            .collection("planned")
+            .get()
+            .addOnSuccessListener { result ->
+                val ids = result.documents.map { it.id }
+                viewModelScope.launch {
+                    val r = mutableListOf<Title>()
+                    ids.forEach {
+                        val result = GetTitleById(moviesRepository).invoke(it)
+                        r.add(result)
+                    }
+                    callback(r)
+                }
+
+
+            }
+            .addOnFailureListener { e ->
+                Log.e("FAVOURITES", "Failed to get favourites", e)
+                callback(emptyList())
             }
     }
 
