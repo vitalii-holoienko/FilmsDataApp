@@ -58,6 +58,10 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.ktx.userProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -140,8 +144,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     val news : LiveData<List<News>> get() = _news
     val currentlyTrendingMovies: LiveData<List<Title>> get() = _currentlyTrendingMovies
     val actors: LiveData<List<Actor>> get() = _actors
-
-
+    private var db : FirebaseFirestore = Firebase.firestore
     private var storedVerificationId: String? = ""
     private lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
     var callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -193,6 +196,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
         }
     }
+
+
 
     //NAVIGATION
 
@@ -380,25 +385,132 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         }.invokeOnCompletion {}
     }
 
-    fun createUserAccount(nickname : String, description : String, image : Uri?){
+    fun createUserAccount(nickname: String, description: String, image: Uri?) {
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = currentUser.uid
+
+        val profileUpdates = userProfileChangeRequest {
+            displayName = nickname
+            photoUri = image
+        }
+
+        uploadImageToStorage(image!!) { downloadUrl ->
+            currentUser.updateProfile(profileUpdates)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val user = hashMapOf(
+                            "nickname" to nickname,
+                            "description" to description,
+                            "image" to downloadUrl
+                        )
+
+                        db.collection("users").document(uid).set(user)
+                            .addOnSuccessListener {
+                                Log.d("TEKKEN", "User data saved with UID: $uid")
+                                onMainClicked()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("TEKKEN", "Error adding user document", e)
+                            }
+                    } else {
+                        Log.e("TEKKEN", "Failed to update profile", task.exception)
+                    }
+                }
+        }
+
+
+    }
+
+    fun updateUserAccount(nickname : String, description : String, image : Uri?){
         val profileUpdates = userProfileChangeRequest {
             displayName = nickname
             photoUri = image
         }
         FirebaseAuth.getInstance().currentUser?.updateProfile(profileUpdates)
-            ?.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    onMainClicked()
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        val user = hashMapOf(
+            "nickname" to nickname,
+            "description" to description,
+            "image" to image.toString(),
+        )
+
+        db.collection("users").document(uid)
+            .set(user)
+
+    }
+    fun getUserImage(callback: (Uri) -> Unit) {
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        Log.d("TEKKEN", "Current UID: $uid")
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val imageString = document.getString("image")
+                    val imageUri = imageString?.let { Uri.parse(it) }
+                    callback(imageUri!!)
                 }
+
+
+            }
+            .addOnFailureListener { exception ->
+
             }
     }
 
-    fun getUserImage() : Uri{
-        return firebaseAuth.currentUser!!.photoUrl ?: Uri.parse("android.resource://com.example.filmsdataapp/${R.drawable.add_profile_image}")
+
+    private fun uploadImageToStorage(imageUri: Uri, onUploaded: (String) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val storageRef = FirebaseStorage.getInstance().reference
+            .child("user_images/$uid.jpg")
+
+        storageRef.putFile(imageUri)
+            .addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                    onUploaded(uri.toString()) // URL к картинке
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("TEKKEN", "Failed to upload image", e)
+            }
     }
 
-    fun getUserNickname() : String{
-        return firebaseAuth.currentUser!!.displayName ?: "Default"
+
+    fun getUserNickname(callback: (String) -> Unit) {
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        Log.d("TEKKEN", "Current UID: $uid")
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val nickname = document.getString("nickname") ?: "Default"
+                    callback(nickname)
+                } else {
+                    Log.d("TEKKEN", "No such document")
+                    callback("Default")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("TEKKEN", "get failed with ", exception)
+                callback("Default")
+            }
+    }
+
+    fun getUserDescription(callback: (String) -> Unit) {
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        Log.d("TEKKEN", "Current UID: $uid")
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val description = document.getString("description") ?: "-"
+                    callback(description)
+                } else {
+                    Log.d("TEKKEN", "No such document")
+                    callback("-")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("TEKKEN", "get failed with ", exception)
+                callback("-")
+            }
     }
 
     val userImageUri = mutableStateOf<Uri?>(null)

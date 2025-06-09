@@ -89,9 +89,10 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
-
+    implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
     implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.7.1")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.accompanist:accompanist-placeholder-material:0.34.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.0")

@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.components.profilescreen
 
+import android.net.Uri
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Canvas
@@ -22,6 +23,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,11 +57,12 @@ import com.example.filmsdataapp.R
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
+import com.google.android.play.integrity.internal.t
 
 @Composable
 fun Content(){
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
-    val image = viewModel.userImageUri.value
+
 
     Spacer(modifier = Modifier.height(30.dp))
     Box(modifier = Modifier
@@ -67,6 +74,12 @@ fun Content(){
                 .height(100.dp),
                 verticalAlignment = Alignment.Top
             ){
+                var image by remember { mutableStateOf<Uri?>(null) }
+                LaunchedEffect(Unit) {
+                    viewModel.getUserImage { fetchedImage ->
+                        image = fetchedImage
+                    }
+                }
                 AsyncImage(
                     model = image,
                     contentDescription = null,
@@ -82,16 +95,30 @@ fun Content(){
                         .height(100.dp),
                     verticalArrangement = Arrangement.Top
                 ){
+                    var nickname by remember { mutableStateOf("Loading...") }
+                    LaunchedEffect(Unit) {
+                        viewModel.getUserNickname { fetchedNickname ->
+                            nickname = fetchedNickname
+                        }
+                    }
+
                     Text(
-                        text = viewModel.getUserNickname(),
+                        text = nickname,
                         color = TextColor,
                         fontSize = 25.sp,
                         fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
                         modifier = Modifier.padding(0.dp)
                     )
                     Spacer(modifier = Modifier.height(5.dp))
+                    var description by remember { mutableStateOf("-") }
+                    LaunchedEffect(Unit) {
+                        viewModel.getUserDescription{ fetchedDescription ->
+                            description = fetchedDescription
+                        }
+                    }
+
                     Text(
-                        text = "18 y.o / using app since Nov. 2025",
+                        text = description,
                         color = TextColor,
                         fontSize = 12.sp,
                         fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
