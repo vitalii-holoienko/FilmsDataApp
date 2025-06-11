@@ -12,14 +12,17 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,10 +38,19 @@ fun ExpandableMenu(
     title: String,
     menuItems: List<String>,
     onItemSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    inWhichListUserHasThisTitle : String,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+
+    var finalListWhereUserHasTitle by remember {
+        mutableStateOf(inWhichListUserHasThisTitle)
+    }
+
+    LaunchedEffect(inWhichListUserHasThisTitle) {
+        finalListWhereUserHasTitle = inWhichListUserHasThisTitle
+    }
     Column(modifier = modifier) {
 
         Row(
@@ -78,19 +90,38 @@ fun ExpandableMenu(
                     .background(Color.White)
                     .border(1.dp, Color.LightGray)
             ) {
+                val currentListKey = finalListWhereUserHasTitle.lowercase().replace(" ", "")
                 menuItems.forEach { option ->
-                    Text(
-                        text = option,
+                    val optionKey = option.lowercase().replace(" ", "")
+
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
                                 onItemSelected(option)
                                 expanded = false
+                                finalListWhereUserHasTitle = option
                             }
-                            .padding(12.dp),
-                        fontSize = 14.sp,
-                        color = Color.Black
-                    )
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = option,
+                            fontSize = 14.sp,
+                            color = Color.Black,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        if (optionKey == currentListKey) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Selected",
+                                tint = Color(0xFF4CAF50),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
                     Divider()
                 }
             }

@@ -67,6 +67,7 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 
 class MainActivityViewModel(private val context: Context) : ViewModel() {
@@ -388,15 +389,16 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     }
 
     fun createUserAccount(nickname: String, description: String, image: Uri?) {
+        val finalImageUri = image ?: Uri.parse("android.resource://${context.packageName}/${R.drawable.add_profile_image}")
         val currentUser = FirebaseAuth.getInstance().currentUser ?: return
         val uid = currentUser.uid
 
         val profileUpdates = userProfileChangeRequest {
             displayName = nickname
-            photoUri = image
+            photoUri = finalImageUri
         }
 
-        uploadImageToStorage(image!!) { downloadUrl ->
+        uploadImageToStorage(finalImageUri) { downloadUrl ->
             currentUser.updateProfile(profileUpdates)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -476,7 +478,58 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             }
     }
 
+    fun checkIfUserHasTitleInLists(
+        titleId: String,
+        callback: (String) -> Unit
+    ) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            callback("no")
+            return
+        }
 
+        val db = FirebaseFirestore.getInstance()
+        val collections = listOf("onhold", "dropped", "completed", "watching", "planned")
+        var checkedCount = 0
+        var found = false
+
+        for (collection in collections) {
+            db.collection("users")
+                .document(uid)
+                .collection(collection)
+                .document(titleId)
+                .get()
+                .addOnSuccessListener { document ->
+                    checkedCount++
+                    if (document.exists() && !found) {
+                        found = true
+                        callback(collection)
+                    } else if (checkedCount == collections.size && !found) {
+                        callback("no")
+                    }
+                }
+                .addOnFailureListener {
+                    checkedCount++
+                    if (checkedCount == collections.size && !found) {
+                        callback("no")
+                    }
+                }
+        }
+    }
+
+    suspend fun deleteTitleForAllLists(id: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+        val collections = listOf("planned", "watching", "completed", "onhold", "dropped")
+
+        for (collection in collections) {
+            val docRef = db.collection("users").document(uid).collection(collection).document(id)
+            val snapshot = docRef.get().await()
+            if (snapshot.exists()) {
+                docRef.delete().await()
+            }
+        }
+    }
     fun getUserNickname(callback: (String) -> Unit) {
         val uid = firebaseAuth.currentUser?.uid ?: return
         Log.d("TEKKEN", "Current UID: $uid")
@@ -499,89 +552,109 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     fun addTitleToWatchingList(titleId: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+        viewModelScope.launch {
+            deleteTitleForAllLists(titleId)
 
-        val favRef = db.collection("users")
-            .document(uid)
-            .collection("watching")
-            .document(titleId)
+            val favRef = db.collection("users")
+                .document(uid)
+                .collection("watching")
+                .document(titleId)
 
-        val data = mapOf(
-            "addedAt" to FieldValue.serverTimestamp()
-        )
+            val data = mapOf(
+                "addedAt" to FieldValue.serverTimestamp()
+            )
 
-        favRef.set(data)
-            .addOnSuccessListener {
-                Log.d("WATCHING", "Title $titleId added to favourites.")
-            }
-            .addOnFailureListener { e ->
-                Log.e("WATCHING", "Failed to add favourite", e)
-            }
+            favRef.set(data)
+                .addOnSuccessListener {
+                    Log.d("OnHold", "Title $titleId added to favourites.")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("OnHold", "Failed to add favourite", e)
+                }
+        }
+
+
+
     }
 
     fun addTitleToPlannedList(titleId: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+        viewModelScope.launch {
+            deleteTitleForAllLists(titleId)
 
-        val favRef = db.collection("users")
-            .document(uid)
-            .collection("planned")
-            .document(titleId)
+            val favRef = db.collection("users")
+                .document(uid)
+                .collection("planned")
+                .document(titleId)
 
-        val data = mapOf(
-            "addedAt" to FieldValue.serverTimestamp()
-        )
+            val data = mapOf(
+                "addedAt" to FieldValue.serverTimestamp()
+            )
 
-        favRef.set(data)
-            .addOnSuccessListener {
-                Log.d("PLANNED", "Title $titleId added to favourites.")
-            }
-            .addOnFailureListener { e ->
-                Log.e("PLANNED", "Failed to add favourite", e)
-            }
+            favRef.set(data)
+                .addOnSuccessListener {
+                    Log.d("OnHold", "Title $titleId added to favourites.")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("OnHold", "Failed to add favourite", e)
+                }
+        }
+
     }
 
     fun addTitleToCompletedList(titleId: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+        viewModelScope.launch {
+            deleteTitleForAllLists(titleId)
 
-        val favRef = db.collection("users")
-            .document(uid)
-            .collection("completed")
-            .document(titleId)
+            val favRef = db.collection("users")
+                .document(uid)
+                .collection("completed")
+                .document(titleId)
 
-        val data = mapOf(
-            "addedAt" to FieldValue.serverTimestamp()
-        )
+            val data = mapOf(
+                "addedAt" to FieldValue.serverTimestamp()
+            )
 
-        favRef.set(data)
-            .addOnSuccessListener {
-                Log.d("Completed", "Title $titleId added to favourites.")
-            }
-            .addOnFailureListener { e ->
-                Log.e("Completed", "Failed to add favourite", e)
-            }
+            favRef.set(data)
+                .addOnSuccessListener {
+                    Log.d("OnHold", "Title $titleId added to favourites.")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("OnHold", "Failed to add favourite", e)
+                }
+        }
+
     }
 
     fun addTitleToOnHoldList(titleId: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+        viewModelScope.launch {
+            deleteTitleForAllLists(titleId)
 
-        val favRef = db.collection("users")
-            .document(uid)
-            .collection("onhold")
-            .document(titleId)
+            val favRef = db.collection("users")
+                .document(uid)
+                .collection("onhold")
+                .document(titleId)
 
-        val data = mapOf(
-            "addedAt" to FieldValue.serverTimestamp()
-        )
+            val data = mapOf(
+                "addedAt" to FieldValue.serverTimestamp()
+            )
 
-        favRef.set(data)
-            .addOnSuccessListener {
-                Log.d("OnHold", "Title $titleId added to favourites.")
-            }
-            .addOnFailureListener { e ->
-                Log.e("OnHold", "Failed to add favourite", e)
-            }
+            favRef.set(data)
+                .addOnSuccessListener {
+                    Log.d("OnHold", "Title $titleId added to favourites.")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("OnHold", "Failed to add favourite", e)
+                }
+        }
+
+
+
     }
 
     fun getOnHoldTitles(callback: (List<Title>) -> Unit) {
@@ -616,22 +689,25 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
-        val favRef = db.collection("users")
-            .document(uid)
-            .collection("dropped")
-            .document(titleId)
+        viewModelScope.launch {
+            deleteTitleForAllLists(titleId)
 
-        val data = mapOf(
-            "addedAt" to FieldValue.serverTimestamp()
-        )
+            val favRef = db.collection("users")
+                .document(uid)
+                .collection("dropped")
+                .document(titleId)
 
-        favRef.set(data)
-            .addOnSuccessListener {
-                Log.d("OnHold", "Title $titleId added to favourites.")
+            val data = mapOf(
+                "addedAt" to FieldValue.serverTimestamp()
+            )
+
+            try {
+                favRef.set(data).await()
+                Log.d("OnHold", "Title $titleId added to dropped.")
+            } catch (e: Exception) {
+                Log.e("OnHold", "Failed to add dropped", e)
             }
-            .addOnFailureListener { e ->
-                Log.e("OnHold", "Failed to add favourite", e)
-            }
+        }
     }
     fun getDroppedTitles(callback: (List<Title>) -> Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return

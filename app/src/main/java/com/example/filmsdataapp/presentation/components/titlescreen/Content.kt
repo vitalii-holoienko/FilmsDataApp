@@ -29,6 +29,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -68,7 +69,12 @@ fun Content(title : Title) {
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val listOfReviews by viewModel.reviewsToDisplay.observeAsState(emptyList())
     viewModel.getTitleReviews(title.id!!)
-
+    var inWhichListUserHasThisTitle by remember{ mutableStateOf("") }
+    LaunchedEffect(Unit){
+        viewModel.checkIfUserHasTitleInLists(title.id){
+            inWhichListUserHasThisTitle = it
+        }
+    }
     Column(modifier = Modifier
         .fillMaxSize()
         .background(BackGroundColor)
@@ -109,7 +115,9 @@ fun Content(title : Title) {
                         "Dropped" -> viewModel.addTitleToDroppedList(title.id)
                     }
                 },
-                modifier = Modifier.width(230.dp)
+                modifier = Modifier.width(230.dp),
+                inWhichListUserHasThisTitle
+
             )
 
         }
@@ -218,7 +226,9 @@ fun Content(title : Title) {
             val hasHalfStar = (stars - fullStars) >= 0.25 && (stars - fullStars) < 0.75
             val emptyStars = 5 - fullStars - if (hasHalfStar) 1 else 0
 
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier=Modifier.fillMaxWidth().padding(0.dp, 20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier= Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 20.dp)) {
                 repeat(fullStars) {
                     Image(
                         painter = painterResource(id = R.drawable.star_icon),
@@ -315,7 +325,9 @@ fun Content(title : Title) {
         }
         Spacer(modifier = Modifier.height(20.dp))
         listOfReviews.forEach{
-            Column(modifier = Modifier.fillMaxWidth().background(color = Color(rgb(49, 50, 50)))){
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .background(color = Color(rgb(49, 50, 50)))){
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
                     Text(
                         text = it.nickName!!,
@@ -325,7 +337,9 @@ fun Content(title : Title) {
                         color = LinksColor,
                         modifier = Modifier.padding(5.dp, 0.dp)
                     )
-                    Box(modifier = Modifier.fillMaxWidth().weight(1f))
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f))
 
                     Text(
                         text = it.upvotes.toString(),
