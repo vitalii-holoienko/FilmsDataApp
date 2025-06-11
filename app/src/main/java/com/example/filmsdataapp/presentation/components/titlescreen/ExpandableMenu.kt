@@ -40,7 +40,7 @@ fun ExpandableMenu(
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
-        // Кнопка, по которой раскрываем
+
         Row(
             modifier = Modifier
                 .height(32.dp)
