@@ -59,7 +59,7 @@ fun ExpandableMenu(
                 .fillMaxWidth()
                 .background(Color(218, 241, 255))
                 .clickable { expanded = !expanded }
-                .padding(horizontal = 8.dp),
+            ,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(

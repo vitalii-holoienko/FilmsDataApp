@@ -303,46 +303,26 @@ fun ClickableTextExample() {
         onClick = { offset ->
             annotatedText.getStringAnnotations(tag = "PLANNED", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    viewModel.getPlannedTitles {
-                        it.forEach {
-                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
-                        }
-                    }
+                    viewModel.onPlannedListClicked()
                 }
 
             annotatedText.getStringAnnotations(tag = "WATCHING", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    viewModel.getWatchingTitles {
-                        it.forEach {
-                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
-                        }
-                    }
+                    viewModel.onWatchingListClicked()
                 }
 
             annotatedText.getStringAnnotations(tag = "COMPLETED", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    viewModel.getCompletedTitles {
-                        it.forEach {
-                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
-                        }
-                    }
+                    viewModel.onCompletedListClicked()
                 }
 
             annotatedText.getStringAnnotations(tag = "ON_HOLD", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    viewModel.getOnHoldTitles {
-                        it.forEach {
-                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
-                        }
-                    }
+                    viewModel.onOnHoldListClicked()
                 }
             annotatedText.getStringAnnotations(tag = "DROPPED", start = offset, end = offset)
                 .firstOrNull()?.let {
-                    viewModel.getDroppedTitles {
-                        it.forEach {
-                            Log.d("TEKKEN", "TITLE:" + it.originalTitle)
-                        }
-                    }
+                    viewModel.onDroppedListClicked()
                 }
         }
     )

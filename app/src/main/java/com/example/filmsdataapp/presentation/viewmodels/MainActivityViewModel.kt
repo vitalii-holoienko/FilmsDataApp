@@ -7,6 +7,7 @@ import androidx.credentials.CredentialManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.Credential
@@ -143,6 +144,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     val comingSoonMovies: LiveData<List<Title>> get() = _comingSoonMovies
     val mostPopularTVShows: LiveData<List<Title>> get() = _mostPopularTVShows
 
+    private val _listOfTitlesToDisplay = mutableStateOf<List<Title>>(emptyList())
+    val listOfTitlesToDisplay: State<List<Title>> = _listOfTitlesToDisplay
 
     val news : LiveData<List<News>> get() = _news
     val currentlyTrendingMovies: LiveData<List<Title>> get() = _currentlyTrendingMovies
@@ -208,6 +211,47 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         _navigation.value = NavigationEvent.None
     }
 
+
+    fun onOnHoldListClicked(){
+        _navigation.value = NavigationEvent.ToUserListOfTitles("onhold")
+    }
+
+    fun onDroppedListClicked(){
+        _navigation.value = NavigationEvent.ToUserListOfTitles("dropped")
+    }
+
+    fun onCompletedListClicked(){
+        _navigation.value = NavigationEvent.ToUserListOfTitles("completed")
+    }
+
+    fun onWatchingListClicked(){
+        _navigation.value = NavigationEvent.ToUserListOfTitles("watching")
+    }
+
+    fun onPlannedListClicked(){
+        _navigation.value = NavigationEvent.ToUserListOfTitles("planned")
+    }
+
+
+    //listOf("onhold", "dropped", "completed", "watching", "planned")
+    fun getListOfTitlesByName(name: String) {
+        when (name) {
+            "onhold" -> getOnHoldTitles { _listOfTitlesToDisplay.value = it }
+            "dropped" -> getDroppedTitles { _listOfTitlesToDisplay.value = it }
+            "completed" -> getCompletedTitles { _listOfTitlesToDisplay.value = it }
+            "watching" -> getWatchingTitles { _listOfTitlesToDisplay.value = it }
+            "planned" -> getPlannedTitles { _listOfTitlesToDisplay.value = it }
+        }
+    }
+
+
+
+
+
+
+
+
+
     fun onNewsClicked(news: News) {
         _navigation.value = NavigationEvent.ToNews(news)
     }
@@ -242,6 +286,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
     fun onProfileClicked(){
         _navigation.value = NavigationEvent.ToProfile
+        _listOfTitlesToDisplay.value = emptyList()
     }
 
     fun onSearchTitleClicked(){

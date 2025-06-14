@@ -372,7 +372,8 @@ fun Content(title : Title) {
                         Modifier
                             .size(35.dp)
                             .scale(1f)
-                            .align(Alignment.CenterVertically)
+                            .align(Alignment.CenterVertically),
+
 
 
                     )

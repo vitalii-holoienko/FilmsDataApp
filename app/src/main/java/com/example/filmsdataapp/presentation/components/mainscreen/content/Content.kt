@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -74,14 +75,16 @@ fun Content(
                         .align(Alignment.CenterStart)
                         .padding(5.dp, 0.dp)
                 )
+
                 Image(
                     painter = painterResource(id = R.drawable.triangle_go_to_icon),
+                    colorFilter = ColorFilter.tint(Color.White),
                     contentDescription = "",
-                    Modifier
+                    modifier = Modifier
                         .size(25.dp)
                         .align(Alignment.CenterEnd)
                         .scale(1f)
-                        .padding(5.dp, 0.dp)
+                        .padding(5.dp, 0.dp),
 
                 )
             }

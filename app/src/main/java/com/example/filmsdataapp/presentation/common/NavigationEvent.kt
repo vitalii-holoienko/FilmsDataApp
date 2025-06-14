@@ -31,4 +31,6 @@ sealed class NavigationEvent {
     object ToCreateProfile : NavigationEvent()
 
     object None : NavigationEvent()
+
+    data class ToUserListOfTitles(val list:String) : NavigationEvent()
 }

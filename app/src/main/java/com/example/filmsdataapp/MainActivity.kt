@@ -53,6 +53,7 @@ import com.example.filmsdataapp.presentation.screens.SearchedTitlesScreen
 import com.example.filmsdataapp.presentation.screens.SignInWithPhoneNumberScreen
 import com.example.filmsdataapp.presentation.screens.TVShowsScreen
 import com.example.filmsdataapp.presentation.screens.TitleScreen
+import com.example.filmsdataapp.presentation.screens.UserListOfTitlesScreen
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModelFactory
 import com.example.filmsdataapp.ui.theme.FilmsDataAppTheme
@@ -252,6 +253,13 @@ class MainActivity : ComponentActivity() {
                         composable(route = "profile_screen"){
                             ProfileScreen()
                         }
+                        composable(
+                            route = "user_list_of_titles/{list}",
+                            arguments = listOf(navArgument("list") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val list = backStackEntry.arguments?.getString("list") ?: ""
+                            UserListOfTitlesScreen(list = list)
+                        }
                     }
                 }
 
@@ -291,8 +299,10 @@ class MainActivity : ComponentActivity() {
 
 
 
+
+
                 LaunchedEffect(navigationEvent) {
-                    when (navigationEvent) {
+                    when (val event = navigationEvent) {
                         is NavigationEvent.ToProfile -> {
                             navController.navigate("profile_screen")
                         }
@@ -334,6 +344,9 @@ class MainActivity : ComponentActivity() {
                         }
                         is NavigationEvent.ToCreateProfile -> {
                             navController.navigate("create_profile_screen")
+                        }
+                        is NavigationEvent.ToUserListOfTitles -> {
+                            navController.navigate("user_list_of_titles/${event.list}")
                         }
 
                         NavigationEvent.None -> {}
