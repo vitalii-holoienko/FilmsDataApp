@@ -41,8 +41,9 @@ class TitleRepositoryImpl : TitleRepository {
 
         val json = Json { ignoreUnknownKeys = true }
         val parsed = json.decodeFromString<FullResponse>(jsonStr)
+        val reviews = parsed.data?.title?.reviews?.edges?.map { it.node.toReview() } ?: emptyList()
 
-        return@withContext parsed.data.title.reviews.edges.map { it.node.toReview() }
+        return@withContext reviews
     }
 
     override suspend fun getTitleWithAppliedFilters(filterStatus: FilterStatus): String {
@@ -108,8 +109,8 @@ class TitleRepositoryImpl : TitleRepository {
 
         if (jsonString.isBlank()) return@withContext emptyList()
 
-        val response = json.decodeFromString<ApiResponse>(jsonString)
+        val response = json.decodeFromString<List<Title>>(jsonString)
 
-        return@withContext response.results
+        return@withContext response
     }
 }

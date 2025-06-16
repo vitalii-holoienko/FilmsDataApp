@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.data.network
 
+import android.util.Log
 import com.example.filmsdataapp.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -27,6 +28,7 @@ object NetworkHelper {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     println("Network error: ${response.code}")
+                    Log.d("TEKKEN",response.code.toString() )
                     return null
                 }
                 response.body?.string()

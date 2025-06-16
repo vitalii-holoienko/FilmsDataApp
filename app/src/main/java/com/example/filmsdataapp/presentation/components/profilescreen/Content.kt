@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.components.profilescreen
 
+import android.graphics.Color.rgb
 import android.net.Uri
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,10 +61,23 @@ import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
 import com.google.android.play.integrity.internal.t
 
+
 @Composable
 fun Content(){
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
 
+    var sizeOfPlannedList by remember{mutableStateOf(0)}
+    var sizeOfWatchingList by remember{mutableStateOf(0)}
+    var sizeOfCompletedList by remember{mutableStateOf(0)}
+    var sizeOfOnHoldList by remember{mutableStateOf(0)}
+    var sizeOfDroppedList by remember{mutableStateOf(0)}
+    LaunchedEffect(Unit){
+        viewModel.getPlannedTitles { sizeOfPlannedList = it.size }
+        viewModel.getWatchingTitles { sizeOfWatchingList = it.size }
+        viewModel.getCompletedTitles { sizeOfCompletedList = it.size }
+        viewModel.getOnHoldTitles { sizeOfOnHoldList = it.size }
+        viewModel.getDroppedTitles { sizeOfDroppedList = it.size }
+    }
 
     Spacer(modifier = Modifier.height(30.dp))
     Box(modifier = Modifier
@@ -160,10 +175,60 @@ fun Content(){
                     modifier = Modifier.padding(0.dp)
                 )
                 Spacer(modifier = Modifier.height(5.dp))
-                Spacer(modifier = Modifier
-                    .height(15.dp)
-                    .background(Color(170, 170, 170))
-                    .fillMaxWidth())
+                val total = sizeOfPlannedList + sizeOfCompletedList + sizeOfDroppedList + sizeOfOnHoldList + sizeOfWatchingList
+                val totalFloat = total.toFloat().takeIf { it > 0f } ?: 1f
+                Row(
+                    modifier = Modifier
+                        .height(15.dp)
+                        .fillMaxWidth()
+                ) {
+                    if (sizeOfCompletedList > 0) {
+                        Box(
+                            modifier = Modifier
+                                .height(15.dp)
+                                .weight(sizeOfCompletedList / totalFloat)
+                                .background(color = Color(70, 130, 180)),
+                            contentAlignment = Alignment.Center,
+                        ){
+                            Text(text = sizeOfCompletedList.toString(), color = TextColor, modifier = Modifier.padding(0.dp,0.dp,0.dp,2.dp), fontSize = 12.sp)
+                        }
+                    }
+
+                    val plannedGroupSize = sizeOfOnHoldList + sizeOfWatchingList + sizeOfPlannedList
+                    if (plannedGroupSize > 0) {
+                        Box(
+                            modifier = Modifier
+                                .height(15.dp)
+                                .weight(plannedGroupSize / totalFloat)
+                                .background(color = Color(121, 169, 207)),
+                            contentAlignment = Alignment.Center,
+
+                        ){
+                            Text(text = plannedGroupSize.toString(), color = TextColor, modifier = Modifier.padding(0.dp,0.dp,0.dp,2.dp), fontSize = 12.sp)
+                        }
+                    }
+
+                    if (sizeOfDroppedList > 0) {
+                        Box(
+                            modifier = Modifier
+                                .height(15.dp)
+                                .weight(sizeOfDroppedList / totalFloat)
+                                .background(color = Color(157, 162, 168)),
+                            contentAlignment = Alignment.Center,
+                        ){
+                            Text(text = sizeOfDroppedList.toString(), color = TextColor, modifier = Modifier.padding(0.dp,0.dp,0.dp,2.dp), fontSize = 12.sp)
+                        }
+                    }
+
+                    if (total == 0) {
+                        Box(
+                            modifier = Modifier
+                                .height(15.dp)
+                                .fillMaxWidth()
+                                .background(color = Color.Gray)
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(5.dp))
                 ClickableTextExample()
@@ -253,12 +318,26 @@ fun TimeProgressBar(
 @Composable
 fun ClickableTextExample() {
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+
+    var sizeOfPlannedList by remember{mutableStateOf(0)}
+    var sizeOfWatchingList by remember{mutableStateOf(0)}
+    var sizeOfCompletedList by remember{mutableStateOf(0)}
+    var sizeOfOnHoldList by remember{mutableStateOf(0)}
+    var sizeOfDroppedList by remember{mutableStateOf(0)}
+    LaunchedEffect(Unit){
+        viewModel.getPlannedTitles { sizeOfPlannedList = it.size }
+        viewModel.getWatchingTitles { sizeOfWatchingList = it.size }
+        viewModel.getCompletedTitles { sizeOfCompletedList = it.size }
+        viewModel.getOnHoldTitles { sizeOfOnHoldList = it.size }
+        viewModel.getDroppedTitles { sizeOfDroppedList = it.size }
+    }
+
     val annotatedText = buildAnnotatedString {
 
 
         pushStringAnnotation(tag = "PLANNED", annotation = "planned_clicked")
         withStyle(style = SpanStyle(color = LinksColor)) {
-            append("Planned (1)")
+            append("Planned ($sizeOfPlannedList)")
         }
         pop()
 
@@ -266,14 +345,14 @@ fun ClickableTextExample() {
 
         pushStringAnnotation(tag = "WATCHING", annotation = "watching_clicked")
         withStyle(style = SpanStyle(color = LinksColor)) {
-            append("Watching (2)")
+            append("Watching ($sizeOfWatchingList)")
         }
         pop()
         append(" / ")
 
         pushStringAnnotation(tag = "COMPLETED", annotation = "completed_clicked")
         withStyle(style = SpanStyle(color = LinksColor)) {
-            append("Completed (2)")
+            append("Completed ($sizeOfCompletedList)")
         }
         pop()
 
@@ -281,7 +360,7 @@ fun ClickableTextExample() {
 
         pushStringAnnotation(tag = "ON_HOLD", annotation = "on_hold_clicked")
         withStyle(style = SpanStyle(color = LinksColor)) {
-            append("On Hold (1)")
+            append("On Hold ($sizeOfOnHoldList)")
         }
         pop()
 
@@ -289,7 +368,7 @@ fun ClickableTextExample() {
 
         pushStringAnnotation(tag = "DROPPED", annotation = "dropped_clicked")
         withStyle(style = SpanStyle(color = LinksColor)) {
-            append("Dropped (4)")
+            append("Dropped ($sizeOfDroppedList)")
         }
     }
 

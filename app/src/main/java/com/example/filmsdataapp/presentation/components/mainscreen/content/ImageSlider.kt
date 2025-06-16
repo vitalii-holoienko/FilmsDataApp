@@ -40,7 +40,10 @@ fun ImageSlider(movies : List<Title>) {
         items(8) { index ->
             if(movies.isNotEmpty()){
                 val movie = movies[index]
-                ImageItem(imageWidth, movie)
+                if(movie.primaryImage!=null){
+                    ImageItem(imageWidth, movie)
+                }
+
             }else{
                 ImageItem(imageWidth, null)
             }

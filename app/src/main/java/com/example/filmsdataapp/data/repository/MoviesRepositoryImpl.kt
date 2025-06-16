@@ -73,10 +73,10 @@ class MoviesRepositoryImpl : MoviesRepository {
 
     override suspend fun getTitleById(id: String): Title = withContext(Dispatchers.IO) {
         val jsonString = makeRequest("https://imdb236.p.rapidapi.com/api/imdb/$id", 1)
-            ?: throw IllegalStateException("Empty response from getTitleById for id = $id")
+        Log.d("TEKKEN", jsonString.toString())
 
         try {
-            json.decodeFromString<Title>(jsonString)
+            json.decodeFromString(jsonString!!)
         } catch (e: Exception) {
             throw IllegalStateException("Failed to parse JSON for id = $id.\nRaw response: $jsonString", e)
         }

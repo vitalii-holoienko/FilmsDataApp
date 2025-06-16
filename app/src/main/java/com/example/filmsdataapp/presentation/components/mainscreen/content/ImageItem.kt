@@ -45,7 +45,7 @@ import com.google.accompanist.placeholder.shimmer
 @Composable
 fun ImageItem(width: Dp, movie: Title?) {
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
-    if(movie != null){
+    if(movie?.primaryImage != null){
         val painter = rememberAsyncImagePainter(movie.primaryImage)
         val imageState = painter.state
 
@@ -54,11 +54,10 @@ fun ImageItem(width: Dp, movie: Title?) {
                 modifier = Modifier
                     .width(width)
                     .height(170.dp)
-                    .clickable(enabled = movie.primaryImage != null) {
+                    .clickable() {
                         viewModel.onTitleClicked(movie)
                     }
             ) {
-                if (movie.primaryImage != null) {
                     Image(
                         painter = painter,
                         contentDescription = null,
@@ -71,17 +70,7 @@ fun ImageItem(width: Dp, movie: Title?) {
                             ),
                         contentScale = ContentScale.Crop
                     )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .placeholder(
-                                visible = true,
-                                highlight = PlaceholderHighlight.shimmer(highlightColor = Color.White),
-                                color = Color.LightGray
-                            )
-                    )
-                }
+
             }
 
             Text(

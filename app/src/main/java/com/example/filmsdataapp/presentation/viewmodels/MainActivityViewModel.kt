@@ -594,112 +594,136 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             }
     }
 
-    fun addTitleToWatchingList(titleId: String) {
+    fun addTitleToWatchingList(title: Title) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+
+        val titleId = title.id ?: return
+
         viewModelScope.launch {
+
             deleteTitleForAllLists(titleId)
 
-            val favRef = db.collection("users")
+            val watchingRef = db.collection("users")
                 .document(uid)
                 .collection("watching")
                 .document(titleId)
 
-            val data = mapOf(
-                "addedAt" to FieldValue.serverTimestamp()
-            )
 
-            favRef.set(data)
+            watchingRef.set(title)
                 .addOnSuccessListener {
-                    Log.d("OnHold", "Title $titleId added to favourites.")
+
+                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
+                        .addOnSuccessListener {
+                            Log.d("WATCHING", "Title $titleId added to watching list.")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("WATCHING", "Failed to update addedAt field", e)
+                        }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("OnHold", "Failed to add favourite", e)
+                    Log.e("WATCHING", "Failed to add title to watching list", e)
                 }
         }
-
-
-
     }
 
-    fun addTitleToPlannedList(titleId: String) {
+    fun addTitleToPlannedList(title: Title) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+
+        val titleId = title.id ?: return
+
         viewModelScope.launch {
+
             deleteTitleForAllLists(titleId)
 
-            val favRef = db.collection("users")
+            val watchingRef = db.collection("users")
                 .document(uid)
                 .collection("planned")
                 .document(titleId)
 
-            val data = mapOf(
-                "addedAt" to FieldValue.serverTimestamp()
-            )
 
-            favRef.set(data)
+            watchingRef.set(title)
                 .addOnSuccessListener {
-                    Log.d("OnHold", "Title $titleId added to favourites.")
+
+                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
+                        .addOnSuccessListener {
+                            Log.d("planned", "Title $titleId added to watching list.")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("planned", "Failed to update addedAt field", e)
+                        }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("OnHold", "Failed to add favourite", e)
+                    Log.e("planned", "Failed to add title to watching list", e)
                 }
         }
-
     }
 
-    fun addTitleToCompletedList(titleId: String) {
+    fun addTitleToCompletedList(title: Title) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+
+        val titleId = title.id ?: return
+
         viewModelScope.launch {
+
             deleteTitleForAllLists(titleId)
 
-            val favRef = db.collection("users")
+            val watchingRef = db.collection("users")
                 .document(uid)
                 .collection("completed")
                 .document(titleId)
 
-            val data = mapOf(
-                "addedAt" to FieldValue.serverTimestamp()
-            )
 
-            favRef.set(data)
+            watchingRef.set(title)
                 .addOnSuccessListener {
-                    Log.d("OnHold", "Title $titleId added to favourites.")
+
+                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
+                        .addOnSuccessListener {
+                            Log.d("planned", "Title $titleId added to watching list.")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("planned", "Failed to update addedAt field", e)
+                        }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("OnHold", "Failed to add favourite", e)
+                    Log.e("planned", "Failed to add title to watching list", e)
                 }
         }
-
     }
 
-    fun addTitleToOnHoldList(titleId: String) {
+    fun addTitleToOnHoldList(title: Title) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+
+        val titleId = title.id ?: return
+
         viewModelScope.launch {
+
             deleteTitleForAllLists(titleId)
 
-            val favRef = db.collection("users")
+            val watchingRef = db.collection("users")
                 .document(uid)
                 .collection("onhold")
                 .document(titleId)
 
-            val data = mapOf(
-                "addedAt" to FieldValue.serverTimestamp()
-            )
 
-            favRef.set(data)
+            watchingRef.set(title)
                 .addOnSuccessListener {
-                    Log.d("OnHold", "Title $titleId added to favourites.")
+
+                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
+                        .addOnSuccessListener {
+                            Log.d("planned", "Title $titleId added to watching list.")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("planned", "Failed to update addedAt field", e)
+                        }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("OnHold", "Failed to add favourite", e)
+                    Log.e("planned", "Failed to add title to watching list", e)
                 }
         }
-
-
-
     }
 
     fun getOnHoldTitles(callback: (List<Title>) -> Unit) {
@@ -711,47 +735,53 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             .collection("onhold")
             .get()
             .addOnSuccessListener { result ->
-                val ids = result.documents.map { it.id }
-                viewModelScope.launch {
-                    val r = mutableListOf<Title>()
-                    ids.forEach {
-                        val result = GetTitleById(moviesRepository).invoke(it)
-                        r.add(result)
+                val titles = result.documents.mapNotNull { doc ->
+                    try {
+                        doc.toObject(Title::class.java)
+                    } catch (e: Exception) {
+                        Log.e("WATCHING", "Failed to parse title from Firestore", e)
+                        null
                     }
-                    callback(r)
                 }
-
-
+                callback(titles)
             }
             .addOnFailureListener { e ->
-                Log.e("FAVOURITES", "Failed to get favourites", e)
+                Log.e("WATCHING", "Failed to get watching titles", e)
                 callback(emptyList())
             }
     }
 
 
-    fun addTitleToDroppedList(titleId: String) {
+    fun addTitleToDroppedList(title: Title) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
+        val titleId = title.id ?: return
+
         viewModelScope.launch {
+
             deleteTitleForAllLists(titleId)
 
-            val favRef = db.collection("users")
+            val watchingRef = db.collection("users")
                 .document(uid)
                 .collection("dropped")
                 .document(titleId)
 
-            val data = mapOf(
-                "addedAt" to FieldValue.serverTimestamp()
-            )
 
-            try {
-                favRef.set(data).await()
-                Log.d("OnHold", "Title $titleId added to dropped.")
-            } catch (e: Exception) {
-                Log.e("OnHold", "Failed to add dropped", e)
-            }
+            watchingRef.set(title)
+                .addOnSuccessListener {
+
+                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
+                        .addOnSuccessListener {
+                            Log.d("dropped", "Title $titleId added to dropped list.")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("dropped", "Failed to update addedAt field", e)
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("dropped", "Failed to add title to watching list", e)
+                }
         }
     }
     fun getDroppedTitles(callback: (List<Title>) -> Unit) {
@@ -763,20 +793,18 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             .collection("dropped")
             .get()
             .addOnSuccessListener { result ->
-                val ids = result.documents.map { it.id }
-                viewModelScope.launch {
-                    val r = mutableListOf<Title>()
-                    ids.forEach {
-                        val result = GetTitleById(moviesRepository).invoke(it)
-                        r.add(result)
+                val titles = result.documents.mapNotNull { doc ->
+                    try {
+                        doc.toObject(Title::class.java)
+                    } catch (e: Exception) {
+                        Log.e("WATCHING", "Failed to parse title from Firestore", e)
+                        null
                     }
-                    callback(r)
                 }
-
-
+                callback(titles)
             }
             .addOnFailureListener { e ->
-                Log.e("FAVOURITES", "Failed to get favourites", e)
+                Log.e("WATCHING", "Failed to get watching titles", e)
                 callback(emptyList())
             }
     }
@@ -790,20 +818,18 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             .collection("completed")
             .get()
             .addOnSuccessListener { result ->
-                val ids = result.documents.map { it.id }
-                viewModelScope.launch {
-                    val r = mutableListOf<Title>()
-                    ids.forEach {
-                        val result = GetTitleById(moviesRepository).invoke(it)
-                        r.add(result)
+                val titles = result.documents.mapNotNull { doc ->
+                    try {
+                        doc.toObject(Title::class.java)
+                    } catch (e: Exception) {
+                        Log.e("WATCHING", "Failed to parse title from Firestore", e)
+                        null
                     }
-                    callback(r)
                 }
-
-
+                callback(titles)
             }
             .addOnFailureListener { e ->
-                Log.e("FAVOURITES", "Failed to get favourites", e)
+                Log.e("WATCHING", "Failed to get watching titles", e)
                 callback(emptyList())
             }
     }
@@ -819,20 +845,18 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             .collection("watching")
             .get()
             .addOnSuccessListener { result ->
-                val ids = result.documents.map { it.id }
-                viewModelScope.launch {
-                    val r = mutableListOf<Title>()
-                    ids.forEach {
-                        val result = GetTitleById(moviesRepository).invoke(it)
-                        r.add(result)
+                val titles = result.documents.mapNotNull { doc ->
+                    try {
+                        doc.toObject(Title::class.java)
+                    } catch (e: Exception) {
+                        Log.e("WATCHING", "Failed to parse title from Firestore", e)
+                        null
                     }
-                    callback(r)
                 }
-
-
+                callback(titles)
             }
             .addOnFailureListener { e ->
-                Log.e("FAVOURITES", "Failed to get favourites", e)
+                Log.e("WATCHING", "Failed to get watching titles", e)
                 callback(emptyList())
             }
     }
@@ -846,20 +870,18 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             .collection("planned")
             .get()
             .addOnSuccessListener { result ->
-                val ids = result.documents.map { it.id }
-                viewModelScope.launch {
-                    val r = mutableListOf<Title>()
-                    ids.forEach {
-                        val result = GetTitleById(moviesRepository).invoke(it)
-                        r.add(result)
+                val titles = result.documents.mapNotNull { doc ->
+                    try {
+                        doc.toObject(Title::class.java)
+                    } catch (e: Exception) {
+                        Log.e("WATCHING", "Failed to parse title from Firestore", e)
+                        null
                     }
-                    callback(r)
                 }
-
-
+                callback(titles)
             }
             .addOnFailureListener { e ->
-                Log.e("FAVOURITES", "Failed to get favourites", e)
+                Log.e("WATCHING", "Failed to get watching titles", e)
                 callback(emptyList())
             }
     }

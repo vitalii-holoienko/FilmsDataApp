@@ -108,11 +108,11 @@ fun Content(title : Title) {
                 menuItems = listOf("Planned", "Watching", "Completed", "On hold", "Dropped"),
                 onItemSelected = { option ->
                     when(option) {
-                        "Planned" -> viewModel.addTitleToPlannedList(title.id)
-                        "Watching" -> viewModel.addTitleToWatchingList(title.id)
-                        "Completed" -> viewModel.addTitleToCompletedList(title.id)
-                        "On hold" -> viewModel.addTitleToOnHoldList(title.id)
-                        "Dropped" -> viewModel.addTitleToDroppedList(title.id)
+                        "Planned" -> viewModel.addTitleToPlannedList(title)
+                        "Watching" -> viewModel.addTitleToWatchingList(title)
+                        "Completed" -> viewModel.addTitleToCompletedList(title)
+                        "On hold" -> viewModel.addTitleToOnHoldList(title)
+                        "Dropped" -> viewModel.addTitleToDroppedList(title)
                     }
                 },
                 modifier = Modifier.width(230.dp),

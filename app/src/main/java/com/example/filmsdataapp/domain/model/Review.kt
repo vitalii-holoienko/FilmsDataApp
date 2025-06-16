@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FullResponse(
-    val data: TitleWrapper
+    val data: TitleWrapper? = null
 )
 
 @Serializable

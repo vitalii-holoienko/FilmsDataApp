@@ -72,7 +72,9 @@ fun Content(list:String){
         .verticalScroll(rememberScrollState())) {
         Row(modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)){
+            .height(50.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ){
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
                 viewModel.onProfileClicked()
             }, verticalArrangement = Arrangement.Center){
@@ -100,7 +102,7 @@ fun Content(list:String){
                 color = TextColor,
                 fontSize = 40.sp,
                 modifier = Modifier
-                    .padding(5.dp, 0.dp)
+                    .padding(5.dp, 0.dp).align(Alignment.CenterVertically)
             )
 
         }
