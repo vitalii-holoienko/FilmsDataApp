@@ -6,7 +6,8 @@ import okhttp3.Request
 
 object NetworkHelper {
     private val client = OkHttpClient()
-    fun makeRequest(url: String, hostFlag : Int): String {
+
+    fun makeRequest(url: String, hostFlag: Int): String? {
         val host = when (hostFlag) {
             1 -> BuildConfig.RAPID_API_HOST_ONE
             2 -> BuildConfig.RAPID_API_HOST_TWO
@@ -14,6 +15,7 @@ object NetworkHelper {
             4 -> BuildConfig.RAPID_API_HOST_FOUR
             else -> throw IllegalArgumentException("Invalid hostFlag: $hostFlag")
         }
+
         return try {
             val request = Request.Builder()
                 .url(url)
@@ -23,13 +25,15 @@ object NetworkHelper {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                val bodyStr = response.body?.string() ?: ""
-                if (!response.isSuccessful) return@use ""
-                return@use bodyStr
+                if (!response.isSuccessful) {
+                    println("Network error: ${response.code}")
+                    return null
+                }
+                response.body?.string()
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            return ""
+            return null
         }
     }
 }

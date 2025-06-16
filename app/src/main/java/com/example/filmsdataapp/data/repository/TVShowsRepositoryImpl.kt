@@ -14,9 +14,11 @@ class TVShowsRepositoryImpl : TVShowsRepository{
         val json = Json {
             ignoreUnknownKeys = true
         }
-        val jsonString =
-            NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/api/imdb/top250-tv", 1)
-        json.decodeFromString(jsonString)
+        val jsonString = NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/api/imdb/top250-tv", 1)
+            ?: return@withContext emptyList()
 
+        if (jsonString.isBlank()) return@withContext emptyList()
+
+        json.decodeFromString(jsonString)
     }
 }

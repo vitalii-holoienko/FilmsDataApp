@@ -19,33 +19,32 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 class ActorsRepositoryImpl : ActorsRepository {
+
     override suspend fun getActors(): List<Actor> = withContext(Dispatchers.IO) {
-        val json = Json {
-            ignoreUnknownKeys = true
-        }
+        val json = Json { ignoreUnknownKeys = true }
+
         val jsonString = NetworkHelper.makeRequest(
-            "https://imdb232.p.rapidapi.com/api/actors/get-most-popular?limit=100",
-            2
-        )
+            "https://imdb232.p.rapidapi.com/api/actors/get-most-popular?limit=100", 2
+        ) ?: throw IllegalStateException("Empty response when getting actors")
 
         val response = json.decodeFromString<ActorsResponse>(jsonString)
         return@withContext response.data.topMeterNames.edges.map { it.node }
     }
+
     override suspend fun getActorOverviewById(id: String): ActorInfo = withContext(Dispatchers.IO) {
-        val json = Json {
-            ignoreUnknownKeys = true // Игнорируем лишние поля
-        }
+        val json = Json { ignoreUnknownKeys = true }
 
         val jsonString = NetworkHelper.makeRequest(
-            "https://imdb232.p.rapidapi.com/api/actors/get-overview?limit=25&nm=${id}", 2
-        )
+            "https://imdb232.p.rapidapi.com/api/actors/get-overview?limit=25&nm=$id", 2
+        ) ?: throw IllegalStateException("Empty response when getting actor overview")
 
         val response = json.decodeFromString<ActorDetailResponse>(jsonString)
-
-        return@withContext response.data.name // Это и есть ActorInfo
+        return@withContext response.data.name
     }
 
-    override suspend fun getActorImagesById(id:String): String = withContext(Dispatchers.IO) {
-        NetworkHelper.makeRequest("https://imdb232.p.rapidapi.com/api/actors/get-images?nm=${id}&limit=25", 2)
+    override suspend fun getActorImagesById(id: String): String = withContext(Dispatchers.IO) {
+        NetworkHelper.makeRequest(
+            "https://imdb232.p.rapidapi.com/api/actors/get-images?nm=$id&limit=25", 2
+        ) ?: ""
     }
 }

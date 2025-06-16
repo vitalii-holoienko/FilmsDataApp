@@ -31,11 +31,13 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 //}
 
 class TitleRepositoryImpl : TitleRepository {
-    override suspend fun getReviewsById(id: String): List<Review> = withContext(Dispatchers.IO){
+    override suspend fun getReviewsById(id: String): List<Review> = withContext(Dispatchers.IO) {
         val jsonStr = NetworkHelper.makeRequest(
             "https://imdb232.p.rapidapi.com/api/title/get-user-reviews?order=DESC&spoiler=EXCLUDE&tt=${id}&sortBy=HELPFULNESS_SCORE",
             2
-        )
+        ) ?: return@withContext emptyList()
+
+        if (jsonStr.isBlank()) return@withContext emptyList()
 
         val json = Json { ignoreUnknownKeys = true }
         val parsed = json.decodeFromString<FullResponse>(jsonStr)
@@ -43,39 +45,43 @@ class TitleRepositoryImpl : TitleRepository {
         return@withContext parsed.data.title.reviews.edges.map { it.node.toReview() }
     }
 
-    override suspend fun getTitleWithAppliedFilters(
-        filterStatus: FilterStatus
-    ): String = withContext(Dispatchers.IO){
-        var url = "https://imdb236.p.rapidapi.com/api//imdb/search?rows=100&sortField=id"
-
-        if(filterStatus.genre!=null){
-            val selectedGenres = filterStatus.genre?.map { index -> filterStatus.genres[index] } ?: emptyList()
-
-            if (selectedGenres.isNotEmpty()) {
-                val genresJsonArray = selectedGenres.joinToString(
-                    separator = ",",
-                    prefix = "[\"",
-                    postfix = "\"]"
-                ) { it!! }
-
-                url = url.toHttpUrl().newBuilder()
-                    .addQueryParameter("genres", genresJsonArray)
-                    .toString()
-            }
-        }
-
-        if(filterStatus.averageRationFrom!=null){
-            url = url.toHttpUrl().newBuilder().addQueryParameter("averageRatingFrom", filterStatus.averageRationFrom.toString()).toString()
-        }
-
-        if(filterStatus.dateOfReleaseFrom != null){
-            url = url.toHttpUrl().newBuilder().addQueryParameter("startYearFrom", filterStatus.dateOfReleaseFrom.toString()).toString()
-        }
-        if(filterStatus.dateOfReleaseTo != null){
-            url = url.toHttpUrl().newBuilder().addQueryParameter("startYearTo", filterStatus.dateOfReleaseTo.toString()).toString()
-        }
-        NetworkHelper.makeRequest(url,1)
+    override suspend fun getTitleWithAppliedFilters(filterStatus: FilterStatus): String {
+        TODO("Not yet implemented")
     }
+
+//    override suspend fun getTitleWithAppliedFilters(
+//        filterStatus: FilterStatus
+//    ): String = withContext(Dispatchers.IO){
+//        var url = "https://imdb236.p.rapidapi.com/api//imdb/search?rows=100&sortField=id"
+//
+//        if(filterStatus.genre!=null){
+//            val selectedGenres = filterStatus.genre?.map { index -> filterStatus.genres[index] } ?: emptyList()
+//
+//            if (selectedGenres.isNotEmpty()) {
+//                val genresJsonArray = selectedGenres.joinToString(
+//                    separator = ",",
+//                    prefix = "[\"",
+//                    postfix = "\"]"
+//                ) { it!! }
+//
+//                url = url.toHttpUrl().newBuilder()
+//                    .addQueryParameter("genres", genresJsonArray)
+//                    .toString()
+//            }
+//        }
+//
+//        if(filterStatus.averageRationFrom!=null){
+//            url = url.toHttpUrl().newBuilder().addQueryParameter("averageRatingFrom", filterStatus.averageRationFrom.toString()).toString()
+//        }
+//
+//        if(filterStatus.dateOfReleaseFrom != null){
+//            url = url.toHttpUrl().newBuilder().addQueryParameter("startYearFrom", filterStatus.dateOfReleaseFrom.toString()).toString()
+//        }
+//        if(filterStatus.dateOfReleaseTo != null){
+//            url = url.toHttpUrl().newBuilder().addQueryParameter("startYearTo", filterStatus.dateOfReleaseTo.toString()).toString()
+//        }
+//        NetworkHelper.makeRequest(url,1)
+//    }
 
     override suspend fun getTitlesReleasedInCertainYear(year: Int): List<Title> = withContext(Dispatchers.IO) {
         val json = Json {
@@ -86,7 +92,7 @@ class TitleRepositoryImpl : TitleRepository {
             "https://imdb236.p.rapidapi.com/api/imdb/search?rows=100&startYearFrom=$year&sortOrder=ASC&sortField=id", 1
         )
 
-        if (jsonString.isBlank()) return@withContext emptyList()
+        if (jsonString.isNullOrBlank()) return@withContext emptyList()
 
         val response = json.decodeFromString<ApiResponse>(jsonString)
         return@withContext response.results
@@ -94,23 +100,16 @@ class TitleRepositoryImpl : TitleRepository {
 
 
     override suspend fun searchTitle(query: String): List<Title> = withContext(Dispatchers.IO) {
-        val json = Json {
-            ignoreUnknownKeys = true
-        }
-        var jsonString = ""
+        val json = Json { ignoreUnknownKeys = true }
 
-            jsonString =
-                NetworkHelper.makeRequest("https://imdb236.p.rapidapi.com/api/imdb/autocomplete?query=${query}", 1)
+        val jsonString = NetworkHelper.makeRequest(
+            "https://imdb236.p.rapidapi.com/api/imdb/autocomplete?query=${query}", 1
+        ) ?: return@withContext emptyList()
 
-        if (jsonString.isBlank()) {
-            return@withContext emptyList()
-        }
+        if (jsonString.isBlank()) return@withContext emptyList()
 
+        val response = json.decodeFromString<ApiResponse>(jsonString)
 
-
-        json.decodeFromString(jsonString)
-
+        return@withContext response.results
     }
-
-
 }

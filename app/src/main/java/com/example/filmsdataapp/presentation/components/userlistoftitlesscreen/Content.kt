@@ -17,8 +17,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,12 +35,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.TextUnitType.Companion.Sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +57,7 @@ import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(list:String){
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
@@ -90,31 +104,43 @@ fun Content(list:String){
             )
 
         }
-        Spacer(modifier = Modifier.height(60.dp))
-
-
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(35.dp)
-            .background(color = PrimaryColor)
-            .clickable { viewModel.onCurrentlyTrendingTitlesClicked() }
-        ){
-            Text(
-                text = "List of titles",
-                color = TextColor,
-                fontSize = 20.sp,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(5.dp, 0.dp)
-            )
-        }
-
+        
         Spacer(modifier = Modifier.height(15.dp))
 
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp)
-            .background(color = Color.White))
+        var filterText by remember { mutableStateOf("") }
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusRequester = remember { FocusRequester() }
+        BasicTextField(
+            value = filterText,
+            onValueChange = { filterText = it },
+            cursorBrush = SolidColor(TextColor),
+            modifier = Modifier
+                .background(PrimaryColor)
+                .focusRequester(focusRequester)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            textStyle = TextStyle(
+                color = TextColor,
+                fontSize = 16.sp
+            ),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                }
+            ),
+            decorationBox = { innerTextField ->
+                if (filterText.isEmpty()) {
+                    Text(
+                        text = "Search title",
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+                innerTextField()
+            }
+        )
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -141,8 +167,14 @@ fun Content(list:String){
             viewModel.getListOfTitlesByName(list)
         }
 
+
         Column {
-            titles.forEachIndexed { index, title ->
+
+            val filteredTitles = titles.filter {
+                it.primaryTitle!!.startsWith(filterText, ignoreCase = true)
+            }
+
+            filteredTitles.forEachIndexed { index, title ->
                 Row(modifier = Modifier.padding(5.dp)) {
                     Text(text = "${index + 1}", color = TextColor, fontSize = 15.sp)
                     Spacer(modifier = Modifier.width(10.dp))
@@ -152,10 +184,5 @@ fun Content(list:String){
                 }
             }
         }
-
-
-
     }
-
-
 }
