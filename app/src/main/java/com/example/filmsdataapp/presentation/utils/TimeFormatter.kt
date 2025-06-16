@@ -13,4 +13,19 @@ object TimeFormatter {
             .filter { it.isNotEmpty() }
             .joinToString(", ")
     }
+
+    fun formatHoursToReadableTime(hours: Int): String {
+        val months = hours / (24 * 30)
+        val weeks = (hours % (24 * 30)) / (24 * 7)
+        val days = (hours % (24 * 7)) / 24
+        val remainingHours = hours % 24
+
+        val parts = mutableListOf<String>()
+        if (months > 0) parts.add("$months month${if (months > 1) "s" else ""}")
+        if (weeks > 0) parts.add("$weeks week${if (weeks > 1) "s" else ""}")
+        if (days > 0) parts.add("$days day${if (days > 1) "s" else ""}")
+        if (remainingHours > 0) parts.add("$remainingHours hour${if (remainingHours > 1) "s" else ""}")
+
+        return if (parts.isEmpty()) "0 hours" else parts.take(2).joinToString(" & ")
+    }
 }

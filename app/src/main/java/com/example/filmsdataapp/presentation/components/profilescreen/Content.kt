@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.presentation.utils.TimeFormatter
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
@@ -235,7 +236,7 @@ fun Content(){
 
             }
             Spacer(modifier = Modifier.height(20.dp))
-            TimeProgressBar(0.5f)
+            TimeProgressBar()
             Spacer(modifier = Modifier.height(40.dp))
 
 
@@ -263,20 +264,36 @@ fun Content(){
 
 @Composable
 fun TimeProgressBar(
-    currentProgress: Float
+
 ) {
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val milestones = listOf("1 week", "1 month", "3 months", "6 months", "1 year")
     val milestoneCount = milestones.size
+
+
+    var userWatchingTime by remember{ mutableStateOf(1) }
+
+    var currentProgress by remember {
+        mutableStateOf(0f)
+    }
     val reachedMilestones = (currentProgress * milestoneCount).toInt()
+    LaunchedEffect(Unit){
+        viewModel.getUserWatchingTime{
+            userWatchingTime = it
+            currentProgress = (userWatchingTime.toFloat() / (24 * 365)).coerceIn(0f, 1f)
+        }
+    }
 
     Column() {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
 
             Text("Time spent watching movies", fontWeight = FontWeight.Bold, color = TextColor, fontSize = 13.sp)
-            Text("1 month & 3 weeks", fontWeight = FontWeight.Bold, color = TextColor, fontSize = 13.sp)
+            Text(TimeFormatter.formatHoursToReadableTime(userWatchingTime), fontWeight = FontWeight.Bold, color = TextColor, fontSize = 13.sp)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+
 
         Box(modifier = Modifier
             .fillMaxWidth()

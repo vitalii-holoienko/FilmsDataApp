@@ -507,6 +507,27 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     }
 
 
+    fun getUserWatchingTime(callback: (Int) -> Unit) {
+        val listOfTitles = mutableListOf<Title>()
+        var remainingCallbacks = 5
+
+        fun onListLoaded(titles: List<Title>) {
+            listOfTitles.addAll(titles)
+            remainingCallbacks--
+            if (remainingCallbacks == 0) {
+                val totalHours = listOfTitles.sumOf {
+                    it.runtimeMinutes?.let { mins -> Math.round(mins.toDouble() / 60.0).toInt() } ?: 0
+                }
+                callback(totalHours)
+            }
+        }
+
+        getPlannedTitles { onListLoaded(it) }
+        getWatchingTitles { onListLoaded(it) }
+        getCompletedTitles { onListLoaded(it) }
+        getOnHoldTitles { onListLoaded(it) }
+        getDroppedTitles { onListLoaded(it) }
+    }
     private fun uploadImageToStorage(imageUri: Uri, onUploaded: (String) -> Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val storageRef = FirebaseStorage.getInstance().reference
