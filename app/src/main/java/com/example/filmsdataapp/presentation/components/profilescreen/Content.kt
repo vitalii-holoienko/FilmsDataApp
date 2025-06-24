@@ -11,6 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 
 import androidx.compose.foundation.layout.Spacer
@@ -21,12 +22,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,11 +61,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.domain.model.ActivityData
 import com.example.filmsdataapp.presentation.utils.TimeFormatter
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
 import com.google.android.play.integrity.internal.t
+import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
@@ -241,7 +248,7 @@ fun Content(){
 
 
             Text(
-                text = "Activity",
+                text = "Title completion graph",
                 color = TextColor,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
@@ -250,11 +257,17 @@ fun Content(){
             )
             Spacer(modifier = Modifier.height(15.dp))
 
-            //TODO Activity graph
-            Spacer(modifier= Modifier
-                .fillMaxWidth()
-                .height(170.dp)
-                .background(Color.Black))
+
+            val activityData = remember { mutableStateListOf<ActivityData>() }
+            LaunchedEffect(Unit) {
+                val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@LaunchedEffect
+                viewModel.getMonthlyCompletedStats(uid) {
+                    activityData.clear()
+                    activityData.addAll(it)
+                }
+            }
+
+            ActivityBarChart(data = activityData)
 
 
 
@@ -262,6 +275,79 @@ fun Content(){
     }
 }
 
+
+
+@Composable
+fun ActivityBarChart(data: List<ActivityData>) {
+    if (data.isEmpty()) return
+
+    val maxCount = (data.maxOf { it.count }).coerceAtLeast(1)
+    val barWidth = 24.dp
+    val maxBarHeight = 120.dp
+
+
+    fun formatMonth(month: String): String {
+        return try {
+
+            val parsed = java.time.YearMonth.parse(month)
+            parsed.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH)
+        } catch (e: Exception) {
+            month
+        }
+    }
+
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp)
+    ) {
+        items(data) { item ->
+            Column(
+                modifier = Modifier.width(barWidth),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Bottom
+            ) {
+                Box(
+                    modifier = Modifier
+                        .height(maxBarHeight)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height((item.count.toFloat() / maxCount * maxBarHeight.value).dp)
+                            .background(
+                                color = Color(70,130,180),
+                                shape = RoundedCornerShape(4.dp)
+                            ),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        Text(
+                            text = item.count.toString(),
+                            fontSize = 12.sp,
+                            color = Color.White,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = formatMonth(item.month),
+                    fontSize = 10.sp,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    color = Color.White,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
 @Composable
 fun TimeProgressBar(
 

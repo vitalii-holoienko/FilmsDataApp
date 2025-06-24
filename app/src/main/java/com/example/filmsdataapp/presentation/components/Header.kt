@@ -34,6 +34,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -70,7 +71,7 @@ fun Header(
 
     var isSearching by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
-
+    val isConnected by viewModel.isConnected.collectAsState()
     var searchEnded = viewModel.searchEnded.observeAsState(initial = false)
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -133,15 +134,19 @@ fun Header(
                         .align(Alignment.CenterVertically)
                         .scale(1.5f)
                         .clickable {
-                            if(!viewModel.checkIfUserIsSignedIn()){
-                                viewModel.onAuthClicked()
-                            }else{
-                                viewModel.onProfileClicked()
+                            if(isConnected){
+                                if(!viewModel.checkIfUserIsSignedIn()){
+                                    viewModel.onAuthClicked()
+                                }else{
+                                    viewModel.onProfileClicked()
+                                }
                             }
+
                         }
                 )
             }
         }
+
 
         if (isSearching) {
             LaunchedEffect(Unit) {
@@ -174,9 +179,13 @@ fun Header(
                     keyboardActions = KeyboardActions(
                         onDone = {
                             keyboardController?.hide()
+
                             if(searchText.length > 1) {
-                                viewModel.searchTitle(searchText)
-                                viewModel.searchedQuery.value = searchText
+                                if(isConnected){
+                                    viewModel.searchTitle(searchText)
+                                    viewModel.searchedQuery.value = searchText
+                                }
+
                             }
                             isSearching = false
                             searchText = ""

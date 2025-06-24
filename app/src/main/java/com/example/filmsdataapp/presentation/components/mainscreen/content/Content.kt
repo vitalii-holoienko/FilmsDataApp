@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +56,7 @@ fun Content(
     val comingSoonMovies = viewModel.comingSoonMovies.observeAsState(emptyList())
     val currentlyTrendingMovies = viewModel.currentlyTrendingMovies.observeAsState(emptyList())
     val news = viewModel.news.observeAsState(emptyList())
+    val isConnected by viewModel.isConnected.collectAsState()
 
 
     Box(modifier = Modifier
@@ -65,7 +68,12 @@ fun Content(
                 .fillMaxWidth()
                 .height(35.dp)
                 .background(color = PrimaryColor)
-                .clickable { viewModel.onCurrentlyTrendingTitlesClicked() }
+                .clickable {
+                    if(isConnected){
+                        viewModel.onCurrentlyTrendingTitlesClicked()
+                    }
+
+                }
             ){
                 Text(
                     text = "Currently trending",
@@ -104,7 +112,10 @@ fun Content(
                 .height(35.dp)
                 .background(color = PrimaryColor)
                 .clickable {
-                    viewModel.onComingSoonTitlesClicked()
+                    if(isConnected){
+                        viewModel.onComingSoonTitlesClicked()
+                    }
+
                 }
             ){
                 Text(
@@ -144,7 +155,10 @@ fun Content(
                     .fillMaxHeight()
                     .weight(1f)
                     .background(color = Color.White).clickable {
-                        viewModel.onMoviesClicked()
+                        if(isConnected){
+                            viewModel.onMoviesClicked()
+                        }
+
                     }
                 ){
                     Row(modifier = Modifier
@@ -154,7 +168,9 @@ fun Content(
                             .fillMaxHeight()
                             .width(8.dp)
                             .background(color = Color(255, 159, 140)).clickable {
-                                viewModel.onMoviesClicked()
+                                if(isConnected){
+                                    viewModel.onMoviesClicked()
+                                }
                             })
                         Text(
                             text = "Movies",
@@ -185,7 +201,10 @@ fun Content(
                     .weight(1f)
                     .background(color = Color.White)
                     .clickable {
-                        viewModel.onTVShowsClicked()
+                        if(isConnected){
+                            viewModel.onTVShowsClicked()
+                        }
+
                     }
                 ){
                     Row(modifier = Modifier
@@ -228,7 +247,10 @@ fun Content(
                         .fillMaxSize()
                         .background(color = Color(231, 246, 218))
                         .clickable {
-                            viewModel.onActorsClicked()
+                            if(isConnected){
+                                viewModel.onActorsClicked()
+                            }
+
                         }
                     ){
                         Box(modifier = Modifier
@@ -253,9 +275,7 @@ fun Content(
                                 .scale(1f)
                                 .align(Alignment.CenterVertically)
                                 .padding(5.dp, 0.dp)
-                                .clickable {
-                                    //TODO
-                                }
+
                         )
 
                     }

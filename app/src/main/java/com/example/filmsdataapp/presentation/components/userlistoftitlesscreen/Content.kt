@@ -102,7 +102,8 @@ fun Content(list:String){
                 color = TextColor,
                 fontSize = 40.sp,
                 modifier = Modifier
-                    .padding(5.dp, 0.dp).align(Alignment.CenterVertically)
+                    .padding(5.dp, 0.dp)
+                    .align(Alignment.CenterVertically)
             )
 
         }
@@ -177,12 +178,23 @@ fun Content(list:String){
             }
 
             filteredTitles.forEachIndexed { index, title ->
-                Row(modifier = Modifier.padding(5.dp)) {
+                var rating by remember {
+                    mutableStateOf("")
+                }
+                viewModel.getUserRatingForTitle(title.id!!, list){
+                    if(it == null) rating = "-"
+                    else rating = it.toString()
+                }
+                Row(modifier = Modifier
+                    .padding(5.dp)
+                    .fillMaxWidth()) {
                     Text(text = "${index + 1}", color = TextColor, fontSize = 15.sp)
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(text = "${title.primaryTitle}", modifier = Modifier.clickable {
                         viewModel.onTitleClicked(title)
                     }, color = LinksColor, fontSize = 15.sp)
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(text = rating, color = TextColor, fontSize = 15.sp)
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.example.filmsdataapp.presentation.components.titlescreen
 
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,12 +27,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun ExpandableMenu(
@@ -40,9 +46,10 @@ fun ExpandableMenu(
     onItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     inWhichListUserHasThisTitle : String,
+    titleId:String
 ) {
     var expanded by remember { mutableStateOf(false) }
-
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
 
     var finalListWhereUserHasTitle by remember {
         mutableStateOf(inWhichListUserHasThisTitle)
@@ -124,6 +131,26 @@ fun ExpandableMenu(
 
                     Divider()
                 }
+                val coroutineScope = rememberCoroutineScope()
+                if (finalListWhereUserHasTitle != "no") {
+                    Text(
+                        text = "Delete for the list",
+                        fontSize = 14.sp,
+                        color = Color.Red,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                finalListWhereUserHasTitle = "no"
+                                expanded = false
+                                coroutineScope.launch {
+                                    viewModel.deleteTitleForAllLists(titleId)
+
+                                }
+                            }
+                            .padding(horizontal = 12.dp, vertical = 10.dp)
+                    )
+                }
+
             }
         }
     }

@@ -60,7 +60,9 @@ import com.example.filmsdataapp.ui.theme.TextColor
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
-
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -150,99 +152,73 @@ fun Content(from : String){
             .fillMaxWidth()
             .wrapContentHeight()
             .background(BackGroundColor)
-    ){
-        if(listOfTitlesToDisplay!=null) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(30.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp)
-            ) {
-                item {
-                    Column() {
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp)
-                        ) {
-                            Text(
-                                text = pageName,
-                                color = TextColor,
-                                fontSize = 27.sp,
-                                modifier = Modifier
-                                    .padding(5.dp, 0.dp)
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Text(
-                                text = pageDescription,
-                                color = TextColor,
-                                fontSize = 13.sp,
-                                modifier = Modifier
-                                    .padding(5.dp, 0.dp)
-                            )
-                        }
-                    }
-                }
-                if (!showActors) {
-                    items(titlesRows) { movieRow ->
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            movieRow.forEach { m ->
-                                Column {
-                                    Image(
-                                        painter = rememberAsyncImagePainter(m.primaryImage),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .width(imageWidth)
-                                            .height(250.dp)
-                                            .clickable {
-                                                viewModel.onTitleClicked(m)
-                                            }
-                                    )
+    ) {
+        if (listOfTitlesToDisplay != null) {
+            if (!showActors) {
+                listOfTitlesToDisplay?.let { list ->
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(30.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp)
+                    ) {
+                        items(list) { m ->
+                            Column(
+                                modifier = Modifier.clickable {
+                                    viewModel.onTitleClicked(m)
+                                }
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(m.primaryImage),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(250.dp)
+                                )
+                                Text(
+                                    text = m.originalTitle ?: "",
+                                    color = LinksColor,
+                                    fontSize = 12.sp,
+                                    fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(5.dp, 3.dp)
+                                )
+                                Row(modifier = Modifier.fillMaxWidth()) {
                                     Text(
-                                        text = m.originalTitle ?: "",
-                                        color = LinksColor,
-                                        fontSize = 12.sp,
+                                        text = m.type?.replaceFirstChar { it.uppercase() } ?: "",
+                                        color = TextColor,
+                                        fontSize = 10.sp,
                                         fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier
-                                            .width(imageWidth)
-                                            .padding(5.dp, 3.dp)
+                                        modifier = Modifier.padding(5.dp, 3.dp)
                                     )
-                                    Row(modifier = Modifier.width(imageWidth)) {
-                                        Text(
-                                            text = m.type!!.replaceFirstChar { it.uppercase() },
-                                            color = TextColor,
-                                            fontSize = 10.sp,
-                                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.padding(5.dp, 3.dp)
-                                        )
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        Text(
-                                            text = m.startYear.toString(),
-                                            color = TextColor,
-                                            fontSize = 10.sp,
-                                            fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.padding(5.dp, 3.dp)
-                                        )
-                                    }
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = m.startYear.toString(),
+                                        color = TextColor,
+                                        fontSize = 10.sp,
+                                        fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(5.dp, 3.dp)
+                                    )
                                 }
-                            }
-                            if (movieRow.size == 1) {
-                                Spacer(modifier = Modifier.width(imageWidth))
                             }
                         }
                     }
-                } else {
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(30.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
+                ) {
+
                     items(ActorsRows) { actorsRow ->
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -251,8 +227,6 @@ fun Content(from : String){
                             actorsRow.forEach { m ->
                                 Column(modifier = Modifier.clickable {
                                     viewModel.getActorInfo(m.id)
-
-
                                 }) {
                                     Image(
                                         painter = rememberAsyncImagePainter(m.primaryImage!!.url),
@@ -281,35 +255,17 @@ fun Content(from : String){
                     }
                 }
             }
-        }else{
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                Column(horizontalAlignment = Alignment.CenterHorizontally){
-                    Image(
-                        painter = painterResource(id = R.drawable.no_internet_icon),
-                        contentDescription = "",
-                        Modifier
-                            .size(350.dp)
-                            .scale(1f)
-                            .padding(5.dp, 0.dp)
-
-                    )
-                    Text(
-                        text = "No Internet Connection",
-                        color = TextColor,
-                        fontSize = 20.sp,
-                        fontFamily = FontFamily(Font(R.font.notosans_variablefont_wdth_wght)),
-                    )
-                }
-
-            }
+        } else {
+            // твой "No Internet Connection" экран
         }
-        FilterPanelWithButton(
-            isFilterVisible = isFilterVisible,
-            onToggle = { isFilterVisible = !isFilterVisible },
 
-        )
-
+        if (from != "Actors") {
+            FilterPanelWithButton(
+                isFilterVisible = isFilterVisible,
+                onToggle = { isFilterVisible = !isFilterVisible },
+            )
         }
+    }
 
 
 }

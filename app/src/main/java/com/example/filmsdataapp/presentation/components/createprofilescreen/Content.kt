@@ -78,7 +78,7 @@ fun Content(){
                 .clip(CircleShape)
                 .background(color = Color.Black), contentAlignment = Alignment.Center){
                 AsyncImage(
-                    model = userImage ?: R.drawable.add_profile_image,
+                    model = userImage ?: R.drawable.user_icon,
                     contentDescription = null,
                     modifier = Modifier
                         .size(100.dp)

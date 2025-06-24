@@ -4,10 +4,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color.rgb
 import android.graphics.drawable.BitmapDrawable
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,8 +27,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -95,7 +102,6 @@ fun Content(title : Title) {
                 painter = rememberAsyncImagePainter(title.primaryImage),
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .height(320.dp)
                     .width(230.dp),
                 contentScale = ContentScale.FillBounds
@@ -108,17 +114,96 @@ fun Content(title : Title) {
                 menuItems = listOf("Planned", "Watching", "Completed", "On hold", "Dropped"),
                 onItemSelected = { option ->
                     when(option) {
-                        "Planned" -> viewModel.addTitleToPlannedList(title)
-                        "Watching" -> viewModel.addTitleToWatchingList(title)
-                        "Completed" -> viewModel.addTitleToCompletedList(title)
-                        "On hold" -> viewModel.addTitleToOnHoldList(title)
-                        "Dropped" -> viewModel.addTitleToDroppedList(title)
+                        "Planned" -> {
+                            viewModel.addTitleToPlannedList(title)
+                            inWhichListUserHasThisTitle = "planned"
+                        }
+                        "Watching" -> {
+                            viewModel.addTitleToWatchingList(title)
+                            inWhichListUserHasThisTitle = "watching"
+                        }
+                        "Completed" -> {
+                            viewModel.addTitleToCompletedList(title)
+                            inWhichListUserHasThisTitle = "completed"
+                        }
+                        "On hold" -> {
+                            viewModel.addTitleToOnHoldList(title)
+                            inWhichListUserHasThisTitle = "onhold"
+                        }
+                        "Dropped" -> {
+                            viewModel.addTitleToDroppedList(title)
+                            inWhichListUserHasThisTitle = "dropped"
+                        }
                     }
                 },
                 modifier = Modifier.width(230.dp),
-                inWhichListUserHasThisTitle
-
+                inWhichListUserHasThisTitle,
+                title.id
             )
+            var rating by remember { mutableStateOf(0f) }
+            if (inWhichListUserHasThisTitle != "no") {
+                Spacer(modifier = Modifier.height(15.dp))
+                Column{
+                    Text("Your rating:", color = TextColor, modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp), fontSize = 20.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))
+                    Row(
+                        modifier = Modifier.padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        for (i in 1..5) {
+                            val starResId = when {
+                                rating >= i -> R.drawable.star_icon
+                                rating >= i - 0.5f -> R.drawable.half_star_icon
+                                else -> R.drawable.empty_star_icon
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .pointerInput(Unit) {
+                                        detectTapGestures { offset ->
+                                            val isLeftSide = offset.x < size.width / 2
+                                            val newRating =
+                                                if (isLeftSide) i - 0.5f else i.toFloat()
+                                            viewModel.userRatingForTitle(
+                                                title,
+                                                newRating,
+                                                inWhichListUserHasThisTitle
+                                            )
+                                            rating = newRating
+
+                                        }
+                                    }
+                            ) {
+                                Image(
+                                    painter = painterResource(id = starResId),
+                                    contentDescription = "Star $i",
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(0.dp))
+                        Column(horizontalAlignment = Alignment.CenterHorizontally){
+                            if(rating != 0f){
+                                Text("${(rating * 2).toInt()}", color = TextColor, fontSize = 30.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))
+                                when(rating * 2){
+                                    1f -> { Text("Awful", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                    2f -> { Text("Very bad", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                    3f -> { Text("Bad", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                    4f -> { Text("Meh", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                    5f -> { Text("Okay", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                    6f -> { Text("Good", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                    7f -> { Text("Great", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                    8f -> { Text("Excellent", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                    9f -> { Text("Masterpiece", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                    10f -> { Text("Masterpiece", color = TextColor, fontSize = 10.sp, fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)))}
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+            }
 
         }
         Spacer(modifier = Modifier.height(40.dp))

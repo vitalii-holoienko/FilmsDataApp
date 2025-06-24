@@ -24,6 +24,8 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -53,6 +55,7 @@ fun NavigationMenuWrapper(
     content: @Composable () -> Unit
 ) {
     val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val isConnected by viewModel.isConnected.collectAsState()
     ModalNavigationDrawer(
         modifier = Modifier.background(color = BackGroundColor),
         drawerState = drawerState,
@@ -101,8 +104,11 @@ fun NavigationMenuWrapper(
                         selected = false,
                         onClick = {
                             scope.launch {
-                                navController.navigate("tvshows_screen")
-                                drawerState.close()
+                                if(isConnected){
+                                    navController.navigate("tvshows_screen")
+                                    drawerState.close()
+                                }
+
                             }
                         },
                         colors = NavigationDrawerItemDefaults.colors(
@@ -115,8 +121,11 @@ fun NavigationMenuWrapper(
                         selected = false,
                         onClick = {
                             scope.launch {
-                                navController.navigate("actors_screen")
-                                drawerState.close()
+                                if(isConnected){
+                                    navController.navigate("actors_screen")
+                                    drawerState.close()
+                                }
+
                             }
 
                         },
@@ -132,8 +141,11 @@ fun NavigationMenuWrapper(
                         selected = false,
                         onClick = {
                             scope.launch {
-                                navController.navigate("about_program_screen")
-                                drawerState.close()
+                                if(isConnected){
+                                    navController.navigate("about_program_screen")
+                                    drawerState.close()
+                                }
+
                             }
                         },
                         colors = NavigationDrawerItemDefaults.colors(
@@ -163,9 +175,12 @@ fun NavigationMenuWrapper(
                             selected = false,
                             onClick = {
                                 scope.launch {
-                                    navController.navigate("main_screen")
-                                    viewModel.signOut()
-                                    drawerState.close()
+                                    if(isConnected){
+                                        navController.navigate("main_screen")
+                                        viewModel.signOut()
+                                        drawerState.close()
+                                    }
+
                                 }
                             },
                             colors = NavigationDrawerItemDefaults.colors(

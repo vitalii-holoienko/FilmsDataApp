@@ -6,8 +6,11 @@ import android.net.Uri
 import androidx.credentials.CredentialManager
 import android.util.Log
 import android.widget.Toast
+import com.example.filmsdataapp.domain.model.ActivityData
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.State
+import java.text.SimpleDateFormat
+import java.util.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.Credential
@@ -41,9 +44,11 @@ import com.example.filmsdataapp.domain.usecase.GetActorsUseCase
 import com.example.filmsdataapp.domain.usecase.GetComingSoonMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetCurrentlyTrendingMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularMoviesUseCase
+import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetTitleById
+import com.example.filmsdataapp.domain.usecase.GetTitlesReleasedInCertainYear
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.presentation.common.NavigationEvent
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
@@ -134,6 +139,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
     val _titlesToDisplay = MutableLiveData<List<Title>>()
     val _reviewsToDisplay = MutableLiveData<List<Review>>()
+
+
     val initialTitlesToDisplay: LiveData<List<Title>> get() = _inititalTitleToDisplay
     val titlesToDisplay: LiveData<List<Title>> get() = _titlesToDisplay
     val titlesReleasedIn2025: LiveData<List<Title>> get() = _titlesReleasedIn2025
@@ -404,8 +411,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                 Log.d("TEKKEN", e.message.toString())
             }
 
-
-
+//
+//
 //            try {
 //                val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
 //                _mostPopularTVShows.value = result1.invoke()
@@ -433,8 +440,53 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         }.invokeOnCompletion {}
     }
 
+    fun userRatingForTitle(title: Title, rating: Float, where: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+        val titleId = title.id ?: return
+
+        viewModelScope.launch {
+            val docRef = db.collection("users")
+                .document(uid)
+                .collection(where)
+                .document(titleId)
+
+            docRef.update("userRating", (rating*2).toInt())
+                .addOnSuccessListener {
+                    Log.d("RATING", "Rating $rating set for $titleId in $where")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("RATING", "Failed to update rating for $titleId", e)
+                }
+        }
+    }
+
+    fun getUserRatingForTitle(titleId: String, where: String, onResult: (Int?) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        val docRef = db.collection("users")
+            .document(uid)
+            .collection(where)
+            .document(titleId)
+
+        docRef.get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    val rating = snapshot.getLong("userRating")?.toInt()
+                    onResult(rating)
+                } else {
+                    onResult(null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("RATING", "Failed to load userRating", e)
+                onResult(null)
+            }
+    }
+
     fun createUserAccount(nickname: String, description: String, image: Uri?) {
-        val finalImageUri = image ?: Uri.parse("android.resource://${context.packageName}/${R.drawable.add_profile_image}")
+        val finalImageUri = image ?: Uri.parse("android.resource://${context.packageName}/${R.drawable.user_icon}")
         val currentUser = FirebaseAuth.getInstance().currentUser ?: return
         val uid = currentUser.uid
 
@@ -490,7 +542,6 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     }
     fun getUserImage(callback: (Uri) -> Unit) {
         val uid = firebaseAuth.currentUser?.uid ?: return
-        Log.d("TEKKEN", "Current UID: $uid")
         db.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
@@ -506,6 +557,48 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
             }
     }
 
+    fun getMonthlyCompletedStats(uid: String, onResult: (List<ActivityData>) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(uid)
+            .collection("completed")
+            .get()
+            .addOnSuccessListener { result ->
+
+                val keyFormat = SimpleDateFormat("yyyy-MM", Locale.ENGLISH)
+
+                val dateCounts = mutableMapOf<String, Int>()
+                result.documents.forEach { doc ->
+                    val date = doc.getTimestamp("addedAt")?.toDate() ?: return@forEach
+                    val key = keyFormat.format(date)
+                    dateCounts[key] = dateCounts.getOrDefault(key, 0) + 1
+                }
+
+                val completeData = mutableListOf<ActivityData>()
+
+                val baseCal = Calendar.getInstance().apply {
+                    set(Calendar.DAY_OF_MONTH, 1)
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                    add(Calendar.MONTH, -10)
+                }
+
+                for (i in 0 until 11) {
+                    val cal = baseCal.clone() as Calendar
+                    cal.add(Calendar.MONTH, i)
+                    val key = keyFormat.format(cal.time)
+                    val count = dateCounts.getOrDefault(key, 0)
+                    completeData.add(ActivityData(key, count))
+                }
+
+                onResult(completeData)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
+    }
 
     fun getUserWatchingTime(callback: (Int) -> Unit) {
         val listOfTitles = mutableListOf<Title>()
@@ -536,7 +629,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         storageRef.putFile(imageUri)
             .addOnSuccessListener {
                 storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    onUploaded(uri.toString()) // URL к картинке
+                    onUploaded(uri.toString())
                 }
             }
             .addOnFailureListener { e ->
@@ -616,6 +709,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     }
 
     fun addTitleToWatchingList(title: Title) {
+
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
@@ -930,7 +1024,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     fun loadUserImage() {
         firebaseAuth.currentUser?.reload()?.addOnCompleteListener {
             val photoUrl = firebaseAuth.currentUser?.photoUrl
-            userImageUri.value = photoUrl ?: Uri.parse("android.resource://com.example.filmsdataapp/${R.drawable.add_profile_image}")
+            userImageUri.value = photoUrl ?: Uri.parse("android.resource://com.example.filmsdataapp/${R.drawable.user_icon}")
         }
     }
 
@@ -1058,45 +1152,50 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     }
 
     private fun applyFiltersLogic(movies: List<Title>, filter: FilterStatus): List<Title> {
-        return movies
-            .asSequence()
+        Log.d("DEBUG", "Total before filters: ${movies.size}")
 
-            .filter { movie ->
-            filter.genre?.let { selectedGenres ->
-                val selectedGenreStrings = selectedGenres.mapNotNull { filter.genres[it] }
-                val movieGenres = movie.genres ?: emptyList()
-                movieGenres.any { movieGenre ->
-                    selectedGenreStrings.any { selected ->
-                        movieGenre.equals(selected, ignoreCase = true)
-                    }
-                }
+        val afterGenre = movies.filter { movie ->
+            val selectedGenres = filter.genre
+                ?.mapNotNull { filter.genres[it]?.lowercase() }
+                ?.takeIf { it.isNotEmpty() }
+
+            if (selectedGenres != null) {
+                val movieGenres = movie.genres?.map { it.lowercase() } ?: emptyList()
+                movieGenres.any { it in selectedGenres }
+            } else {
+                true //
+            }
+        }
+        Log.d("DEBUG", "After genre filter: ${afterGenre.size}")
+
+        val afterRating = afterGenre.filter { movie ->
+            filter.averageRationFrom?.let { from ->
+                movie.averageRating?.toInt()?.let { it >= from } ?: false
             } ?: true
         }
+        Log.d("DEBUG", "After rating filter: ${afterRating.size}")
 
-            .filter { movie ->
-                filter.averageRationFrom?.let { from ->
-                    movie.averageRating?.toInt()?.let { it >= from } ?: false
-                } ?: true
-            }
+        val afterDate = afterRating.filter { movie ->
+            val year = movie.startYear
+            val fromOk = filter.dateOfReleaseFrom?.let { year != null && year >= it } ?: true
+            val toOk = filter.dateOfReleaseTo?.let { year != null && year <= it } ?: true
+            fromOk && toOk
+        }
+        Log.d("DEBUG", "After date filter: ${afterDate.size}")
 
-            .filter { movie ->
-                val year = movie.startYear
-                val fromOk = filter.dateOfReleaseFrom?.let { year != null && year >= it } ?: true
-                val toOk = filter.dateOfReleaseTo?.let { year != null && year <= it } ?: true
-                fromOk && toOk
+        val result = afterDate.sortedWith { a, b ->
+            when (filter.sortedBy) {
+                SORTED_BY.POPULARITY -> (b.numVotes ?: 0).compareTo(a.numVotes ?: 0)
+                SORTED_BY.RATING -> (b.averageRating ?: 0f).compareTo(a.averageRating ?: 0f)
+                SORTED_BY.ALPHABET -> (a.primaryTitle ?: "").compareTo(b.primaryTitle ?: "")
+                SORTED_BY.RELEASE_DATE -> (b.startYear ?: 0).compareTo(a.startYear ?: 0)
+                SORTED_BY.RANDOM -> listOf(-1, 1).random()
+                null -> 0
             }
+        }
 
-            .sortedWith { a, b ->
-                when (filter.sortedBy) {
-                    SORTED_BY.POPULARITY -> (b.numVotes ?: 0).compareTo(a.numVotes ?: 0)
-                    SORTED_BY.RATING -> (b.averageRating ?: 0f).compareTo(a.averageRating ?: 0f)
-                    SORTED_BY.ALPHABET -> (a.primaryTitle ?: "").compareTo(b.primaryTitle ?: "")
-                    SORTED_BY.RELEASE_DATE -> (b.startYear ?: 0).compareTo(a.startYear ?: 0)
-                    SORTED_BY.RANDOM -> listOf(-1, 1).random()
-                    null -> 0
-                }
-            }
-            .toList()
+        Log.d("DEBUG", "Final result: ${result.size}")
+        return result
     }
 
     fun handleSignIn(credential: Credential, componentActivity: ComponentActivity) {
