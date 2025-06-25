@@ -34,9 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
@@ -151,7 +153,6 @@ fun Content(list:String){
             .fillMaxWidth()
             .height(35.dp)
             .background(color = PrimaryColor)
-            .clickable { viewModel.onCurrentlyTrendingTitlesClicked() }
         ){
             Text(
                 text = list.replaceFirstChar{it.uppercaseChar()},
@@ -162,7 +163,28 @@ fun Content(list:String){
                     .padding(5.dp, 0.dp)
             )
         }
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(15.dp))
+
+
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .height(25.dp)){
+            Text(text = "#", modifier = Modifier.padding(5.dp, 0.dp), color = TextColor, fontSize = 18.sp)
+            Text(text = "Title", modifier = Modifier.padding(5.dp, 0.dp), color = TextColor, fontSize = 18.sp)
+            Spacer(modifier = Modifier.weight(1f))
+            Text(text = "Rating", modifier = Modifier.padding(5.dp, 0.dp), color = TextColor, fontSize = 18.sp)
+        }
+        Spacer(
+            modifier = Modifier.fillMaxWidth()
+                .height(1.dp).drawBehind {
+                    drawLine(
+                        color = Color.Gray,
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
+        )
 
         val titles by viewModel.listOfTitlesToDisplay
 
@@ -186,7 +208,7 @@ fun Content(list:String){
                     else rating = it.toString()
                 }
                 Row(modifier = Modifier
-                    .padding(5.dp)
+                    .padding(10.dp, 5.dp)
                     .fillMaxWidth()) {
                     Text(text = "${index + 1}", color = TextColor, fontSize = 15.sp)
                     Spacer(modifier = Modifier.width(10.dp))
