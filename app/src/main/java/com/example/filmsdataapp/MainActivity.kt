@@ -53,6 +53,7 @@ import com.example.filmsdataapp.presentation.screens.SearchedTitlesScreen
 import com.example.filmsdataapp.presentation.screens.SignInWithPhoneNumberScreen
 import com.example.filmsdataapp.presentation.screens.TVShowsScreen
 import com.example.filmsdataapp.presentation.screens.TitleScreen
+import com.example.filmsdataapp.presentation.screens.UserHistoryScreen
 import com.example.filmsdataapp.presentation.screens.UserListOfTitlesScreen
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModelFactory
@@ -260,6 +261,9 @@ class MainActivity : ComponentActivity() {
                             val list = backStackEntry.arguments?.getString("list") ?: ""
                             UserListOfTitlesScreen(list = list)
                         }
+                        composable(route = "user_history_screen"){
+                            UserHistoryScreen()
+                        }
                     }
                 }
 
@@ -347,6 +351,9 @@ class MainActivity : ComponentActivity() {
                         }
                         is NavigationEvent.ToUserListOfTitles -> {
                             navController.navigate("user_list_of_titles/${event.list}")
+                        }
+                        is NavigationEvent.ToUserHistory -> {
+                            navController.navigate("user_history_screen")
                         }
 
                         NavigationEvent.None -> {}

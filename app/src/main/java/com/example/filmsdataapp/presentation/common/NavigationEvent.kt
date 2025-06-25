@@ -24,6 +24,8 @@ sealed class NavigationEvent {
 
     object ToMovie: NavigationEvent()
 
+    object ToUserHistory: NavigationEvent()
+
     object ToActors: NavigationEvent()
 
     data class ToNews(val news: News) : NavigationEvent()

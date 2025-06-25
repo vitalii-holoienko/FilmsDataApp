@@ -67,6 +67,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -283,6 +284,10 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         _navigation.value = NavigationEvent.ToMovie
     }
 
+    fun onUserHistoryClicked(){
+        _navigation.value = NavigationEvent.ToUserHistory
+    }
+
     fun onActorsClicked(){
         _navigation.value = NavigationEvent.ToActors
     }
@@ -444,6 +449,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
         val titleId = title.id ?: return
+        val titleName = title.primaryTitle ?: "Unknown title"
+
 
         viewModelScope.launch {
             val docRef = db.collection("users")
@@ -453,7 +460,23 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
             docRef.update("userRating", (rating*2).toInt())
                 .addOnSuccessListener {
-                    Log.d("RATING", "Rating $rating set for $titleId in $where")
+                    val historyRef = db.collection("users")
+                        .document(uid)
+                        .collection("history")
+                        .document()
+
+                    val historyEntry = mapOf(
+                        "message" to "$titleName was rated ${(rating*2).toInt()}.",
+                        "timestamp" to FieldValue.serverTimestamp()
+                    )
+
+                    historyRef.set(historyEntry)
+                        .addOnSuccessListener {
+                            Log.d("HISTORY", "History entry added.")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("HISTORY", "Failed to add history entry", e)
+                        }
                 }
                 .addOnFailureListener { e ->
                     Log.e("RATING", "Failed to update rating for $titleId", e)
@@ -714,6 +737,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         val db = FirebaseFirestore.getInstance()
 
         val titleId = title.id ?: return
+        val titleName = title.primaryTitle?: "Unknown Title"
 
         viewModelScope.launch {
 
@@ -724,13 +748,32 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                 .collection("watching")
                 .document(titleId)
 
-
             watchingRef.set(title)
                 .addOnSuccessListener {
 
                     watchingRef.update("addedAt", FieldValue.serverTimestamp())
                         .addOnSuccessListener {
                             Log.d("WATCHING", "Title $titleId added to watching list.")
+
+
+                            val historyRef = db.collection("users")
+                                .document(uid)
+                                .collection("history")
+                                .document()
+
+                            val historyEntry = mapOf(
+                                "message" to "$titleName was added to 'Watched' list.",
+                                "timestamp" to FieldValue.serverTimestamp()
+                            )
+
+                            historyRef.set(historyEntry)
+                                .addOnSuccessListener {
+                                    Log.d("HISTORY", "History entry added.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("HISTORY", "Failed to add history entry", e)
+                                }
+
                         }
                         .addOnFailureListener { e ->
                             Log.e("WATCHING", "Failed to update addedAt field", e)
@@ -742,12 +785,32 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         }
     }
 
+
+    fun fetchUserHistory(onResult: (List<String>) -> Unit, onError: (Exception) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users")
+            .document(uid)
+            .collection("history")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { result ->
+                val historyMessages = result.documents.mapNotNull { doc ->
+                    doc.getString("message")
+                }
+                onResult(historyMessages)
+            }
+            .addOnFailureListener { exception ->
+                onError(exception)
+            }
+    }
     fun addTitleToPlannedList(title: Title) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
         val titleId = title.id ?: return
-
+        val titleName = title.primaryTitle?: "Unknown Title"
         viewModelScope.launch {
 
             deleteTitleForAllLists(titleId)
@@ -763,7 +826,23 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
                     watchingRef.update("addedAt", FieldValue.serverTimestamp())
                         .addOnSuccessListener {
-                            Log.d("planned", "Title $titleId added to watching list.")
+                            val historyRef = db.collection("users")
+                                .document(uid)
+                                .collection("history")
+                                .document()
+
+                            val historyEntry = mapOf(
+                                "message" to "$titleName was added to 'Planned' list.",
+                                "timestamp" to FieldValue.serverTimestamp()
+                            )
+
+                            historyRef.set(historyEntry)
+                                .addOnSuccessListener {
+                                    Log.d("HISTORY", "History entry added.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("HISTORY", "Failed to add history entry", e)
+                                }
                         }
                         .addOnFailureListener { e ->
                             Log.e("planned", "Failed to update addedAt field", e)
@@ -780,7 +859,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         val db = FirebaseFirestore.getInstance()
 
         val titleId = title.id ?: return
-
+        val titleName = title.primaryTitle?: "Unknown Title"
         viewModelScope.launch {
 
             deleteTitleForAllLists(titleId)
@@ -796,7 +875,23 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
                     watchingRef.update("addedAt", FieldValue.serverTimestamp())
                         .addOnSuccessListener {
-                            Log.d("planned", "Title $titleId added to watching list.")
+                            val historyRef = db.collection("users")
+                                .document(uid)
+                                .collection("history")
+                                .document()
+
+                            val historyEntry = mapOf(
+                                "message" to "$titleName was added to 'Planned' list.",
+                                "timestamp" to FieldValue.serverTimestamp()
+                            )
+
+                            historyRef.set(historyEntry)
+                                .addOnSuccessListener {
+                                    Log.d("HISTORY", "History entry added.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("HISTORY", "Failed to add history entry", e)
+                                }
                         }
                         .addOnFailureListener { e ->
                             Log.e("planned", "Failed to update addedAt field", e)
@@ -813,7 +908,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         val db = FirebaseFirestore.getInstance()
 
         val titleId = title.id ?: return
-
+        val titleName = title.primaryTitle?: "Unknown Title"
         viewModelScope.launch {
 
             deleteTitleForAllLists(titleId)
@@ -829,7 +924,23 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
                     watchingRef.update("addedAt", FieldValue.serverTimestamp())
                         .addOnSuccessListener {
-                            Log.d("planned", "Title $titleId added to watching list.")
+                            val historyRef = db.collection("users")
+                                .document(uid)
+                                .collection("history")
+                                .document()
+
+                            val historyEntry = mapOf(
+                                "message" to "$titleName was added to 'Planned' list.",
+                                "timestamp" to FieldValue.serverTimestamp()
+                            )
+
+                            historyRef.set(historyEntry)
+                                .addOnSuccessListener {
+                                    Log.d("HISTORY", "History entry added.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("HISTORY", "Failed to add history entry", e)
+                                }
                         }
                         .addOnFailureListener { e ->
                             Log.e("planned", "Failed to update addedAt field", e)
@@ -870,7 +981,7 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     fun addTitleToDroppedList(title: Title) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
-
+        val titleName = title.primaryTitle?: "Unknown Title"
         val titleId = title.id ?: return
 
         viewModelScope.launch {
@@ -888,7 +999,23 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
                     watchingRef.update("addedAt", FieldValue.serverTimestamp())
                         .addOnSuccessListener {
-                            Log.d("dropped", "Title $titleId added to dropped list.")
+                            val historyRef = db.collection("users")
+                                .document(uid)
+                                .collection("history")
+                                .document()
+
+                            val historyEntry = mapOf(
+                                "message" to "$titleName was added to 'Planned' list.",
+                                "timestamp" to FieldValue.serverTimestamp()
+                            )
+
+                            historyRef.set(historyEntry)
+                                .addOnSuccessListener {
+                                    Log.d("HISTORY", "History entry added.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("HISTORY", "Failed to add history entry", e)
+                                }
                         }
                         .addOnFailureListener { e ->
                             Log.e("dropped", "Failed to update addedAt field", e)

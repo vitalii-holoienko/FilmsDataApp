@@ -8,6 +8,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -158,7 +159,9 @@ fun Content(){
                     color = LinksColor,
                     fontSize = 15.sp,
                     fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
-                    modifier = Modifier.padding(0.dp)
+                    modifier = Modifier.padding(0.dp).clickable {
+                        viewModel.onUserHistoryClicked()
+                    }
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
