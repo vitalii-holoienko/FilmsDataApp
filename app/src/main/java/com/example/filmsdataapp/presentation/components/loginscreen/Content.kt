@@ -113,7 +113,7 @@ fun Content(){
         Column(modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .fillMaxWidth()
-            .height(170.dp)
+            .height(100.dp)
             .background(color = PrimaryColor)
         ){
             Button(
