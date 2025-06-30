@@ -169,7 +169,9 @@ fun Content(){
                     color = LinksColor,
                     fontSize = 15.sp,
                     fontFamily = FontFamily(Font(R.font.inter_variablefont_opsz_wght)),
-                    modifier = Modifier.padding(0.dp)
+                    modifier = Modifier.padding(0.dp).clickable {
+                        viewModel.onSettingsClicked()
+                    }
                 )
             }
 

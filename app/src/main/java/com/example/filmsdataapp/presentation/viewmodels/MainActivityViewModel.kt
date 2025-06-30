@@ -327,6 +327,9 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     fun onCreateProfileClicked(){
         _navigation.value = NavigationEvent.ToCreateProfile
     }
+    fun onSettingsClicked(){
+        _navigation.value = NavigationEvent.ToUserSettings
+    }
     //-------------------------------------------------------------------------------
     fun loadInitialData(){
         loadMovies()
@@ -416,32 +419,20 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                 Log.d("TEKKEN", e.message.toString())
             }
 
-//
-//
-//            try {
-//                val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
-//                _mostPopularTVShows.value = result1.invoke()
-//            } catch (e: Exception) {
-//                Log.d("TEKKEN", e.message.toString())
-//            }
+
+
+            try {
+                val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
+                _mostPopularTVShows.value = result1.invoke()
+            } catch (e: Exception) {
+                Log.d("TEKKEN", e.message.toString())
+            }
             try {
                 val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
                 _currentlyTrendingMovies.value = result0.invoke()
             } catch (e: Exception) {
                 Log.d("TEKKEN", e.message.toString())
             }
-//            try {
-//                val result10 = GetTitlesReleasedInCertainYear(titleRepository)
-//                _titlesReleasedIn2025.value = result10.invoke(2025)
-//            } catch (e: Exception) {
-//                Log.d("TEKKEN", e.message.toString())
-//            }
-//            try {
-//                val result11 = GetTitlesReleasedInCertainYear(titleRepository)
-//                _titlesReleasedIn2025.value = result11.invoke(2024)
-//            } catch (e: Exception) {
-//                Log.d("TEKKEN", e.message.toString())
-//            }
         }.invokeOnCompletion {}
     }
 
@@ -543,6 +534,59 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         }
 
 
+    }
+
+    fun changeUserAccount(nickname: String, description: String, image: Uri?) {
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = currentUser.uid
+
+
+        if (image != null && image.scheme != "https") {
+            uploadImageToStorage(image) { downloadUrl ->
+                applyProfileChanges(currentUser, nickname, downloadUrl, description, uid)
+            }
+        } else {
+
+            val existingPhotoUrl = currentUser.photoUrl?.toString()
+                ?: "https://..."
+
+            applyProfileChanges(currentUser, nickname, existingPhotoUrl, description, uid)
+        }
+    }
+
+    private fun applyProfileChanges(
+        currentUser: FirebaseUser,
+        nickname: String,
+        imageUrl: String,
+        description: String,
+        uid: String
+    ) {
+        val profileUpdates = userProfileChangeRequest {
+            displayName = nickname
+            photoUri = Uri.parse(imageUrl)
+        }
+
+        currentUser.updateProfile(profileUpdates)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = hashMapOf(
+                        "nickname" to nickname,
+                        "description" to description,
+                        "image" to imageUrl
+                    )
+
+                    db.collection("users").document(uid).set(user)
+                        .addOnSuccessListener {
+                            Log.d("TEKKEN", "User data updated")
+                            onProfileClicked()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("TEKKEN", "Error updating user document", e)
+                        }
+                } else {
+                    Log.e("TEKKEN", "Failed to update profile", task.exception)
+                }
+            }
     }
 
     fun updateUserAccount(nickname : String, description : String, image : Uri?){

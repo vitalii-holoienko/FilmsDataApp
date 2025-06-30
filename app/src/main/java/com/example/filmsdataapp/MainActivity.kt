@@ -55,6 +55,7 @@ import com.example.filmsdataapp.presentation.screens.TVShowsScreen
 import com.example.filmsdataapp.presentation.screens.TitleScreen
 import com.example.filmsdataapp.presentation.screens.UserHistoryScreen
 import com.example.filmsdataapp.presentation.screens.UserListOfTitlesScreen
+import com.example.filmsdataapp.presentation.screens.UserSettingsScreen
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModelFactory
 import com.example.filmsdataapp.ui.theme.FilmsDataAppTheme
@@ -264,6 +265,9 @@ class MainActivity : ComponentActivity() {
                         composable(route = "user_history_screen"){
                             UserHistoryScreen()
                         }
+                        composable(route = "user_settings_screen"){
+                            UserSettingsScreen()
+                        }
                     }
                 }
 
@@ -355,7 +359,9 @@ class MainActivity : ComponentActivity() {
                         is NavigationEvent.ToUserHistory -> {
                             navController.navigate("user_history_screen")
                         }
-
+                        is NavigationEvent.ToUserSettings -> {
+                            navController.navigate("user_settings_screen")
+                        }
                         NavigationEvent.None -> {}
                         else ->{}
                     }

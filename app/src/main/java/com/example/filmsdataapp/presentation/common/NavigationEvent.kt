@@ -25,6 +25,7 @@ sealed class NavigationEvent {
     object ToMovie: NavigationEvent()
 
     object ToUserHistory: NavigationEvent()
+    object ToUserSettings: NavigationEvent()
 
     object ToActors: NavigationEvent()
 
