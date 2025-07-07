@@ -28,7 +28,7 @@ object NetworkHelper {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     println("Network error: ${response.code}")
-                    Log.d("TEKKEN",response.code.toString() )
+                    Log.d("DEBUG",response.code.toString() )
                     return null
                 }
                 response.body?.string()

@@ -71,8 +71,10 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
@@ -345,50 +347,44 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     }
 
 
-    fun inputWasSuccessfullyValidated(email : String, password: String) : Pair<Boolean, String?>{
+    private val _authErrorFlow = MutableSharedFlow<Pair<String, String>>()
+    val authErrorFlow = _authErrorFlow.asSharedFlow()
+
+    fun inputWasSuccessfullyValidated(email: String, password: String): Pair<Boolean, String?> {
         val pair = validateUserAuthenticationInput(email, password)
-        if(!pair.first){
-            showWarningInAuthenticationScreen.value = true
-            warningInAuthenticationScreen.value = pair.second.second
+
+        if (!pair.first) {
+            viewModelScope.launch {
+                _authErrorFlow.emit(pair.second)
+            }
             return false to pair.second.first
         }
+
         return true to null
-
     }
-    private fun validateUserAuthenticationInput(email: String, password: String): Pair<Boolean,Pair<String, String?>> {
-
+    private fun validateUserAuthenticationInput(
+        email: String,
+        password: String
+    ): Pair<Boolean, Pair<String, String>> {
         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\$")
-
         val forbiddenCharsRegex = Regex("[\\s\"',;]")
 
-        if (email.isBlank()) {
-            return Pair<Boolean,Pair<String, String?>>(false, "email" to "Email cannot be empty.")
-        }
-        if (!emailRegex.matches(email)) {
-            return Pair<Boolean,Pair<String, String?>>(false, "email" to "Please enter a valid email address.")
-        }
-        if (forbiddenCharsRegex.containsMatchIn(email)) {
-            return Pair<Boolean,Pair<String, String?>>(false, "email" to "Email contains invalid characters.")
-        }
+        if (email.isBlank()) return false to ("email" to "Email cannot be empty.")
+        if (!emailRegex.matches(email)) return false to ("email" to "Please enter a valid email address.")
+        if (forbiddenCharsRegex.containsMatchIn(email)) return false to ("email" to "Email contains invalid characters.")
 
-        if (password.isBlank()) {
-            return Pair<Boolean,Pair<String, String?>>(false, "password" to "Password cannot be empty.")
-        }
-        if (password.length < 8) {
-            return Pair<Boolean,Pair<String, String?>>(false, "password" to "Password must be at least 8 characters long.")
-        }
-        if (forbiddenCharsRegex.containsMatchIn(password)) {
-            return Pair<Boolean,Pair<String, String?>>(false, "password" to "Password contains invalid characters.")
-        }
+        if (password.isBlank()) return false to ("password" to "Password cannot be empty.")
+        if (password.length < 8) return false to ("password" to "Password must be at least 8 characters long.")
+        if (forbiddenCharsRegex.containsMatchIn(password)) return false to ("password" to "Password contains invalid characters.")
 
         val containsLetter = password.any { it.isLetter() }
         val containsDigit = password.any { it.isDigit() }
 
         if (!containsLetter || !containsDigit) {
-            return Pair<Boolean,Pair<String, String?>>(false, "password" to "Password must contain at least one letter and one number.")
+            return false to ("password" to "Password must contain at least one letter and one number.")
         }
 
-        return Pair<Boolean,Pair<String, String?>>(true, "" to null)
+        return true to ("" to "")
     }
     private fun loadMovies() {
         viewModelScope.launch {
@@ -403,20 +399,20 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                 val result3 = GetMostPopularMoviesUseCase(moviesRepository)
                 _mostPopularMovies.value = result3.invoke()
             } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
+                Log.d("DEBUG", e.message.toString())
             }
             try {
                 val result4 = GetComingSoonMoviesUseCase(moviesRepository)
                 _comingSoonMovies.value = result4.invoke()
             } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
+                Log.d("DEBUG", e.message.toString())
             }
             try {
                 val result5 = GetActorsUseCase(actorsRepository)
                 _actors.value = result5.invoke()
-                Log.d("TEKKEN", _actors.value!!.size.toString() + "ACTORS")
+                Log.d("DEBUG", _actors.value!!.size.toString() + "ACTORS")
             } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
+                Log.d("DEBUG", e.message.toString())
             }
 
 
@@ -425,13 +421,13 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                 val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
                 _mostPopularTVShows.value = result1.invoke()
             } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
+                Log.d("DEBUG", e.message.toString())
             }
             try {
                 val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
                 _currentlyTrendingMovies.value = result0.invoke()
             } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
+                Log.d("DEBUG", e.message.toString())
             }
         }.invokeOnCompletion {}
     }

@@ -24,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +44,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
@@ -53,17 +56,36 @@ import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
 fun Content(){
+
+    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+
     var loginText by remember { mutableStateOf("") }
 
     var passwordText by remember { mutableStateOf("")}
 
-    var showEmailWarning by remember { mutableStateOf(false) }
+    var showEmailWarning by remember { mutableStateOf<String?>(null) }
+    var showPasswordWarning by remember { mutableStateOf<String?>(null) }
 
-    var showPasswordWarning by remember { mutableStateOf(false) }
+
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(Unit) {
+        viewModel.authErrorFlow
+            .flowWithLifecycle(lifecycleOwner.lifecycle)
+            .collect { (field, message) ->
+                if (field == "email") {
+                    showEmailWarning = message
+                    showPasswordWarning = null
+                } else if (field == "password") {
+                    showPasswordWarning = message
+                    showEmailWarning = null
+                }
+            }
+    }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
 
     val focusRequester = remember { FocusRequester() }
     Spacer(modifier = Modifier.height(50.dp))
@@ -139,7 +161,7 @@ fun Content(){
                 modifier = Modifier
 
                     .background(PrimaryColor, shape = RoundedCornerShape(8.dp))
-                    .focusRequester(focusRequester).onFocusChanged { showEmailWarning = false  }
+                    .focusRequester(focusRequester).onFocusChanged { showEmailWarning = null  }
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 textStyle = TextStyle(
@@ -165,21 +187,21 @@ fun Content(){
                 }
             )
         }
-        if(showEmailWarning){
-            Box(modifier = Modifier.align(Alignment.Start).padding(horizontal = 16.dp, vertical = 0.dp)){
-                Text(
-                    text = viewModel.warningInAuthenticationScreen.value!!,
-                    color = Color(rgb(249, 55, 57)),
-                    fontSize = 16.sp,
-                )
-            }
+
+        if (showEmailWarning != null) {
+            Text(
+                text = showEmailWarning!!,
+                color = Color.Red,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 16.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(20.dp))
         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)){
             BasicTextField(
                 value = passwordText,
-                onValueChange = { passwordText = it; showPasswordWarning = false},
+                onValueChange = { passwordText = it; showPasswordWarning = null},
                 cursorBrush = SolidColor(TextColor),
                 modifier = Modifier
                     .background(PrimaryColor, shape = RoundedCornerShape(8.dp))
@@ -209,15 +231,13 @@ fun Content(){
                 }
             )
         }
-        if(showPasswordWarning){
-            Box(modifier = Modifier.align(Alignment.Start).padding(horizontal = 16.dp, vertical = 0.dp)){
-                Text(
-                    text = viewModel.warningInAuthenticationScreen.value!!,
-                    color = Color(rgb(249, 55, 57)),
-                    fontSize = 16.sp,
-                )
-            }
-
+        if (showPasswordWarning != null) {
+            Text(
+                text = showPasswordWarning!!,
+                color = Color.Red,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 16.dp)
+            )
         }
 
         Column(modifier = Modifier
@@ -227,12 +247,9 @@ fun Content(){
             val c = LocalContext.current
             Button(
                 onClick = {
-                   val p = viewModel.inputWasSuccessfullyValidated(loginText, passwordText)
-                    if(p.first){
+                    val isValid = viewModel.inputWasSuccessfullyValidated(loginText, passwordText)
+                    if (isValid.first) {
                         viewModel.createUserWithEmailAndPassword(loginText, passwordText)
-                    }else{
-                        if(p.second == "email") {showEmailWarning = true; showPasswordWarning = false}
-                        if(p.second == "password") {showPasswordWarning = true; showEmailWarning = false}
                     }
                 },
                 shape = RoundedCornerShape(10.dp),
