@@ -2,13 +2,16 @@ package com.example.filmsdataapp.data.network
 
 import android.util.Log
 import com.example.filmsdataapp.BuildConfig
+import com.example.filmsdataapp.data.remote.NetworkService
+import com.example.filmsdataapp.data.remote.api.TitleApi
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
 object NetworkHelper {
     private val client = OkHttpClient()
 
-    fun makeRequest(url: String, hostFlag: Int): String? {
+    suspend fun makeRequest(url: String, hostFlag: Int): String? {
         val host = when (hostFlag) {
             1 -> BuildConfig.RAPID_API_HOST_ONE
             2 -> BuildConfig.RAPID_API_HOST_TWO
@@ -16,6 +19,7 @@ object NetworkHelper {
             4 -> BuildConfig.RAPID_API_HOST_FOUR
             else -> throw IllegalArgumentException("Invalid hostFlag: $hostFlag")
         }
+
 
         return try {
             val request = Request.Builder()

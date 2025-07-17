@@ -1,7 +1,11 @@
 package com.example.filmsdataapp.data.repository
 
 import android.util.Log
+import com.example.filmsdataapp.BuildConfig
 import com.example.filmsdataapp.data.network.NetworkHelper
+import com.example.filmsdataapp.data.remote.NetworkService
+import com.example.filmsdataapp.data.remote.api.ActorApi
+import com.example.filmsdataapp.data.remote.api.TitleApi
 import com.example.filmsdataapp.domain.model.Actor
 import com.example.filmsdataapp.domain.model.ActorDetailResponse
 import com.example.filmsdataapp.domain.model.ActorInfo
@@ -21,30 +25,15 @@ import kotlinx.serialization.json.jsonPrimitive
 class ActorsRepositoryImpl : ActorsRepository {
 
     override suspend fun getActors(): List<Actor> = withContext(Dispatchers.IO) {
-        val json = Json { ignoreUnknownKeys = true }
-
-        val jsonString = NetworkHelper.makeRequest(
-            "https://imdb232.p.rapidapi.com/api/actors/get-most-popular?limit=100", 2
-        ) ?: throw IllegalStateException("Empty response when getting actors")
-
-        val response = json.decodeFromString<ActorsResponse>(jsonString)
-        return@withContext response.data.topMeterNames.edges.map { it.node }
+        val api = NetworkService.getInstance("https://imdb232.p.rapidapi.com/").create(ActorApi::class.java)
+        val ar = api.getActors(apiKey = BuildConfig.RAPID_API_KEY, apiHost = BuildConfig.RAPID_API_HOST_TWO)
+        return@withContext ar.data.topMeterNames.edges.map { it.node }
     }
 
     override suspend fun getActorOverviewById(id: String): ActorInfo = withContext(Dispatchers.IO) {
-        val json = Json { ignoreUnknownKeys = true }
-
-        val jsonString = NetworkHelper.makeRequest(
-            "https://imdb232.p.rapidapi.com/api/actors/get-overview?limit=25&nm=$id", 2
-        ) ?: throw IllegalStateException("Empty response when getting actor overview")
-
-        val response = json.decodeFromString<ActorDetailResponse>(jsonString)
-        return@withContext response.data.name
+        val api = NetworkService.getInstance("https://imdb232.p.rapidapi.com/").create(ActorApi::class.java)
+        val ar = api.getActorOverviewById(id = id, apiKey = BuildConfig.RAPID_API_KEY, apiHost = BuildConfig.RAPID_API_HOST_TWO)
+        return@withContext ar.data.name
     }
 
-    override suspend fun getActorImagesById(id: String): String = withContext(Dispatchers.IO) {
-        NetworkHelper.makeRequest(
-            "https://imdb232.p.rapidapi.com/api/actors/get-images?nm=$id&limit=25", 2
-        ) ?: ""
-    }
 }

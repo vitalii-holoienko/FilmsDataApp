@@ -1,6 +1,10 @@
 package com.example.filmsdataapp.data.repository
 
+import com.example.filmsdataapp.BuildConfig
 import com.example.filmsdataapp.data.network.NetworkHelper
+import com.example.filmsdataapp.data.remote.NetworkService
+import com.example.filmsdataapp.data.remote.api.NewsApi
+import com.example.filmsdataapp.data.remote.api.TitleApi
 import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.RootNews
 import com.example.filmsdataapp.domain.repository.NewsRepository
@@ -14,16 +18,13 @@ class NewsRepositoryImpl : NewsRepository {
             ignoreUnknownKeys = true
         }
 
-        val jsonString = NetworkHelper.makeRequest(
-            "https://imdb232.p.rapidapi.com/api/news/get-by-category?limit=25&category=TOP",
-            2
-        ) ?: throw IllegalStateException("Empty response from getNews")
+        val api = NetworkService.getInstance("https://imdb232.p.rapidapi.com/").create(NewsApi::class.java)
+        val rt = api.getNews(apiKey = BuildConfig.RAPID_API_KEY, apiHost = BuildConfig.RAPID_API_HOST_TWO)
 
         try {
-            val root = json.decodeFromString<RootNews>(jsonString)
-            return@withContext root.data.news.edges.map { it.node }
+            return@withContext rt.data.news.edges.map { it.node }
         } catch (e: Exception) {
-            throw IllegalStateException("Failed to parse news JSON. Raw response:\n$jsonString", e)
+            throw IllegalStateException("Failed to parse news JSON")
         }
     }
 }

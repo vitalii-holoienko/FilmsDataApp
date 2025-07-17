@@ -7,7 +7,6 @@ interface MoviesRepository {
     suspend fun getMostPopularMovies(): List<Title>
     suspend fun getComingSoonMovies(): List<Title>
     suspend fun getCurrentlyTrendingMovies(): List<Title>
-    suspend fun getMoviesWithAppliedFilter(): String
     suspend fun getTitleById(id:String) : Title
     suspend fun getRatingById(id:String) : String
 

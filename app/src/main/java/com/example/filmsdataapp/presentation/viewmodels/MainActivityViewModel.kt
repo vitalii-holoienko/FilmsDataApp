@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.credentials.CredentialManager
 import android.util.Log
-import android.widget.Toast
 import com.example.filmsdataapp.domain.model.ActivityData
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.State
@@ -47,13 +46,10 @@ import com.example.filmsdataapp.domain.usecase.GetMostPopularMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
-import com.example.filmsdataapp.domain.usecase.GetTitleById
-import com.example.filmsdataapp.domain.usecase.GetTitlesReleasedInCertainYear
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.presentation.common.NavigationEvent
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.play.integrity.internal.c
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
@@ -71,6 +67,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -389,49 +386,27 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     private fun loadMovies() {
         viewModelScope.launch {
             try {
-                val result2 = GetNewsUseCase(newsRepository)
-                _news.value = result2.invoke()
-            } catch (e: Exception) {
-                Log.d("TEKKEN", e.message.toString())
-            }
+                val newsDeferred = async { GetNewsUseCase(newsRepository).invoke() }
+                val popularMoviesDeferred = async { GetMostPopularMoviesUseCase(moviesRepository).invoke() }
+                val comingSoonDeferred = async { GetComingSoonMoviesUseCase(moviesRepository).invoke() }
+                val actorsDeferred = async { GetActorsUseCase(actorsRepository).invoke() }
+                val tvShowsDeferred = async { GetMostPopularTVShowsUseCase(tvShowsRepository).invoke() }
+                val trendingDeferred = async { GetCurrentlyTrendingMoviesUseCase(moviesRepository).invoke() }
 
-            try {
-                val result3 = GetMostPopularMoviesUseCase(moviesRepository)
-                _mostPopularMovies.value = result3.invoke()
-            } catch (e: Exception) {
-                Log.d("DEBUG", e.message.toString())
-            }
-            try {
-                val result4 = GetComingSoonMoviesUseCase(moviesRepository)
-                _comingSoonMovies.value = result4.invoke()
-            } catch (e: Exception) {
-                Log.d("DEBUG", e.message.toString())
-            }
-            try {
-                val result5 = GetActorsUseCase(actorsRepository)
-                _actors.value = result5.invoke()
-                Log.d("DEBUG", _actors.value!!.size.toString() + "ACTORS")
-            } catch (e: Exception) {
-                Log.d("DEBUG", e.message.toString())
-            }
+                _news.value = newsDeferred.await()
+                _mostPopularMovies.value = popularMoviesDeferred.await()
+                _comingSoonMovies.value = comingSoonDeferred.await()
+                _actors.value = actorsDeferred.await()
+                _mostPopularTVShows.value = tvShowsDeferred.await()
+                _currentlyTrendingMovies.value = trendingDeferred.await()
 
+                Log.d("DEBUG", "${_actors.value?.size} ACTORS")
 
-
-            try {
-                val result1 = GetMostPopularTVShowsUseCase(tvShowsRepository)
-                _mostPopularTVShows.value = result1.invoke()
             } catch (e: Exception) {
-                Log.d("DEBUG", e.message.toString())
+                Log.d("DEBUG", "Error: ${e.message}")
             }
-            try {
-                val result0 = GetCurrentlyTrendingMoviesUseCase(moviesRepository)
-                _currentlyTrendingMovies.value = result0.invoke()
-            } catch (e: Exception) {
-                Log.d("DEBUG", e.message.toString())
-            }
-        }.invokeOnCompletion {}
+        }
     }
-
     fun userRatingForTitle(title: Title, rating: Float, where: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()

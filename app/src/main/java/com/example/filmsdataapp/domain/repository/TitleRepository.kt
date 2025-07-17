@@ -10,8 +10,6 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 
 interface TitleRepository {
     suspend fun getReviewsById(id:String) : List<Review>
-    suspend fun getTitleWithAppliedFilters(filterStatus: FilterStatus):String
-    suspend fun getTitlesReleasedInCertainYear(year:Int) : List<Title>
     suspend fun searchTitle(query:String) : List<Title>
 
 }
