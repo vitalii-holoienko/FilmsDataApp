@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -55,9 +56,9 @@ import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun Content(){
+fun Content(viewModel : MainActivityViewModel){
 
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+
 
     var loginText by remember { mutableStateOf("") }
 

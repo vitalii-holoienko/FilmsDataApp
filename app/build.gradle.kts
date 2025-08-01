@@ -5,6 +5,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.kapt")
+    id("com.google.dagger.hilt.android") version "2.48"
     kotlin("plugin.serialization")
 }
 val prop = Properties().apply {
@@ -18,6 +20,11 @@ val rapidApiHostThree = prop.getProperty("RAPID_API_HOST_THREE")
 val rapidApiHostFour = prop.getProperty("RAPID_API_HOST_FOUR")
 
 
+
+
+hilt {
+    enableAggregatingTask = false
+}
 
 android {
     namespace = "com.example.filmsdataapp"
@@ -35,7 +42,7 @@ android {
         buildConfigField("String", "RAPID_API_HOST_THREE", "\"$rapidApiHostThree\"")
         buildConfigField("String", "RAPID_API_HOST_FOUR", "\"$rapidApiHostFour\"")
         applicationId = "com.example.filmsdataapp"
-        minSdk = 34
+        minSdk = 33
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -45,6 +52,7 @@ android {
             useSupportLibrary = true
         }
     }
+
 
     buildTypes {
         release {
@@ -85,6 +93,16 @@ java {
 dependencies {
     val nav_version = "2.8.9"
     val okhttp_version = "4.12.0"
+    val hiltVersion = "2.48"
+
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0")
+
+    kapt("androidx.hilt:hilt-compiler:1.2.0")
+    implementation("com.squareup:javapoet:1.13.0")
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    kapt("com.google.dagger:hilt-compiler:$hiltVersion")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     // Also add the dependencies for the Credential Manager libraries and specify their versions
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")

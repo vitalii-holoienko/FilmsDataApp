@@ -56,6 +56,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
@@ -64,11 +65,9 @@ import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun Header(
+fun Header( viewModel : MainActivityViewModel
 ) {
     val focusRequester = remember { FocusRequester() }
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
-
     var isSearching by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     val isConnected by viewModel.isConnected.collectAsState()

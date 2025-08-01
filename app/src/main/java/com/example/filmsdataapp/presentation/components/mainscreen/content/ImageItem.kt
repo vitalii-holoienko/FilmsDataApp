@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
@@ -43,8 +44,8 @@ import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 
 @Composable
-fun ImageItem(width: Dp, movie: Title?) {
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+fun ImageItem(width: Dp, movie: Title?, viewModel : MainActivityViewModel) {
+
     if(movie?.primaryImage != null){
         val painter = rememberAsyncImagePainter(movie.primaryImage)
         val imageState = painter.state

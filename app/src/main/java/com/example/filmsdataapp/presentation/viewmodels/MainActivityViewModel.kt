@@ -38,6 +38,7 @@ import com.example.filmsdataapp.domain.repository.MoviesRepository
 import com.example.filmsdataapp.domain.repository.NewsRepository
 import com.example.filmsdataapp.domain.repository.TVShowsRepository
 import com.example.filmsdataapp.domain.repository.TitleRepository
+import com.example.filmsdataapp.domain.usecase.GetActorBioByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetActorInfoByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetActorsUseCase
 import com.example.filmsdataapp.domain.usecase.GetComingSoonMoviesUseCase
@@ -46,6 +47,7 @@ import com.example.filmsdataapp.domain.usecase.GetMostPopularMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
+import com.example.filmsdataapp.domain.usecase.GetTitleByIdUseCase
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.presentation.common.NavigationEvent
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
@@ -67,6 +69,8 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,32 +79,36 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class MainActivityViewModel(private val context: Context) : ViewModel() {
+@HiltViewModel
+class MainActivityViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val getActorBioByIdUseCase: GetActorBioByIdUseCase,
+    private val getActorInfoByIdUseCase: GetActorInfoByIdUseCase,
+    private val getActorsUseCase: GetActorsUseCase,
+    private val getComingSoonMoviesUseCase: GetComingSoonMoviesUseCase,
+    private val getCurrentlyTrendingMoviesUseCase: GetCurrentlyTrendingMoviesUseCase,
+    private val getMostPopularMoviesUseCase: GetMostPopularMoviesUseCase,
+    private val getMostPopularTVShowsUseCase: GetMostPopularTVShowsUseCase,
+    private val getNewsUseCase: GetNewsUseCase,
+    private val getReviewsByIdUseCase: GetReviewsByIdUseCase,
+    private val searchTitleUseCase: SearchTitleUseCase,
+    private val getTitleByIdUseCase: GetTitleByIdUseCase,
+    ) : ViewModel() {
     val filterStatus : FilterStatus = FilterStatus()
-
     private var networkMonitor = NetworkMonitor(context)
     val isConnected: StateFlow<Boolean> = networkMonitor.networkStatus
-
     var credentialManager : CredentialManager? = null
     lateinit var firebaseAuth : FirebaseAuth
-    var user : FirebaseUser? = null
-
-    private val moviesRepository : MoviesRepository = MoviesRepositoryImpl()
-    private val newsRepository : NewsRepository = NewsRepositoryImpl()
-    private val tvShowsRepository : TVShowsRepository = TVShowsRepositoryImpl()
-    private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
-    private val titleRepository : TitleRepository = TitleRepositoryImpl()
+//    private val moviesRepository : MoviesRepository = MoviesRepositoryImpl()
+//    private val newsRepository : NewsRepository = NewsRepositoryImpl()
+//    private val tvShowsRepository : TVShowsRepository = TVShowsRepositoryImpl()
+//    private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
+//    private val titleRepository : TitleRepository = TitleRepositoryImpl()
 
     private val _navigation = MutableStateFlow<NavigationEvent>(NavigationEvent.None)
     val navigation: StateFlow<NavigationEvent> = _navigation
-
-    var clickedTitle = MutableLiveData<Title>()
-    var clickedNews = MutableLiveData<News>()
-
-
-
-
     var searchEnded = MutableLiveData<Boolean>()
     var showWarningInLogInScreen = MutableLiveData(false)
 
@@ -114,8 +122,6 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     var userSuccessfullySignedIn =  MutableLiveData<Boolean>()
 
     var appGotUserPhoneNumber = MutableLiveData(false)
-
-    var warningInAuthenticationScreen = MutableLiveData<String>()
 
     var enteredPhoneNumber = MutableLiveData("")
 
@@ -134,17 +140,12 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
     var displayedActorInfo = MutableLiveData<ActorInfo>(null)
     private val _currentlyTrendingMovies = MutableLiveData<List<Title>>()
-    private val _titleWithAppliedFitlers = MutableStateFlow("")
     var _inititalTitleToDisplay = MutableLiveData<List<Title>>()
 
     val _titlesToDisplay = MutableLiveData<List<Title>>()
     val _reviewsToDisplay = MutableLiveData<List<Review>>()
 
-
-    val initialTitlesToDisplay: LiveData<List<Title>> get() = _inititalTitleToDisplay
     val titlesToDisplay: LiveData<List<Title>> get() = _titlesToDisplay
-    val titlesReleasedIn2025: LiveData<List<Title>> get() = _titlesReleasedIn2025
-    val titlesReleasedIn2024: LiveData<List<Title>> get() = _titlesReleasedIn2024
     val searchedTitles: LiveData<List<Title>> get() = _searchedTitles
     val reviewsToDisplay: LiveData<List<Review>> get() = _reviewsToDisplay
     val mostPopularMovies: LiveData<List<Title>> get() = _mostPopularMovies
@@ -160,6 +161,10 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     private var db : FirebaseFirestore = Firebase.firestore
     private var storedVerificationId: String? = ""
     private lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
+
+    init{
+        Log.d("TEKKEN", "ASDADSAFAS")
+    }
     var callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
@@ -384,14 +389,16 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
         return true to ("" to "")
     }
     private fun loadMovies() {
+
+        Log.d("TEKKEN", "loadMovies() called")
         viewModelScope.launch {
             try {
-                val newsDeferred = async { GetNewsUseCase(newsRepository).invoke() }
-                val popularMoviesDeferred = async { GetMostPopularMoviesUseCase(moviesRepository).invoke() }
-                val comingSoonDeferred = async { GetComingSoonMoviesUseCase(moviesRepository).invoke() }
-                val actorsDeferred = async { GetActorsUseCase(actorsRepository).invoke() }
-                val tvShowsDeferred = async { GetMostPopularTVShowsUseCase(tvShowsRepository).invoke() }
-                val trendingDeferred = async { GetCurrentlyTrendingMoviesUseCase(moviesRepository).invoke() }
+                val newsDeferred = async { getNewsUseCase() }
+                val popularMoviesDeferred = async { getMostPopularMoviesUseCase() }
+                val comingSoonDeferred = async { getComingSoonMoviesUseCase() }
+                val actorsDeferred = async { getActorsUseCase() }
+                val tvShowsDeferred = async { getMostPopularTVShowsUseCase() }
+                val trendingDeferred = async { getCurrentlyTrendingMoviesUseCase() }
 
                 _news.value = newsDeferred.await()
                 _mostPopularMovies.value = popularMoviesDeferred.await()
@@ -400,7 +407,9 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
                 _mostPopularTVShows.value = tvShowsDeferred.await()
                 _currentlyTrendingMovies.value = trendingDeferred.await()
 
-                Log.d("DEBUG", "${_actors.value?.size} ACTORS")
+
+                Log.d("TEKKEN", "${_currentlyTrendingMovies.value} gfdsg")
+
 
             } catch (e: Exception) {
                 Log.d("DEBUG", "Error: ${e.message}")
@@ -1234,8 +1243,9 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
     fun searchTitle(query:String){
         viewModelScope.launch {
-            val result = SearchTitleUseCase(titleRepository)
-            _searchedTitles.value = result.invoke(query)
+            val df = async { searchTitleUseCase(query) }
+            _searchedTitles.value = df.await()
+
         }.invokeOnCompletion {
             searchEnded.value = true
             Log.d("TEKKEN", "SEARCHED TITLES " + searchedTitles.value!!.size.toString())
@@ -1270,8 +1280,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
 
     fun getTitleReviews(id:String){
         viewModelScope.launch {
-            val result = GetReviewsByIdUseCase(titleRepository)
-            val list = result.invoke(id)
+            val df = async { getReviewsByIdUseCase(id) }
+            val list = df.await()
             _reviewsToDisplay.value = list
         }
     }
@@ -1279,8 +1289,8 @@ class MainActivityViewModel(private val context: Context) : ViewModel() {
     fun getActorInfo(id:String){
         try{
             viewModelScope.launch {
-                val r = GetActorInfoByIdUseCase(actorsRepository)
-                displayedActorInfo.value = r.invoke(id)
+                val df = async { getActorInfoByIdUseCase(id) }
+                displayedActorInfo.value = df.await()
             }.invokeOnCompletion {
                 recievedActorInfo.value = true
             }

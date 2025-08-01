@@ -10,9 +10,9 @@ import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.presentation.components.userlistoftitlesscreen.Content
 
 @Composable
-fun UserListOfTitlesScreen(list:String){
+fun UserListOfTitlesScreen(list:String, viewModel : MainActivityViewModel){
     Column{
-        Header()
-        Content(list)
+        Header(viewModel)
+        Content(list, viewModel)
     }
 }

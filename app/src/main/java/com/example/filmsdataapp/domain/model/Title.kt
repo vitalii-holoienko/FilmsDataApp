@@ -8,7 +8,6 @@ data class ApiResponse(
     val numFound: Int,
     val results: List<Title>
 )
-
 @Serializable
 data class Title(
     val id : String? = null,
@@ -35,5 +34,4 @@ data class Title(
     val runtimeMinutes : Int? = null,
     val averageRating : Float? = null,
     val numVotes : Int? = null,
-
 )

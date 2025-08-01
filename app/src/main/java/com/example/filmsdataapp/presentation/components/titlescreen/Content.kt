@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.filmsdataapp.R
@@ -72,8 +73,7 @@ import com.example.filmsdataapp.ui.theme.LinksColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun Content(title : Title) {
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+fun Content(title : Title, viewModel : MainActivityViewModel) {
     val listOfReviews by viewModel.reviewsToDisplay.observeAsState(emptyList())
     viewModel.getTitleReviews(title.id!!)
     var inWhichListUserHasThisTitle by remember{ mutableStateOf("") }
@@ -138,7 +138,8 @@ fun Content(title : Title) {
                 },
                 modifier = Modifier.width(230.dp),
                 inWhichListUserHasThisTitle,
-                title.id
+                title.id,
+                viewModel
             )
             var rating by remember { mutableStateOf(0f) }
             if (inWhichListUserHasThisTitle != "no") {

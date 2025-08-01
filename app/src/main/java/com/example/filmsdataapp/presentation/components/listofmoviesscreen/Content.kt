@@ -63,11 +63,11 @@ import com.google.accompanist.placeholder.shimmer
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun Content(from : String){
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+fun Content(from : String, viewModel : MainActivityViewModel){
     var pageName by remember(from) { mutableStateOf("") }
     var pageDescription by remember(from) { mutableStateOf("") }
     var typeContentToDisplay by remember(from) { mutableStateOf("") }
@@ -263,6 +263,7 @@ fun Content(from : String){
             FilterPanelWithButton(
                 isFilterVisible = isFilterVisible,
                 onToggle = { isFilterVisible = !isFilterVisible },
+                viewModel
             )
         }
     }

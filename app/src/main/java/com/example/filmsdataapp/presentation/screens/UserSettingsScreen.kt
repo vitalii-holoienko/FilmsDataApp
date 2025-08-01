@@ -4,11 +4,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import com.example.filmsdataapp.presentation.components.Header
 import com.example.filmsdataapp.presentation.components.usersettingsscreen.Content
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 
 @Composable
-fun UserSettingsScreen(){
+fun UserSettingsScreen(viewModel : MainActivityViewModel){
     Column(){
-        Header()
-        Content()
+        Header(viewModel)
+        Content(viewModel)
     }
 }

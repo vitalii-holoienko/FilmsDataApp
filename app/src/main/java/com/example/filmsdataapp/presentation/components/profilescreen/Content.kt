@@ -59,6 +59,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.filmsdataapp.R
@@ -72,8 +73,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
-fun Content(){
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+fun Content(viewModel : MainActivityViewModel){
 
     var sizeOfPlannedList by remember{mutableStateOf(0)}
     var sizeOfWatchingList by remember{mutableStateOf(0)}

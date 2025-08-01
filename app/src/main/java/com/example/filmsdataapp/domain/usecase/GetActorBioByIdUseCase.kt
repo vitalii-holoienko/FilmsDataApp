@@ -2,8 +2,9 @@ package com.example.filmsdataapp.domain.usecase
 
 import com.example.filmsdataapp.domain.model.ActorInfo
 import com.example.filmsdataapp.domain.repository.ActorsRepository
+import javax.inject.Inject
 
-class GetActorBioByIdUseCase(
+class GetActorBioByIdUseCase @Inject constructor(
     private val repository: ActorsRepository
 ) {
     suspend operator fun invoke(id:String): ActorInfo {

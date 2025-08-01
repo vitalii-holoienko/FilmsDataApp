@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -55,8 +56,7 @@ import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun Content(){
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+fun Content(viewModel : MainActivityViewModel){
     var nickname by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var userImage by remember { mutableStateOf<Uri?>(null) }

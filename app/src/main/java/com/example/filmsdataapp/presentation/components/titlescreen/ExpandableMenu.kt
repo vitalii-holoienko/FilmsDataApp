@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import kotlinx.coroutines.launch
@@ -46,10 +47,11 @@ fun ExpandableMenu(
     onItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     inWhichListUserHasThisTitle : String,
-    titleId:String
+    titleId:String,
+    viewModel : MainActivityViewModel
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+
 
     var finalListWhereUserHasTitle by remember {
         mutableStateOf(inWhichListUserHasThisTitle)

@@ -10,13 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.filmsdataapp.presentation.components.Header
 import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Content
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun ReviewsScreen(){
+fun ReviewsScreen(viewModel : MainActivityViewModel){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
-        Header()
+        Header(viewModel)
 
     }
 }

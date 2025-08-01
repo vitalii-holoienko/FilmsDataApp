@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -54,7 +55,7 @@ fun NavigationMenuWrapper(
     navController: NavController,
     content: @Composable () -> Unit
 ) {
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val viewModel: MainActivityViewModel = hiltViewModel()
     val isConnected by viewModel.isConnected.collectAsState()
     ModalNavigationDrawer(
         modifier = Modifier.background(color = BackGroundColor),

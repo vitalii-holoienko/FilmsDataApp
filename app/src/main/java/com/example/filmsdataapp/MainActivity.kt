@@ -9,6 +9,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -57,7 +59,6 @@ import com.example.filmsdataapp.presentation.screens.UserHistoryScreen
 import com.example.filmsdataapp.presentation.screens.UserListOfTitlesScreen
 import com.example.filmsdataapp.presentation.screens.UserSettingsScreen
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
-import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModelFactory
 import com.example.filmsdataapp.ui.theme.FilmsDataAppTheme
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -70,19 +71,19 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.URLEncoder
 import kotlin.math.sign
-
+import androidx.hilt.navigation.compose.hiltViewModel
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var viewModel: MainActivityViewModel
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.checkIfUserIsSignedIn()
-    }
 
+
+
+    @RequiresApi(34)
     @SuppressLint("SuspiciousIndentation")
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,13 +92,17 @@ class MainActivity : ComponentActivity() {
         var credentialManager : CredentialManager? = CredentialManager.create(baseContext)
 
 
-        viewModel = ViewModelProvider(this, MainActivityViewModelFactory(this)).get(MainActivityViewModel::class.java)
-        viewModel.firebaseAuth = Firebase.auth
-        viewModel.credentialManager = credentialManager
+
+
 
         var cp = this
         setContent {
             FilmsDataAppTheme {
+                val viewModel : MainActivityViewModel = hiltViewModel()
+                viewModel.firebaseAuth = Firebase.auth
+                viewModel.credentialManager = credentialManager
+                viewModel.checkIfUserIsSignedIn()
+
                 //loading initial data
                 LaunchedEffect(Unit) {
                     viewModel.loadUserImage()
@@ -178,24 +183,24 @@ class MainActivity : ComponentActivity() {
                         popEnterTransition = { EnterTransition.None },
                         popExitTransition = { ExitTransition.None }){
                         composable(route = "main_screen") {
-                            MainScreen()
+                            MainScreen(viewModel)
                         }
                         composable(route = "authentication_screen") {
-                            AuthenticationScreen()
+                            AuthenticationScreen(viewModel)
 
                         }
 
                         composable(route = "log_in_screen") {
-                            LogInScreen()
+                            LogInScreen(viewModel)
                         }
 
                         composable(route="create_profile_screen"){
-                            CreateProfileScreen()
+                            CreateProfileScreen(viewModel)
 
                         }
 
                         composable(route = "sign_in_with_phone_number_screen"){
-                            SignInWithPhoneNumberScreen()
+                            SignInWithPhoneNumberScreen(viewModel)
                         }
 
 
@@ -208,7 +213,7 @@ class MainActivity : ComponentActivity() {
                             val json = backStackEntry.arguments?.getString("titleJson")
                             val title = json?.let { Json.decodeFromString<Title>(it) }
 
-                            TitleScreen(title = title!!,)
+                            TitleScreen(title = title!!, viewModel)
                         }
 
                         composable(
@@ -218,55 +223,55 @@ class MainActivity : ComponentActivity() {
                             val json = backStackEntry.arguments?.getString("newsJson")
                             val news = json?.let { Json.decodeFromString<News>(it) }
 
-                             NewsScreen(news = news!!,)
+                             NewsScreen(news = news!!, viewModel)
                         }
 
 
                         composable(route = "movies_screen") {
-                            MoviesScreen()
+                            MoviesScreen(viewModel)
                         }
 
                         composable(route = "actor_info_screen") {
-                            ActorInfoScreen()
+                            ActorInfoScreen(viewModel)
                         }
                         composable(route = "actors_screen") {
-                            ActorsScreen()
+                            ActorsScreen(viewModel)
                         }
 
                         composable(route = "tvshows_screen") {
-                            TVShowsScreen()
+                            TVShowsScreen(viewModel)
                         }
 
                         composable(route = "new_releases_screen") {
-                            ComingSoonScreen()
+                            ComingSoonScreen(viewModel)
                         }
                         composable(route = "about_program_screen") {
-                            AboutProgramScreen()
+                            AboutProgramScreen(viewModel)
                         }
 
 
                         composable(route = "currently_trending_screen") {
-                            CurrentlyTrendingScreen()
+                            CurrentlyTrendingScreen(viewModel)
                         }
 
                         composable(route = "searched_titles_screen") {
-                            SearchedTitlesScreen()
+                            SearchedTitlesScreen(viewModel)
                         }
                         composable(route = "profile_screen"){
-                            ProfileScreen()
+                            ProfileScreen(viewModel)
                         }
                         composable(
                             route = "user_list_of_titles/{list}",
                             arguments = listOf(navArgument("list") { type = NavType.StringType })
                         ) { backStackEntry ->
                             val list = backStackEntry.arguments?.getString("list") ?: ""
-                            UserListOfTitlesScreen(list = list)
+                            UserListOfTitlesScreen(list = list, viewModel)
                         }
                         composable(route = "user_history_screen"){
-                            UserHistoryScreen()
+                            UserHistoryScreen(viewModel)
                         }
                         composable(route = "user_settings_screen"){
-                            UserSettingsScreen()
+                            UserSettingsScreen(viewModel)
                         }
                     }
                 }

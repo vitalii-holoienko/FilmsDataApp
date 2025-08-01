@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.News
@@ -50,13 +52,17 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Content(
-
+    viewModel : MainActivityViewModel
 ) {
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val comingSoonMovies = viewModel.comingSoonMovies.observeAsState(emptyList())
     val currentlyTrendingMovies = viewModel.currentlyTrendingMovies.observeAsState(emptyList())
+    Log.d("TEKKEN", "!!!!! " + currentlyTrendingMovies.value.size.toString())
     val news = viewModel.news.observeAsState(emptyList())
     val isConnected by viewModel.isConnected.collectAsState()
+
+    LaunchedEffect(currentlyTrendingMovies) {
+        Log.d("TEKKEN", "Currently trending movies changed, size = ${currentlyTrendingMovies.value.size}")
+    }
 
 
     Box(modifier = Modifier
@@ -104,7 +110,7 @@ fun Content(
                 .background(color = PrimaryColor),
                 contentAlignment = Alignment.Center
             ){
-                ImageSlider(currentlyTrendingMovies.value!!)
+                ImageSlider(currentlyTrendingMovies.value!!, viewModel)
             }
             Spacer(modifier = Modifier.height(70.dp))
             Box(modifier = Modifier
@@ -144,7 +150,7 @@ fun Content(
                 .height(220.dp),
                 contentAlignment = Alignment.Center
             ){
-                ImageSlider(comingSoonMovies.value!!)
+                ImageSlider(comingSoonMovies.value!!, viewModel)
             }
             Spacer(modifier = Modifier.height(40.dp))
             //MAIN TAGS
@@ -429,7 +435,7 @@ fun Content(
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            News(news.value)
+            News(news.value, viewModel)
         }
 
     }

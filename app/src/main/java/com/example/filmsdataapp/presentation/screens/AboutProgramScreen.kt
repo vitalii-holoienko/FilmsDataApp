@@ -10,13 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.filmsdataapp.presentation.components.Header
 import com.example.filmsdataapp.presentation.components.listofmoviesscreen.Content
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun AboutProgramScreen(){
+fun AboutProgramScreen(viewModel : MainActivityViewModel){
     Column(modifier = Modifier.fillMaxSize()
         .background(color= BackGroundColor).verticalScroll(rememberScrollState())){
-        Header()
-        Content()
+        Header(viewModel)
+        Content(viewModel)
     }
 }

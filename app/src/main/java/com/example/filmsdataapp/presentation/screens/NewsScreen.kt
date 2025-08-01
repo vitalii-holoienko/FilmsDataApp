@@ -10,14 +10,15 @@ import com.example.filmsdataapp.domain.model.Title
 import com.example.filmsdataapp.presentation.components.Header
 import com.example.filmsdataapp.presentation.components.newsscreen.Content
 import com.example.filmsdataapp.presentation.components.profilescreen.Content
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 
 @Composable
-fun NewsScreen(news: News){
+fun NewsScreen(news: News, viewModel : MainActivityViewModel){
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = BackGroundColor)){
-        Header()
-        Content(news)
+        Header(viewModel)
+        Content(news, viewModel)
     }
 }

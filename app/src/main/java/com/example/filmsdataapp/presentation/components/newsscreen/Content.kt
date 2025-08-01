@@ -26,10 +26,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.News
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.BackGroundColor
 import com.example.filmsdataapp.ui.theme.TextColor
 @Composable
-fun Content(news: News){
+fun Content(news: News, viewModel : MainActivityViewModel){
     Column(modifier = Modifier.background(BackGroundColor).padding(10.dp).fillMaxWidth().verticalScroll(state = ScrollState(0))){
         Text(
             text = news.articleTitle!!.plainText!!,

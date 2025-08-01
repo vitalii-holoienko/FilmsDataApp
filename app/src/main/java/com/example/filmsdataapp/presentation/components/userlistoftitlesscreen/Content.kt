@@ -52,6 +52,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.TextUnitType.Companion.Sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
@@ -61,8 +62,7 @@ import com.example.filmsdataapp.ui.theme.TextColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Content(list:String){
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+fun Content(list:String, viewModel : MainActivityViewModel){
     var nickname by remember { mutableStateOf("-") }
     LaunchedEffect(Unit){
         viewModel.getUserNickname {

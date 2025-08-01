@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.filmsdataapp.R
+import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
@@ -40,7 +41,7 @@ private fun SectionText(text: String) {
     )
 }
 @Composable
-fun Content(){
+fun Content(viewModel : MainActivityViewModel){
     Column(
         modifier = Modifier
             .fillMaxSize()

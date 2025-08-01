@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.filmsdataapp.R
@@ -37,8 +38,7 @@ import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 
 @Composable
-fun News(news : List<News>?){
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
+fun News(news : List<News>?, viewModel : MainActivityViewModel){
     Column(modifier = Modifier.fillMaxSize()){
         if(news != null){
             if(!news.isEmpty()){

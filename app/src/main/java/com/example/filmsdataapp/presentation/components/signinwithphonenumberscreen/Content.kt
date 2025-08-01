@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.presentation.viewmodels.MainActivityViewModel
@@ -52,27 +53,15 @@ import com.example.filmsdataapp.ui.theme.PrimaryColor
 import com.example.filmsdataapp.ui.theme.TextColor
 
 @Composable
-fun Content(){
+fun Content(viewModel : MainActivityViewModel){
 
 
     var phoneNumber by remember { mutableStateOf("") }
-
     var verificationCode by remember { mutableStateOf("") }
-
-
-
-
-
     val keyboardController = LocalSoftwareKeyboardController.current
-
-
-
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
-
     LaunchedEffect(Unit){
         viewModel.showWarningInPhoneNumberScreen.value = false
     }
-
     var appGotUserPhoneNumber = viewModel.appGotUserPhoneNumber.observeAsState()
     var userSuccessfullySignedInUsingGoogle = viewModel.userSuccessfullySignedIn.observeAsState(false)
     var showWarning = viewModel.showWarningInPhoneNumberScreen.observeAsState(false)

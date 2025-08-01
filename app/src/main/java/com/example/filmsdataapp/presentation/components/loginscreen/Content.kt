@@ -63,6 +63,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -75,18 +76,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun Content(){
+fun Content(viewModel : MainActivityViewModel){
     var loginText by remember { mutableStateOf("") }
-
     var passwordText by remember { mutableStateOf("") }
-
-
-
     val keyboardController = LocalSoftwareKeyboardController.current
-
-
-
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     var showWarning = viewModel.showWarningInLogInScreen.observeAsState()
     var userSuccessfullySignedInUsingGoogle = viewModel.userSuccessfullySignedIn.observeAsState(false)
 

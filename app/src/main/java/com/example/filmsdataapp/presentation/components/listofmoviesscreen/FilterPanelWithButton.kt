@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.filmsdataapp.R
 import com.example.filmsdataapp.domain.model.FilterOption
@@ -59,8 +60,8 @@ import kotlin.math.roundToInt
 fun FilterPanelWithButton(
     isFilterVisible: Boolean,
     onToggle: () -> Unit,
+    viewModel : MainActivityViewModel
 ) {
-    val viewModel: MainActivityViewModel = viewModel(LocalContext.current as ComponentActivity)
     val filterWidth = 300.dp
     val buttonWidth = 40.dp
     val density = LocalDensity.current
