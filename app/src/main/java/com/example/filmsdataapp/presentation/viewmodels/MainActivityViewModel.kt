@@ -21,11 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.filmsdataapp.R
-import com.example.filmsdataapp.data.repository.ActorsRepositoryImpl
-import com.example.filmsdataapp.data.repository.MoviesRepositoryImpl
-import com.example.filmsdataapp.data.repository.NewsRepositoryImpl
-import com.example.filmsdataapp.data.repository.TVShowsRepositoryImpl
-import com.example.filmsdataapp.data.repository.TitleRepositoryImpl
+
 import com.example.filmsdataapp.domain.model.Actor
 import com.example.filmsdataapp.domain.model.ActorInfo
 import com.example.filmsdataapp.domain.model.FilterStatus
@@ -33,11 +29,9 @@ import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.Review
 import com.example.filmsdataapp.domain.model.SORTED_BY
 import com.example.filmsdataapp.domain.model.Title
-import com.example.filmsdataapp.domain.repository.ActorsRepository
-import com.example.filmsdataapp.domain.repository.MoviesRepository
-import com.example.filmsdataapp.domain.repository.NewsRepository
-import com.example.filmsdataapp.domain.repository.TVShowsRepository
-import com.example.filmsdataapp.domain.repository.TitleRepository
+import com.example.filmsdataapp.domain.usecase.ChangeUserAccountUseCase
+import com.example.filmsdataapp.domain.usecase.CreateUserAccountUseCase
+
 import com.example.filmsdataapp.domain.usecase.GetActorBioByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetActorInfoByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetActorsUseCase
@@ -48,7 +42,10 @@ import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetTitleByIdUseCase
+import com.example.filmsdataapp.domain.usecase.GetUserRatingFotTitleUseCase
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
+import com.example.filmsdataapp.domain.usecase.SetUserRatingFotTitleUseCase
+import com.example.filmsdataapp.domain.usecase.ValidateAuthenticationInputUseCase
 import com.example.filmsdataapp.presentation.common.NavigationEvent
 import com.example.filmsdataapp.presentation.utils.NetworkMonitor
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -94,19 +91,17 @@ class MainActivityViewModel @Inject constructor(
     private val getNewsUseCase: GetNewsUseCase,
     private val getReviewsByIdUseCase: GetReviewsByIdUseCase,
     private val searchTitleUseCase: SearchTitleUseCase,
-    private val getTitleByIdUseCase: GetTitleByIdUseCase,
+    private val validateAuthenticationInputUseCase : ValidateAuthenticationInputUseCase,
+    private val createUserAccountUseCase : CreateUserAccountUseCase,
+    private val setUserRatingFotTitleUseCase : SetUserRatingFotTitleUseCase,
+    private val getUserRatingFotTitleUseCase : GetUserRatingFotTitleUseCase,
+    private val changeUserAccountUseCase : ChangeUserAccountUseCase,
     ) : ViewModel() {
     val filterStatus : FilterStatus = FilterStatus()
     private var networkMonitor = NetworkMonitor(context)
     val isConnected: StateFlow<Boolean> = networkMonitor.networkStatus
     var credentialManager : CredentialManager? = null
     lateinit var firebaseAuth : FirebaseAuth
-//    private val moviesRepository : MoviesRepository = MoviesRepositoryImpl()
-//    private val newsRepository : NewsRepository = NewsRepositoryImpl()
-//    private val tvShowsRepository : TVShowsRepository = TVShowsRepositoryImpl()
-//    private val actorsRepository : ActorsRepository = ActorsRepositoryImpl()
-//    private val titleRepository : TitleRepository = TitleRepositoryImpl()
-
     private val _navigation = MutableStateFlow<NavigationEvent>(NavigationEvent.None)
     val navigation: StateFlow<NavigationEvent> = _navigation
     var searchEnded = MutableLiveData<Boolean>()
@@ -134,8 +129,6 @@ class MainActivityViewModel @Inject constructor(
     private val _searchedTitles = MutableLiveData<List<Title>>()
     private val _news = MutableLiveData<List<News>>()
     private val _actors = MutableLiveData<List<Actor>>()
-    private var _titlesReleasedIn2025 = MutableLiveData<List<Title>>()
-    private var _titlesReleasedIn2024= MutableLiveData<List<Title>>()
     var searchedQuery = MutableLiveData<String>()
 
     var displayedActorInfo = MutableLiveData<ActorInfo>(null)
@@ -168,21 +161,10 @@ class MainActivityViewModel @Inject constructor(
     var callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            // This callback will be invoked in two situations:
-            // 1 - Instant verification. In some cases the phone number can be instantly
-            //     verified without needing to send or enter a verification code.
-            // 2 - Auto-retrieval. On some devices Google Play services can automatically
-            //     detect the incoming verification SMS and perform verification without
-            //     user action.
-
             signInWithPhoneAuthCredential(credential)
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
-            // This callback is invoked in an invalid request for verification is made,
-            // for instance if the the phone number format is not valid.
-
-
             if (e is FirebaseAuthInvalidCredentialsException) {
                 showWarningInPhoneNumberScreen.value = true
                 warningInPhoneNumberScreen.value = "Verification code is incorrect"
@@ -195,22 +177,14 @@ class MainActivityViewModel @Inject constructor(
 
             showWarningInPhoneNumberScreen.value = true
             warningInPhoneNumberScreen.value = "Something went wrong, try again later"
-            // Show a message and update the UI
         }
-
         override fun onCodeSent(
             verificationId: String,
             token: PhoneAuthProvider.ForceResendingToken,
         ) {
-            // The SMS verification code has been sent to the provided phone number, we
-            // now need to ask the user to enter the code and then construct a credential
-            // by combining the code with a verification ID.
-            Log.d("TEKKEN", "onCodeSent:$verificationId")
-
-            // Save verification ID and resending token so we can use them later
+            Log.d("DEBUG", "onCodeSent:$verificationId")
             storedVerificationId = verificationId
             resendToken = token
-
 
         }
     }
@@ -222,7 +196,6 @@ class MainActivityViewModel @Inject constructor(
     fun clearNavigation() {
         _navigation.value = NavigationEvent.None
     }
-
 
     fun onOnHoldListClicked(){
         _navigation.value = NavigationEvent.ToUserListOfTitles("onhold")
@@ -244,8 +217,6 @@ class MainActivityViewModel @Inject constructor(
         _navigation.value = NavigationEvent.ToUserListOfTitles("planned")
     }
 
-
-    //listOf("onhold", "dropped", "completed", "watching", "planned")
     fun getListOfTitlesByName(name: String) {
         when (name) {
             "onhold" -> getOnHoldTitles { _listOfTitlesToDisplay.value = it }
@@ -255,15 +226,6 @@ class MainActivityViewModel @Inject constructor(
             "planned" -> getPlannedTitles { _listOfTitlesToDisplay.value = it }
         }
     }
-
-
-
-
-
-
-
-
-
     fun onNewsClicked(news: News) {
         _navigation.value = NavigationEvent.ToNews(news)
     }
@@ -336,61 +298,6 @@ class MainActivityViewModel @Inject constructor(
     }
     //-------------------------------------------------------------------------------
     fun loadInitialData(){
-        loadMovies()
-    }
-
-
-    fun startInternetObserve(){
-        networkMonitor = NetworkMonitor(context)
-    }
-
-    fun checkIfUserIsSignedIn() : Boolean{
-        return firebaseAuth.currentUser != null
-    }
-
-
-    private val _authErrorFlow = MutableSharedFlow<Pair<String, String>>()
-    val authErrorFlow = _authErrorFlow.asSharedFlow()
-
-    fun inputWasSuccessfullyValidated(email: String, password: String): Pair<Boolean, String?> {
-        val pair = validateUserAuthenticationInput(email, password)
-
-        if (!pair.first) {
-            viewModelScope.launch {
-                _authErrorFlow.emit(pair.second)
-            }
-            return false to pair.second.first
-        }
-
-        return true to null
-    }
-    private fun validateUserAuthenticationInput(
-        email: String,
-        password: String
-    ): Pair<Boolean, Pair<String, String>> {
-        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\$")
-        val forbiddenCharsRegex = Regex("[\\s\"',;]")
-
-        if (email.isBlank()) return false to ("email" to "Email cannot be empty.")
-        if (!emailRegex.matches(email)) return false to ("email" to "Please enter a valid email address.")
-        if (forbiddenCharsRegex.containsMatchIn(email)) return false to ("email" to "Email contains invalid characters.")
-
-        if (password.isBlank()) return false to ("password" to "Password cannot be empty.")
-        if (password.length < 8) return false to ("password" to "Password must be at least 8 characters long.")
-        if (forbiddenCharsRegex.containsMatchIn(password)) return false to ("password" to "Password contains invalid characters.")
-
-        val containsLetter = password.any { it.isLetter() }
-        val containsDigit = password.any { it.isDigit() }
-
-        if (!containsLetter || !containsDigit) {
-            return false to ("password" to "Password must contain at least one letter and one number.")
-        }
-
-        return true to ("" to "")
-    }
-    private fun loadMovies() {
-
-        Log.d("TEKKEN", "loadMovies() called")
         viewModelScope.launch {
             try {
                 val newsDeferred = async { getNewsUseCase() }
@@ -406,186 +313,47 @@ class MainActivityViewModel @Inject constructor(
                 _actors.value = actorsDeferred.await()
                 _mostPopularTVShows.value = tvShowsDeferred.await()
                 _currentlyTrendingMovies.value = trendingDeferred.await()
-
-
-                Log.d("TEKKEN", "${_currentlyTrendingMovies.value} gfdsg")
-
-
             } catch (e: Exception) {
                 Log.d("DEBUG", "Error: ${e.message}")
             }
         }
     }
-    fun userRatingForTitle(title: Title, rating: Float, where: String) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-        val titleId = title.id ?: return
-        val titleName = title.primaryTitle ?: "Unknown title"
+    fun startInternetObserve(){
+        networkMonitor = NetworkMonitor(context)
+    }
+    fun checkIfUserIsSignedIn() : Boolean{
+        return firebaseAuth.currentUser != null
+    }
+    private val _authErrorFlow = MutableSharedFlow<Pair<String, String>>()
+    val authErrorFlow = _authErrorFlow.asSharedFlow()
 
+    fun inputWasSuccessfullyValidated(email: String, password: String): Pair<Boolean, String?> {
+        val pair = validateAuthenticationInputUseCase(email, password)
 
-        viewModelScope.launch {
-            val docRef = db.collection("users")
-                .document(uid)
-                .collection(where)
-                .document(titleId)
-
-            docRef.update("userRating", (rating*2).toInt())
-                .addOnSuccessListener {
-                    val historyRef = db.collection("users")
-                        .document(uid)
-                        .collection("history")
-                        .document()
-
-                    val historyEntry = mapOf(
-                        "message" to "$titleName was rated ${(rating*2).toInt()}.",
-                        "timestamp" to FieldValue.serverTimestamp()
-                    )
-
-                    historyRef.set(historyEntry)
-                        .addOnSuccessListener {
-                            Log.d("HISTORY", "History entry added.")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("HISTORY", "Failed to add history entry", e)
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("RATING", "Failed to update rating for $titleId", e)
-                }
+        if (!pair.first) {
+            viewModelScope.launch {
+                _authErrorFlow.emit(pair.second)
+            }
+            return false to pair.second.first
         }
+
+        return true to null
+    }
+
+    fun setUserRatingForTitle(title: Title, rating: Float, where: String) {
+        setUserRatingFotTitleUseCase(title, rating, where)
     }
 
     fun getUserRatingForTitle(titleId: String, where: String, onResult: (Int?) -> Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        val docRef = db.collection("users")
-            .document(uid)
-            .collection(where)
-            .document(titleId)
-
-        docRef.get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot.exists()) {
-                    val rating = snapshot.getLong("userRating")?.toInt()
-                    onResult(rating)
-                } else {
-                    onResult(null)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("RATING", "Failed to load userRating", e)
-                onResult(null)
-            }
+        getUserRatingFotTitleUseCase(titleId,where,onResult)
     }
 
-    fun createUserAccount(nickname: String, description: String, image: Uri?) {
-        val finalImageUri = image ?: Uri.parse("android.resource://${context.packageName}/${R.drawable.user_icon}")
-        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
-        val uid = currentUser.uid
-
-        val profileUpdates = userProfileChangeRequest {
-            displayName = nickname
-            photoUri = finalImageUri
-        }
-
-        uploadImageToStorage(finalImageUri) { downloadUrl ->
-            currentUser.updateProfile(profileUpdates)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val user = hashMapOf(
-                            "nickname" to nickname,
-                            "description" to description,
-                            "image" to downloadUrl
-                        )
-
-                        db.collection("users").document(uid).set(user)
-                            .addOnSuccessListener {
-                                Log.d("TEKKEN", "User data saved with UID: $uid")
-                                onMainClicked()
-                            }
-                            .addOnFailureListener { e ->
-                                Log.w("TEKKEN", "Error adding user document", e)
-                            }
-                    } else {
-                        Log.e("TEKKEN", "Failed to update profile", task.exception)
-                    }
-                }
-        }
-
-
+    fun createUser(nickname: String, description: String, image: Uri?) {
+        createUserAccountUseCase(nickname, description, image) { onMainClicked() }
     }
 
     fun changeUserAccount(nickname: String, description: String, image: Uri?) {
-        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
-        val uid = currentUser.uid
-
-
-        if (image != null && image.scheme != "https") {
-            uploadImageToStorage(image) { downloadUrl ->
-                applyProfileChanges(currentUser, nickname, downloadUrl, description, uid)
-            }
-        } else {
-
-            val existingPhotoUrl = currentUser.photoUrl?.toString()
-                ?: "https://..."
-
-            applyProfileChanges(currentUser, nickname, existingPhotoUrl, description, uid)
-        }
-    }
-
-    private fun applyProfileChanges(
-        currentUser: FirebaseUser,
-        nickname: String,
-        imageUrl: String,
-        description: String,
-        uid: String
-    ) {
-        val profileUpdates = userProfileChangeRequest {
-            displayName = nickname
-            photoUri = Uri.parse(imageUrl)
-        }
-
-        currentUser.updateProfile(profileUpdates)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val user = hashMapOf(
-                        "nickname" to nickname,
-                        "description" to description,
-                        "image" to imageUrl
-                    )
-
-                    db.collection("users").document(uid).set(user)
-                        .addOnSuccessListener {
-                            Log.d("TEKKEN", "User data updated")
-                            onProfileClicked()
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w("TEKKEN", "Error updating user document", e)
-                        }
-                } else {
-                    Log.e("TEKKEN", "Failed to update profile", task.exception)
-                }
-            }
-    }
-
-    fun updateUserAccount(nickname : String, description : String, image : Uri?){
-        val profileUpdates = userProfileChangeRequest {
-            displayName = nickname
-            photoUri = image
-        }
-        FirebaseAuth.getInstance().currentUser?.updateProfile(profileUpdates)
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
-        val user = hashMapOf(
-            "nickname" to nickname,
-            "description" to description,
-            "image" to image.toString(),
-        )
-
-        db.collection("users").document(uid)
-            .set(user)
-
+        changeUserAccountUseCase(nickname, description, image) { onProfileClicked() }
     }
     fun getUserImage(callback: (Uri) -> Unit) {
         val uid = firebaseAuth.currentUser?.uid ?: return

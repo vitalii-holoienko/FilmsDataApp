@@ -165,7 +165,7 @@ fun Content(title : Title, viewModel : MainActivityViewModel) {
                                             val isLeftSide = offset.x < size.width / 2
                                             val newRating =
                                                 if (isLeftSide) i - 0.5f else i.toFloat()
-                                            viewModel.userRatingForTitle(
+                                            viewModel.setUserRatingForTitle(
                                                 title,
                                                 newRating,
                                                 inWhichListUserHasThisTitle

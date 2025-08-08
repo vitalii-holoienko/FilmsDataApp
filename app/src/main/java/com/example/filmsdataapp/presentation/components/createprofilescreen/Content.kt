@@ -162,7 +162,7 @@ fun Content(viewModel : MainActivityViewModel){
 
             Button(
                 onClick = {
-                  viewModel.createUserAccount(nickname, description, userImage)
+                  viewModel.createUser(nickname, description, userImage)
                 },
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth()
