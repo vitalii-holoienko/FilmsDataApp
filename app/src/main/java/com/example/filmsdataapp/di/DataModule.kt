@@ -13,6 +13,7 @@ import com.example.filmsdataapp.domain.repository.NewsRepository
 import com.example.filmsdataapp.domain.repository.TVShowsRepository
 import com.example.filmsdataapp.domain.repository.TitleRepository
 import com.example.filmsdataapp.domain.repository.UserRepository
+import com.example.filmsdataapp.domain.usecase.DeleteTitleFromAllListsUseCase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -59,7 +60,7 @@ class DataModule {
         context: Context,
         auth: FirebaseAuth,
         firestore: FirebaseFirestore,
-        storage: FirebaseStorage
+        storage: FirebaseStorage,
     ): UserRepository {
         return UserRepositoryImpl(context, auth, firestore, storage)
     }

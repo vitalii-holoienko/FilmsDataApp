@@ -29,20 +29,36 @@ import com.example.filmsdataapp.domain.model.News
 import com.example.filmsdataapp.domain.model.Review
 import com.example.filmsdataapp.domain.model.SORTED_BY
 import com.example.filmsdataapp.domain.model.Title
+import com.example.filmsdataapp.domain.usecase.AddTitleToCompleteListUseCase
+import com.example.filmsdataapp.domain.usecase.AddTitleToDroppedListUseCase
+import com.example.filmsdataapp.domain.usecase.AddTitleToOnHoldListUseCase
+import com.example.filmsdataapp.domain.usecase.AddTitleToPlannedListUseCase
+import com.example.filmsdataapp.domain.usecase.AddTitleToWatchingListUseCase
 import com.example.filmsdataapp.domain.usecase.ChangeUserAccountUseCase
+import com.example.filmsdataapp.domain.usecase.CheckIfUserHasTitleInListsUseCase
 import com.example.filmsdataapp.domain.usecase.CreateUserAccountUseCase
+import com.example.filmsdataapp.domain.usecase.DeleteTitleFromAllListsUseCase
+import com.example.filmsdataapp.domain.usecase.FetchUserHistoryUseCase
 
 import com.example.filmsdataapp.domain.usecase.GetActorBioByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetActorInfoByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetActorsUseCase
 import com.example.filmsdataapp.domain.usecase.GetComingSoonMoviesUseCase
+import com.example.filmsdataapp.domain.usecase.GetCompletedTitlesUseCase
 import com.example.filmsdataapp.domain.usecase.GetCurrentlyTrendingMoviesUseCase
+import com.example.filmsdataapp.domain.usecase.GetDroppedTitlesUseCase
+import com.example.filmsdataapp.domain.usecase.GetMonthlyCompletedStatsUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularMoviesUseCase
 import com.example.filmsdataapp.domain.usecase.GetMostPopularTVShowsUseCase
 import com.example.filmsdataapp.domain.usecase.GetNewsUseCase
+import com.example.filmsdataapp.domain.usecase.GetPlannedTitlesUseCase
 import com.example.filmsdataapp.domain.usecase.GetReviewsByIdUseCase
 import com.example.filmsdataapp.domain.usecase.GetTitleByIdUseCase
+import com.example.filmsdataapp.domain.usecase.GetUserDescriptionUseCase
+import com.example.filmsdataapp.domain.usecase.GetUserImageUseCase
+import com.example.filmsdataapp.domain.usecase.GetUserNickNameUseCase
 import com.example.filmsdataapp.domain.usecase.GetUserRatingFotTitleUseCase
+import com.example.filmsdataapp.domain.usecase.GetWatchingTitlesUseCase
 import com.example.filmsdataapp.domain.usecase.SearchTitleUseCase
 import com.example.filmsdataapp.domain.usecase.SetUserRatingFotTitleUseCase
 import com.example.filmsdataapp.domain.usecase.ValidateAuthenticationInputUseCase
@@ -81,7 +97,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val getActorBioByIdUseCase: GetActorBioByIdUseCase,
     private val getActorInfoByIdUseCase: GetActorInfoByIdUseCase,
     private val getActorsUseCase: GetActorsUseCase,
     private val getComingSoonMoviesUseCase: GetComingSoonMoviesUseCase,
@@ -96,6 +111,22 @@ class MainActivityViewModel @Inject constructor(
     private val setUserRatingFotTitleUseCase : SetUserRatingFotTitleUseCase,
     private val getUserRatingFotTitleUseCase : GetUserRatingFotTitleUseCase,
     private val changeUserAccountUseCase : ChangeUserAccountUseCase,
+    private val getUserImageUseCase: GetUserImageUseCase,
+    private val getMonthlyCompletedStatsUseCase: GetMonthlyCompletedStatsUseCase,
+    private val checkIfUserHasTitleInListsUseCase : CheckIfUserHasTitleInListsUseCase,
+    private val deleteTitleFromAllListsUseCase : DeleteTitleFromAllListsUseCase,
+    private val getUserNickNameUseCase : GetUserNickNameUseCase,
+    private val fetchUserHistoryUseCase : FetchUserHistoryUseCase,
+    private val addTitleToWatchingListUseCase : AddTitleToWatchingListUseCase,
+    private val addTitleToPlannedListUseCase : AddTitleToPlannedListUseCase,
+    private val addTitleToCompleteListUseCase : AddTitleToCompleteListUseCase,
+    private val addTitleToOnHoldListUseCase : AddTitleToOnHoldListUseCase,
+    private val addTitleToDroppedListUseCase : AddTitleToDroppedListUseCase,
+    private val getDroppedTitlesUseCase : GetDroppedTitlesUseCase,
+    private val getCompletedTitlesUseCase : GetCompletedTitlesUseCase,
+    private val getWatchingTitlesUseCase : GetWatchingTitlesUseCase,
+    private val getPlannedTitlesUseCase : GetPlannedTitlesUseCase,
+    private val getUserDescriptionUseCase : GetUserDescriptionUseCase,
     ) : ViewModel() {
     val filterStatus : FilterStatus = FilterStatus()
     private var networkMonitor = NetworkMonitor(context)
@@ -106,9 +137,6 @@ class MainActivityViewModel @Inject constructor(
     val navigation: StateFlow<NavigationEvent> = _navigation
     var searchEnded = MutableLiveData<Boolean>()
     var showWarningInLogInScreen = MutableLiveData(false)
-
-    var showWarningInAuthenticationScreen = MutableLiveData<Boolean>()
-
     var showWarningInPhoneNumberScreen = MutableLiveData<Boolean>(false)
     var warningInPhoneNumberScreen = MutableLiveData<String>("")
 
@@ -119,7 +147,6 @@ class MainActivityViewModel @Inject constructor(
     var appGotUserPhoneNumber = MutableLiveData(false)
 
     var enteredPhoneNumber = MutableLiveData("")
-
 
 
     var recievedActorInfo = MutableLiveData<Boolean>(false)
@@ -155,9 +182,6 @@ class MainActivityViewModel @Inject constructor(
     private var storedVerificationId: String? = ""
     private lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
 
-    init{
-        Log.d("TEKKEN", "ASDADSAFAS")
-    }
     var callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
@@ -356,63 +380,11 @@ class MainActivityViewModel @Inject constructor(
         changeUserAccountUseCase(nickname, description, image) { onProfileClicked() }
     }
     fun getUserImage(callback: (Uri) -> Unit) {
-        val uid = firebaseAuth.currentUser?.uid ?: return
-        db.collection("users").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val imageString = document.getString("image")
-                    val imageUri = imageString?.let { Uri.parse(it) }
-                    callback(imageUri!!)
-                }
-
-
-            }
-            .addOnFailureListener { exception ->
-
-            }
+        getUserImageUseCase(callback)
     }
 
     fun getMonthlyCompletedStats(uid: String, onResult: (List<ActivityData>) -> Unit) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users")
-            .document(uid)
-            .collection("completed")
-            .get()
-            .addOnSuccessListener { result ->
-
-                val keyFormat = SimpleDateFormat("yyyy-MM", Locale.ENGLISH)
-
-                val dateCounts = mutableMapOf<String, Int>()
-                result.documents.forEach { doc ->
-                    val date = doc.getTimestamp("addedAt")?.toDate() ?: return@forEach
-                    val key = keyFormat.format(date)
-                    dateCounts[key] = dateCounts.getOrDefault(key, 0) + 1
-                }
-
-                val completeData = mutableListOf<ActivityData>()
-
-                val baseCal = Calendar.getInstance().apply {
-                    set(Calendar.DAY_OF_MONTH, 1)
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                    add(Calendar.MONTH, -10)
-                }
-
-                for (i in 0 until 11) {
-                    val cal = baseCal.clone() as Calendar
-                    cal.add(Calendar.MONTH, i)
-                    val key = keyFormat.format(cal.time)
-                    val count = dateCounts.getOrDefault(key, 0)
-                    completeData.add(ActivityData(key, count))
-                }
-
-                onResult(completeData)
-            }
-            .addOnFailureListener {
-                onResult(emptyList())
-            }
+        getMonthlyCompletedStatsUseCase(uid, onResult)
     }
 
     fun getUserWatchingTime(callback: (Int) -> Unit) {
@@ -436,311 +408,53 @@ class MainActivityViewModel @Inject constructor(
         getOnHoldTitles { onListLoaded(it) }
         getDroppedTitles { onListLoaded(it) }
     }
-    private fun uploadImageToStorage(imageUri: Uri, onUploaded: (String) -> Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val storageRef = FirebaseStorage.getInstance().reference
-            .child("user_images/$uid.jpg")
-
-        storageRef.putFile(imageUri)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    onUploaded(uri.toString())
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("TEKKEN", "Failed to upload image", e)
-            }
+    fun checkIfUserHasTitleInLists(titleId: String, callback: (String) -> Unit) {
+        checkIfUserHasTitleInListsUseCase(titleId, callback)
     }
 
-    fun checkIfUserHasTitleInLists(
-        titleId: String,
-        callback: (String) -> Unit
-    ) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid == null) {
-            callback("no")
-            return
-        }
-
-        val db = FirebaseFirestore.getInstance()
-        val collections = listOf("onhold", "dropped", "completed", "watching", "planned")
-        var checkedCount = 0
-        var found = false
-
-        for (collection in collections) {
-            db.collection("users")
-                .document(uid)
-                .collection(collection)
-                .document(titleId)
-                .get()
-                .addOnSuccessListener { document ->
-                    checkedCount++
-                    if (document.exists() && !found) {
-                        found = true
-                        callback(collection)
-                    } else if (checkedCount == collections.size && !found) {
-                        callback("no")
-                    }
-                }
-                .addOnFailureListener {
-                    checkedCount++
-                    if (checkedCount == collections.size && !found) {
-                        callback("no")
-                    }
-                }
-        }
-    }
-
-    suspend fun deleteTitleForAllLists(id: String) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-        val collections = listOf("planned", "watching", "completed", "onhold", "dropped")
-
-        for (collection in collections) {
-            val docRef = db.collection("users").document(uid).collection(collection).document(id)
-            val snapshot = docRef.get().await()
-            if (snapshot.exists()) {
-                docRef.delete().await()
-            }
-        }
+    suspend fun deleteTitleFromAllLists(id: String) {
+        deleteTitleFromAllListsUseCase(id)
     }
     fun getUserNickname(callback: (String) -> Unit) {
-        val uid = firebaseAuth.currentUser?.uid ?: return
-        Log.d("TEKKEN", "Current UID: $uid")
-        db.collection("users").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val nickname = document.getString("nickname") ?: "Default"
-                    callback(nickname)
-                } else {
-                    Log.d("TEKKEN", "No such document")
-                    callback("Default")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.w("TEKKEN", "get failed with ", exception)
-                callback("Default")
-            }
+        getUserNickNameUseCase(callback)
     }
 
     fun addTitleToWatchingList(title: Title) {
-
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        val titleId = title.id ?: return
-        val titleName = title.primaryTitle?: "Unknown Title"
-
         viewModelScope.launch {
-
-            deleteTitleForAllLists(titleId)
-
-            val watchingRef = db.collection("users")
-                .document(uid)
-                .collection("watching")
-                .document(titleId)
-
-            watchingRef.set(title)
-                .addOnSuccessListener {
-
-                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
-                        .addOnSuccessListener {
-                            Log.d("WATCHING", "Title $titleId added to watching list.")
-
-
-                            val historyRef = db.collection("users")
-                                .document(uid)
-                                .collection("history")
-                                .document()
-
-                            val historyEntry = mapOf(
-                                "message" to "$titleName was added to 'Watched' list.",
-                                "timestamp" to FieldValue.serverTimestamp()
-                            )
-
-                            historyRef.set(historyEntry)
-                                .addOnSuccessListener {
-                                    Log.d("HISTORY", "History entry added.")
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("HISTORY", "Failed to add history entry", e)
-                                }
-
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("WATCHING", "Failed to update addedAt field", e)
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("WATCHING", "Failed to add title to watching list", e)
-                }
+            deleteTitleFromAllListsUseCase(title.id!!)
+            addTitleToWatchingListUseCase(title)
         }
     }
 
 
     fun fetchUserHistory(onResult: (List<String>) -> Unit, onError: (Exception) -> Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users")
-            .document(uid)
-            .collection("history")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { result ->
-                val historyMessages = result.documents.mapNotNull { doc ->
-                    doc.getString("message")
-                }
-                onResult(historyMessages)
-            }
-            .addOnFailureListener { exception ->
-                onError(exception)
-            }
+        fetchUserHistoryUseCase(onResult, onError)
     }
     fun addTitleToPlannedList(title: Title) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        val titleId = title.id ?: return
-        val titleName = title.primaryTitle?: "Unknown Title"
         viewModelScope.launch {
-
-            deleteTitleForAllLists(titleId)
-
-            val watchingRef = db.collection("users")
-                .document(uid)
-                .collection("planned")
-                .document(titleId)
-
-
-            watchingRef.set(title)
-                .addOnSuccessListener {
-
-                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
-                        .addOnSuccessListener {
-                            val historyRef = db.collection("users")
-                                .document(uid)
-                                .collection("history")
-                                .document()
-
-                            val historyEntry = mapOf(
-                                "message" to "$titleName was added to 'Planned' list.",
-                                "timestamp" to FieldValue.serverTimestamp()
-                            )
-
-                            historyRef.set(historyEntry)
-                                .addOnSuccessListener {
-                                    Log.d("HISTORY", "History entry added.")
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("HISTORY", "Failed to add history entry", e)
-                                }
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("planned", "Failed to update addedAt field", e)
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("planned", "Failed to add title to watching list", e)
-                }
+            deleteTitleFromAllListsUseCase(title.id!!)
+            addTitleToPlannedListUseCase(title)
         }
     }
 
     fun addTitleToCompletedList(title: Title) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        val titleId = title.id ?: return
-        val titleName = title.primaryTitle?: "Unknown Title"
         viewModelScope.launch {
-
-            deleteTitleForAllLists(titleId)
-
-            val watchingRef = db.collection("users")
-                .document(uid)
-                .collection("completed")
-                .document(titleId)
-
-
-            watchingRef.set(title)
-                .addOnSuccessListener {
-
-                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
-                        .addOnSuccessListener {
-                            val historyRef = db.collection("users")
-                                .document(uid)
-                                .collection("history")
-                                .document()
-
-                            val historyEntry = mapOf(
-                                "message" to "$titleName was added to 'Planned' list.",
-                                "timestamp" to FieldValue.serverTimestamp()
-                            )
-
-                            historyRef.set(historyEntry)
-                                .addOnSuccessListener {
-                                    Log.d("HISTORY", "History entry added.")
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("HISTORY", "Failed to add history entry", e)
-                                }
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("planned", "Failed to update addedAt field", e)
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("planned", "Failed to add title to watching list", e)
-                }
+            deleteTitleFromAllListsUseCase(title.id!!)
+            addTitleToCompleteListUseCase(title)
         }
     }
 
     fun addTitleToOnHoldList(title: Title) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        val titleId = title.id ?: return
-        val titleName = title.primaryTitle?: "Unknown Title"
         viewModelScope.launch {
+            deleteTitleFromAllListsUseCase(title.id!!)
+            addTitleToOnHoldListUseCase(title)
+        }
+    }
 
-            deleteTitleForAllLists(titleId)
-
-            val watchingRef = db.collection("users")
-                .document(uid)
-                .collection("onhold")
-                .document(titleId)
-
-
-            watchingRef.set(title)
-                .addOnSuccessListener {
-
-                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
-                        .addOnSuccessListener {
-                            val historyRef = db.collection("users")
-                                .document(uid)
-                                .collection("history")
-                                .document()
-
-                            val historyEntry = mapOf(
-                                "message" to "$titleName was added to 'Planned' list.",
-                                "timestamp" to FieldValue.serverTimestamp()
-                            )
-
-                            historyRef.set(historyEntry)
-                                .addOnSuccessListener {
-                                    Log.d("HISTORY", "History entry added.")
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("HISTORY", "Failed to add history entry", e)
-                                }
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("planned", "Failed to update addedAt field", e)
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("planned", "Failed to add title to watching list", e)
-                }
+    fun addTitleToDroppedList(title: Title) {
+        viewModelScope.launch {
+            deleteTitleFromAllListsUseCase(title.id!!)
+            addTitleToDroppedListUseCase(title)
         }
     }
 
@@ -768,178 +482,28 @@ class MainActivityViewModel @Inject constructor(
                 callback(emptyList())
             }
     }
-
-
-    fun addTitleToDroppedList(title: Title) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-        val titleName = title.primaryTitle?: "Unknown Title"
-        val titleId = title.id ?: return
-
-        viewModelScope.launch {
-
-            deleteTitleForAllLists(titleId)
-
-            val watchingRef = db.collection("users")
-                .document(uid)
-                .collection("dropped")
-                .document(titleId)
-
-
-            watchingRef.set(title)
-                .addOnSuccessListener {
-
-                    watchingRef.update("addedAt", FieldValue.serverTimestamp())
-                        .addOnSuccessListener {
-                            val historyRef = db.collection("users")
-                                .document(uid)
-                                .collection("history")
-                                .document()
-
-                            val historyEntry = mapOf(
-                                "message" to "$titleName was added to 'Planned' list.",
-                                "timestamp" to FieldValue.serverTimestamp()
-                            )
-
-                            historyRef.set(historyEntry)
-                                .addOnSuccessListener {
-                                    Log.d("HISTORY", "History entry added.")
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("HISTORY", "Failed to add history entry", e)
-                                }
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("dropped", "Failed to update addedAt field", e)
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("dropped", "Failed to add title to watching list", e)
-                }
-        }
-    }
     fun getDroppedTitles(callback: (List<Title>) -> Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users")
-            .document(uid)
-            .collection("dropped")
-            .get()
-            .addOnSuccessListener { result ->
-                val titles = result.documents.mapNotNull { doc ->
-                    try {
-                        doc.toObject(Title::class.java)
-                    } catch (e: Exception) {
-                        Log.e("WATCHING", "Failed to parse title from Firestore", e)
-                        null
-                    }
-                }
-                callback(titles)
-            }
-            .addOnFailureListener { e ->
-                Log.e("WATCHING", "Failed to get watching titles", e)
-                callback(emptyList())
-            }
+        getDroppedTitlesUseCase(callback)
     }
-
     fun getCompletedTitles(callback: (List<Title>) -> Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users")
-            .document(uid)
-            .collection("completed")
-            .get()
-            .addOnSuccessListener { result ->
-                val titles = result.documents.mapNotNull { doc ->
-                    try {
-                        doc.toObject(Title::class.java)
-                    } catch (e: Exception) {
-                        Log.e("WATCHING", "Failed to parse title from Firestore", e)
-                        null
-                    }
-                }
-                callback(titles)
-            }
-            .addOnFailureListener { e ->
-                Log.e("WATCHING", "Failed to get watching titles", e)
-                callback(emptyList())
-            }
+        getCompletedTitlesUseCase(callback)
     }
-
-
 
     fun getWatchingTitles(callback: (List<Title>) -> Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users")
-            .document(uid)
-            .collection("watching")
-            .get()
-            .addOnSuccessListener { result ->
-                val titles = result.documents.mapNotNull { doc ->
-                    try {
-                        doc.toObject(Title::class.java)
-                    } catch (e: Exception) {
-                        Log.e("WATCHING", "Failed to parse title from Firestore", e)
-                        null
-                    }
-                }
-                callback(titles)
-            }
-            .addOnFailureListener { e ->
-                Log.e("WATCHING", "Failed to get watching titles", e)
-                callback(emptyList())
-            }
+        getWatchingTitlesUseCase(callback)
     }
 
     fun getPlannedTitles(callback: (List<Title>) -> Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users")
-            .document(uid)
-            .collection("planned")
-            .get()
-            .addOnSuccessListener { result ->
-                val titles = result.documents.mapNotNull { doc ->
-                    try {
-                        doc.toObject(Title::class.java)
-                    } catch (e: Exception) {
-                        Log.e("WATCHING", "Failed to parse title from Firestore", e)
-                        null
-                    }
-                }
-                callback(titles)
-            }
-            .addOnFailureListener { e ->
-                Log.e("WATCHING", "Failed to get watching titles", e)
-                callback(emptyList())
-            }
+        getPlannedTitlesUseCase(callback)
     }
 
     fun getUserDescription(callback: (String) -> Unit) {
-        val uid = firebaseAuth.currentUser?.uid ?: return
-        Log.d("TEKKEN", "Current UID: $uid")
-        db.collection("users").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val description = document.getString("description") ?: "-"
-                    callback(description)
-                } else {
-                    Log.d("TEKKEN", "No such document")
-                    callback("-")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.w("TEKKEN", "get failed with ", exception)
-                callback("-")
-            }
+        getUserDescriptionUseCase(callback)
     }
 
-    val userImageUri = mutableStateOf<Uri?>(null)
+    private val userImageUri = mutableStateOf<Uri?>(null)
+
+    //TODO USECASE
     fun loadUserImage() {
         firebaseAuth.currentUser?.reload()?.addOnCompleteListener {
             val photoUrl = firebaseAuth.currentUser?.photoUrl
@@ -999,7 +563,7 @@ class MainActivityViewModel @Inject constructor(
 
                 } else {
                     // Sign in failed, display a message and update the UI
-                    Log.w("TEKKEN", "signInWithCredential:failure", task.exception)
+                    Log.w("DEBUG", "signInWithCredential:failure", task.exception)
 
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
                         // The verification code entered was invalid
@@ -1016,7 +580,7 @@ class MainActivityViewModel @Inject constructor(
 
         }.invokeOnCompletion {
             searchEnded.value = true
-            Log.d("TEKKEN", "SEARCHED TITLES " + searchedTitles.value!!.size.toString())
+            Log.d("DEBUG", "SEARCHED TITLES " + searchedTitles.value!!.size.toString())
         }
 
     }
@@ -1062,7 +626,7 @@ class MainActivityViewModel @Inject constructor(
             }.invokeOnCompletion {
                 recievedActorInfo.value = true
             }
-        }catch (e : Exception){
+        }catch (_: Exception){
 
         }
     }
@@ -1167,7 +731,7 @@ class MainActivityViewModel @Inject constructor(
                 .addOnCompleteListener(componentActivity) { task ->
                     if (task.isSuccessful) {
                         // Sign in success, update UI with the signed-in user's information
-                        Log.d("TEKKEN", "signInWithCredential:success")
+                        Log.d("DEBUG", "signInWithCredential:success")
                         val isNewUser = task.result?.additionalUserInfo?.isNewUser == true
                         if (isNewUser) {
                             onCreateProfileClicked()
@@ -1178,7 +742,7 @@ class MainActivityViewModel @Inject constructor(
                         userSuccessfullySignedIn.value = true
                     } else {
                         // If sign in fails, display a message to the user
-                        Log.w("TEKKEN", "signInWithCredential:failure", task.exception)
+                        Log.w("DEBUG", "signInWithCredential:failure", task.exception)
                     }
                 }.addOnFailureListener {
                     if (it is GetCredentialCancellationException) {
@@ -1190,7 +754,7 @@ class MainActivityViewModel @Inject constructor(
                     }
                 }
         } catch (e : Exception){
-            Log.w("TEKKEN", "signInWithCredential:failure", e)
+            Log.w("DEBUG", "signInWithCredential:failure", e)
         }
 
     }

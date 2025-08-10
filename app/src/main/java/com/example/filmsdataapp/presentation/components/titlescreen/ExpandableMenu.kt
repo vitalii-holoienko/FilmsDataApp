@@ -145,7 +145,7 @@ fun ExpandableMenu(
                                 finalListWhereUserHasTitle = "no"
                                 expanded = false
                                 coroutineScope.launch {
-                                    viewModel.deleteTitleForAllLists(titleId)
+                                    viewModel.deleteTitleFromAllLists(titleId)
 
                                 }
                             }
